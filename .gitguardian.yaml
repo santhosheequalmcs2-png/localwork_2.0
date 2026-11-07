@@ -1,0 +1,6 @@
+# Secret scanning configuration. Keep .env and database files out of Git.
+version: 2
+secret:
+  ignored_paths:
+    - "node_modules/**"
+    - "data/**"

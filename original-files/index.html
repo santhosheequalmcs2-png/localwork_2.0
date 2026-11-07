@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LocalWork connects customers with local service professionals.">
+  <title>LocalWork — Find trusted local help</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" data-action="home" aria-label="LocalWork home">
+      <span class="brand-mark">LW</span><span>Local<span class="brand-accent">Work</span></span>
+    </a>
+    <nav class="header-nav">
+      <a href="#services" data-action="services">Services</a>
+      <a href="#how-it-works" data-action="how">How it works</a>
+      <button id="header-login" class="btn btn-outline">Log in</button>
+      <button id="header-logout" class="btn btn-outline hidden">Log out</button>
+    </nav>
+  </header>
+
+  <main id="app" class="app-shell">
+    <section id="home-view" class="view">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Local skills. Local opportunities.</div>
+          <h1>Good work is<br><span>closer than you think.</span></h1>
+          <p>Find nearby professionals for everyday jobs—or help your skills find their next customer.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-large" data-action="choose-customer">Find a workman <span>→</span></button>
+            <button class="btn btn-light btn-large" data-action="choose-workman">Join as a workman</button>
+          </div>
+          <div class="hero-note"><span>✓</span> Built to support local work and small businesses</div>
+        </div>
+        <div class="hero-card" aria-label="Example service categories">
+          <div class="hero-card-top"><span class="status-pill"><span></span> Local services</span><span class="sparkle">✳</span></div>
+          <div class="hero-illustration">
+            <div class="sun-shape"></div><div class="house">⌂</div>
+            <div class="tool-bubble bubble-one">🔧</div><div class="tool-bubble bubble-two">🪚</div>
+            <div class="tool-bubble bubble-three">🧹</div>
+          </div>
+          <div class="hero-card-bottom"><div><strong>One neighbourhood.</strong><br><span>Many useful skills.</span></div><div class="mini-avatars"><span>👷</span><span>🧑‍🔧</span><span>🧑‍🎨</span></div></div>
+        </div>
+      </section>
+
+      <section class="trust-strip">
+        <div><strong>01</strong><span>Search nearby skills</span></div>
+        <div><strong>02</strong><span>Compare profiles</span></div>
+        <div><strong>03</strong><span>Contact directly</span></div>
+      </section>
+
+      <section id="services" class="section-block">
+        <div class="section-heading"><div><div class="eyebrow">WHAT DO YOU NEED?</div><h2>Help for the jobs on your list.</h2></div><p>Choose a category to start exploring local services.</p></div>
+        <div id="home-categories" class="category-grid"></div>
+      </section>
+
+      <section id="how-it-works" class="how-section">
+        <div class="eyebrow">SIMPLE BY DESIGN</div><h2>Local help, in three steps.</h2>
+        <div class="steps-grid">
+          <article><span class="step-number">01</span><h3>Tell us what you need</h3><p>Search by service and the area where the work is needed.</p></article>
+          <article><span class="step-number">02</span><h3>Explore workman profiles</h3><p>Review skills, experience, and contact details before you decide.</p></article>
+          <article><span class="step-number">03</span><h3>Connect directly</h3><p>Send a booking request or contact the workman to discuss the job.</p></article>
+        </div>
+      </section>
+      <section class="impact-banner"><div><div class="eyebrow">LOCALWORK'S PURPOSE</div><h2>More visibility for local skills.</h2><p>Our hackathon project supports the spirit of UN Sustainable Development Goal 8.3: productive activity, entrepreneurship, and small-business growth.</p></div><div class="impact-icon">↗</div></section>
+      <footer class="site-footer"><a class="brand" href="#" data-action="home"><span class="brand-mark">LW</span><span>Local<span class="brand-accent">Work</span></span></a><span>College hackathon demo · Sample profiles are fictional.</span></footer>
+    </section>
+
+    <section id="auth-view" class="view hidden">
+      <div class="auth-layout">
+        <div class="auth-aside"><button class="back-link" data-action="home">← Back to home</button><div class="eyebrow">WELCOME TO LOCALWORK</div><h1>Local talent.<br><span>Real possibility.</span></h1><p>Create a demo account to explore the customer or workman experience.</p><div class="auth-aside-art">🧰 <span>🏠</span> 🔨</div><small>Demo mode: accounts are stored only in this browser.</small></div>
+        <div class="auth-panel">
+          <div class="tab-switch"><button id="tab-register" class="tab active">Create account</button><button id="tab-login" class="tab">Log in</button></div>
+          <div id="role-picker"><h2>How will you use LocalWork?</h2><p class="muted">Choose an account type to see the right form.</p><div class="role-options"><button class="role-option" data-role="customer"><span class="role-icon">🧑</span><span><strong>I am a Customer</strong><small>Find and contact local workmen</small></span><span class="role-arrow">→</span></button><button class="role-option" data-role="workman"><span class="role-icon">🧑‍🔧</span><span><strong>I am a Workman</strong><small>Showcase your skills and services</small></span><span class="role-arrow">→</span></button></div></div>
+          <form id="auth-form" class="hidden" novalidate>
+            <button type="button" id="back-to-roles" class="back-link">← Change account type</button>
+            <h2 id="form-title">Create your account</h2><p id="form-subtitle" class="muted">A few details to get started.</p>
+            <div id="form-error" class="form-alert hidden" role="alert"></div>
+            <div id="register-fields">
+              <label>Full name<input id="full-name" name="fullName" autocomplete="name" placeholder="e.g. Asha Kumar" required></label>
+              <div class="form-row"><label>Email address<input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>Phone number<input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="10-digit phone" required></label></div>
+              <label>Location or area<input id="location" name="location" placeholder="e.g. Anna Nagar, Chennai" required></label>
+              <div id="workman-fields" class="hidden">
+                <label>Type of work<select id="service" name="service"><option value="">Choose a service</option><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option><option>Cleaning</option><option>Construction</option><option>Other</option></select></label>
+                <div class="form-row"><label>Years of experience<input id="experience" type="number" min="0" max="70" placeholder="e.g. 3"></label><label>Availability<select id="availability"><option>Available</option><option>Busy</option></select></label></div>
+                <label>Short description of your skills<textarea id="description" rows="3" placeholder="Describe the services you provide..."></textarea></label>
+              </div>
+            </div>
+            <div id="login-fields" class="hidden"><label>Email address<input id="login-email" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="login-password" type="password" autocomplete="current-password" placeholder="Enter your demo password"></label><p class="hint">Use the email and password you registered with in this browser.</p></div>
+            <div id="password-fields"><div class="form-row"><label>Password<input id="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required></label><label>Confirm password<input id="confirm-password" type="password" autocomplete="new-password" placeholder="Repeat password" required></label></div><label class="show-password"><input type="checkbox" id="show-password"> Show passwords</label></div>
+            <button id="submit-auth" class="btn btn-primary btn-full" type="submit">Register</button>
+            <p class="fine-print">Demo only. Do not use a real or reused password. This front-end demo is not secure authentication.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="customer-view" class="view hidden">
+      <div class="dashboard-heading"><div><div class="eyebrow">CUSTOMER SPACE</div><h1 id="customer-welcome">Find the right local help.</h1><p class="muted">Search by service and the area you need help in.</p></div><span class="demo-tag">DEMO DATA</span></div>
+      <div class="search-panel"><label class="search-field"><span>⌕</span><input id="search-service" placeholder="What service do you need?"></label><label class="search-field"><span>⌖</span><input id="search-location" placeholder="Enter your area"></label><button id="search-button" class="btn btn-primary">Search workmen →</button></div>
+      <div class="section-heading compact"><div><div class="eyebrow">BROWSE BY CATEGORY</div><h2>What needs fixing?</h2></div><button class="text-button" id="clear-filters">Clear filters</button></div>
+      <div id="dashboard-categories" class="category-grid category-grid-small"></div>
+      <div class="section-heading results-heading"><div><div class="eyebrow">LOCAL SKILLS</div><h2 id="results-title">Workmen to explore</h2><p class="muted">Fictional sample profiles for demonstration. Ratings are illustrative demo data.</p></div><span id="result-count" class="result-count"></span></div>
+      <div id="workman-results" class="workman-grid"></div>
+    </section>
+
+    <section id="workman-view" class="view hidden">
+      <div class="dashboard-heading"><div><div class="eyebrow">WORKMAN SPACE</div><h1>Your skills deserve to be seen.</h1><p class="muted">Manage your profile and let local customers learn about your work.</p></div><span class="demo-tag">DEMO ACCOUNT</span></div>
+      <div class="workman-dashboard-grid">
+        <section class="panel profile-editor-panel"><div class="panel-heading"><div><div class="eyebrow">YOUR PROFILE</div><h2>Profile details</h2></div><span class="avatar-large" id="workman-avatar">🧑‍🔧</span></div>
+          <div id="workman-profile-summary"></div>
+          <button class="btn btn-primary btn-full" id="edit-profile-button">Edit profile</button>
+          <button class="btn btn-light btn-full" id="preview-profile-button">View profile as a customer ↗</button>
+        </section>
+        <section class="panel"><div class="eyebrow">YOUR WORK STATUS</div><h2>Availability</h2><p class="muted">Let customers know whether you can take a job.</p><label class="availability-toggle"><span><strong id="availability-label">Available</strong><small>Shown on your profile</small></span><select id="availability-status"><option>Available</option><option>Busy</option></select></label><div class="info-callout"><strong>Tip</strong><p>Add a clear description of your skills and keep your contact details up to date.</p></div><div class="eyebrow">YOUR IMPACT</div><h3>Supporting local work</h3><p class="muted">LocalWork is designed to help local professionals gain visibility and connect with potential customers.</p></section>
+      </div>
+      <div class="panel booking-panel"><div class="section-heading compact"><div><div class="eyebrow">IN THIS BROWSER</div><h2>Booking requests</h2></div></div><div id="workman-bookings" class="empty-state">Booking requests created in this demo will appear here when linked to this workman.</div></div>
+    </section>
+
+    <section id="profile-view" class="view hidden">
+      <button class="back-link" id="profile-back">← Back to results</button>
+      <div id="profile-detail"></div>
+    </section>
+  </main>
+
+  <div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <div class="modal-card"><button class="modal-close" data-action="close-edit" aria-label="Close">×</button><div class="eyebrow">KEEP IT UP TO DATE</div><h2 id="edit-modal-title">Edit your profile</h2><form id="edit-profile-form" novalidate><div class="form-row"><label>Full name<input id="edit-name" required></label><label>Phone number<input id="edit-phone" type="tel" required></label></div><label>Location or area<input id="edit-location" required></label><label>Type of work<select id="edit-service"><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option><option>Cleaning</option><option>Construction</option><option>Other</option></select></label><label>Years of experience<input id="edit-experience" type="number" min="0" max="70" required></label><label>Skills and description<textarea id="edit-description" rows="4" required></textarea></label><div id="edit-error" class="form-alert hidden" role="alert"></div><button class="btn btn-primary btn-full" type="submit">Save changes</button></form></div>
+  </div>
+
+  <div id="booking-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="booking-title">
+    <div class="modal-card"><button class="modal-close" data-action="close-booking" aria-label="Close">×</button><div class="eyebrow">LET'S GET THE JOB STARTED</div><h2 id="booking-title">Request a booking</h2><p class="muted" id="booking-for"></p><form id="booking-form" novalidate><label>Your name<input id="booking-customer" required></label><label>Phone number<input id="booking-phone" type="tel" required></label><label>Service address / area<input id="booking-address" required></label><div class="form-row"><label>Preferred date<input id="booking-date" type="date" required></label><label>Preferred time<select id="booking-time"><option>Morning (9 AM–12 PM)</option><option>Afternoon (12 PM–4 PM)</option><option>Evening (4 PM–7 PM)</option></select></label></div><label>Describe the job<textarea id="booking-notes" rows="3" placeholder="What would you like the workman to help with?"></textarea></label><div id="booking-error" class="form-alert hidden" role="alert"></div><button class="btn btn-primary btn-full" type="submit">Save demo booking request</button><p class="fine-print">This request is saved only in this browser. It is not sent to the workman.</p></form></div>
+  </div>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>
