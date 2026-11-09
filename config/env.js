@@ -11,10 +11,14 @@ function required(name, fallback) {
 const nodeEnv = process.env.NODE_ENV || "development";
 const sessionSecret = required(
   "SESSION_SECRET",
-  nodeEnv === "development" ? "localwork-development-only-change-this-secret-123456" : null
+  nodeEnv === "development"
+    ? "localwork-development-only-change-this-secret-123456"
+    : null,
 );
 if (nodeEnv === "production" && sessionSecret.length < 32) {
-  throw new Error("SESSION_SECRET must be at least 32 characters in production.");
+  throw new Error(
+    "SESSION_SECRET must be at least 32 characters in production.",
+  );
 }
 
 module.exports = {
@@ -22,6 +26,7 @@ module.exports = {
   isProduction: nodeEnv === "production",
   port: Number(process.env.PORT || 3000),
   sessionSecret,
+  databaseUrl: process.env.DATABASE_URL,
   databaseFile: path.resolve(process.env.DATABASE_FILE || "./data/localwork.sqlite"),
   adminEmail: (process.env.ADMIN_EMAIL || "").trim().toLowerCase(),
   adminPassword: process.env.ADMIN_PASSWORD || "",

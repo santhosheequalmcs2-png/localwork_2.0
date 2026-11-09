@@ -6,6 +6,7 @@ let chosenRole = "customer";
 let authMode = "register";
 let selectedWorkman = null;
 let previousView = "customer-view";
+let activeDashboard = "customer";
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const categories = [["⚡","Electrician"],["🔧","Plumber"],["🪚","Carpenter"],["🖌️","Painter"],["🛠️","Mechanic"],["🧹","Cleaning"],["🧱","Construction"],["🧰","Other"]];
@@ -39,18 +40,43 @@ function toast(message) {
 }
 function setAuth(mode, role = null) {
   authMode = mode;
-  if (role) chosenRole = role;
+if (role === "workman" || role === "customer") {
+  chosenRole = role;
+}
+
   $("register-tab").classList.toggle("active", mode === "register");
   $("login-tab").classList.toggle("active", mode === "login");
-  $("role-choice").classList.toggle("hidden", mode === "login" || !chosenRole);
-  $("auth-form").classList.toggle("hidden", mode === "register" && !chosenRole);
+
+  // No role selection during registration
+  $("role-choice").classList.add("hidden");
+  $("auth-form").classList.remove("hidden");
+
   $("signup-fields").classList.toggle("hidden", mode === "login");
   $("signin-fields").classList.toggle("hidden", mode !== "login");
-  $("workman-fields").classList.toggle("hidden", mode !== "register" || chosenRole !== "workman");
+
+  // Enable or disable fields
+  $("signup-fields").querySelectorAll("input, select, textarea")
+    .forEach(field => field.disabled = mode === "login");
+
+  $("signin-fields").querySelectorAll("input, select, textarea")
+    .forEach(field => field.disabled = mode !== "login");
+
+  // Workman details will be added later
+  $("workman-fields").classList.add("hidden");
+  $("workman-fields").querySelectorAll("input, select, textarea")
+    .forEach(field => field.disabled = true);
+
   $("confirm-wrap").classList.toggle("hidden", mode === "login");
-  $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
-  $("auth-heading").textContent = mode === "login" ? "Welcome back" : `Create a ${chosenRole} account`;
-  $("auth-submit").textContent = mode === "login" ? "Log in" : "Create account";
+
+  $("password").autocomplete =
+    mode === "login" ? "current-password" : "new-password";
+
+  $("auth-heading").textContent =
+    mode === "login" ? "Welcome back" : "Create your account";
+
+  $("auth-submit").textContent =
+    mode === "login" ? "Log in" : "Create account";
+
   $("auth-error").classList.add("hidden");
 }
 function openAuth(mode="register", role=null) { setAuth(mode, role); show("auth-view"); }
@@ -63,13 +89,36 @@ function renderCategories() {
   }));
 }
 async function routeUser() {
-  if (!currentUser) { show("home-view"); return; }
-  if (currentUser.role === "customer") {
-    $("customer-greeting").textContent = `Welcome, ${currentUser.name.split(" ")[0]}! Find local help.`;
-    show("customer-view"); await loadWorkmen(); await loadCustomerBookings();
-  } else if (currentUser.role === "workman") {
-    show("workman-view"); fillProfile(); await loadWorkmanBookings();
-  } else { show("admin-view"); await loadAdmin(); }
+  if (!currentUser) {
+    show("home-view");
+    return;
+  }
+
+  // Admin has a separate dashboard
+  if (currentUser.role === "admin") {
+    show("admin-view");
+    await loadAdmin();
+    return;
+  }
+
+  // Update customer dashboard
+  $("customer-greeting").textContent =
+    `Welcome, ${currentUser.name.split(" ")[0]}! Find local help.`;
+
+  // Change button text depending on workman profile
+  $("customer-workman-action").textContent =
+    currentUser.service ? "Workman Dashboard" : "Become a Workman";
+
+  if (activeDashboard === "workman") {
+    show("workman-view");
+    fillProfile();
+    await loadWorkmanBookings();
+  } else {
+    activeDashboard = "customer";
+    show("customer-view");
+    await loadWorkmen();
+    await loadCustomerBookings();
+  }
 }
 async function loadWorkmen() {
   const service = $("filter-service").value.trim();
@@ -125,15 +174,38 @@ function fillProfile() {
 }
 async function saveProfile(event) {
   event.preventDefault();
+
   try {
     const data = {
-      name:$("profile-name").value, phone:$("profile-phone").value, location:$("profile-location").value,
-      service:$("profile-service").value, experience:$("profile-experience").value,
-      availability:$("profile-availability").value, description:$("profile-description").value
+      name: $("profile-name").value,
+      phone: $("profile-phone").value,
+      location: $("profile-location").value,
+      service: $("profile-service").value,
+      experience: $("profile-experience").value,
+      availability: $("profile-availability").value,
+      description: $("profile-description").value
     };
-    const result = await api("/api/workmen/me/profile",{method:"PUT",body:data});
-    currentUser = result.user; fillProfile(); toast("Your profile has been updated.");
-  } catch(e) { $("profile-error").textContent=e.message; $("profile-error").classList.remove("hidden"); }
+
+    const result = await api("/api/workmen/me/profile", {
+      method: "PUT",
+      body: data
+    });
+
+    currentUser = result.user;
+    activeDashboard = "workman";
+
+    fillProfile();
+
+    $("profile-error").classList.add("hidden");
+
+    toast("Your Workman profile has been created successfully!");
+
+    await routeUser();
+
+  } catch (e) {
+    $("profile-error").textContent = e.message;
+    $("profile-error").classList.remove("hidden");
+  }
 }
 async function saveBooking(event) {
   event.preventDefault();
@@ -159,7 +231,10 @@ async function loadAdmin() {
 }
 async function logout() {
   try { await api("/api/auth/logout",{method:"POST"}); } catch(e) {}
-  currentUser=null; csrfToken=""; await initialise();
+currentUser = null;
+activeDashboard = "customer";
+csrfToken = "";
+await initialise();
 }
 function setupThree() {
   const host = $("three-hero");
@@ -204,11 +279,26 @@ async function initialise() {
 function bind() {
   $("login-nav").addEventListener("click",()=>openAuth("login"));
   $("logout-nav").addEventListener("click",logout);
+  // Switch to Workman Dashboard
+$("customer-workman-action").addEventListener("click", async () => {
+  activeDashboard = "workman";
+  await routeUser();
+});
+
+// Switch to Customer Dashboard
+$("workman-customer-action").addEventListener("click", async () => {
+  activeDashboard = "customer";
+  await routeUser();
+});
   document.querySelectorAll("[data-register]").forEach(b=>b.addEventListener("click",()=>openAuth("register",b.dataset.register)));
   document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>show("home-view")));
   document.querySelectorAll("[data-role]").forEach(b=>b.addEventListener("click",()=>{chosenRole=b.dataset.role;setAuth("register",chosenRole);}));
-  $("register-tab").addEventListener("click",()=>{chosenRole=null;setAuth("register");});
-  $("login-tab").addEventListener("click",()=>{chosenRole=null;setAuth("login");});
+  $("register-tab").addEventListener("click",()=>{chosenRole=null;setAuth("register");});$("register-tab").addEventListener("click", () => {
+  setAuth("register", chosenRole);
+});
+  $("login-tab").addEventListener("click", () => {
+  setAuth("login", chosenRole);
+  });
   $("change-role").addEventListener("click",()=>{chosenRole=null;setAuth("register");});
   $("auth-form").addEventListener("submit",async e=>{
     e.preventDefault();$("auth-error").classList.add("hidden");
@@ -217,12 +307,23 @@ function bind() {
       if(authMode==="register"){
         if($("password").value!==$("confirm-password").value)throw new Error("Passwords do not match.");
         result=await api("/api/auth/register",{method:"POST",body:{
-          name:$("name").value,email:$("email").value,phone:$("phone").value,location:$("location").value,
-          password:$("password").value,role:chosenRole,service:$("service").value,
-          experience:$("experience").value,description:$("description").value
-        }});
+  name:$("name").value,
+  email:$("email").value,
+  phone:$("phone").value,
+  location:$("location").value,
+  password:$("password").value
+}});
       } else result=await api("/api/auth/login",{method:"POST",body:{email:$("login-email").value,password:$("password").value}});
-      currentUser=result.user;toast("Welcome to LocalWork!");await routeUser();
+      currentUser = result.user;
+
+if (currentUser.role === "admin") {
+  activeDashboard = "customer";
+} else {
+  activeDashboard = chosenRole === "workman" ? "workman" : "customer";
+}
+
+toast("Welcome to LocalWork!");
+await routeUser();
     } catch(err){$("auth-error").textContent=err.message;$("auth-error").classList.remove("hidden");}
   });
   $("search-workmen").addEventListener("click",()=>loadWorkmen().catch(e=>toast(e.message)));

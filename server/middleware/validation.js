@@ -17,13 +17,7 @@ const registerSchema = z.object({
   phone,
   location: z.string().trim().min(2).max(120),
   password: z.string().min(10).max(128),
-  role: z.enum(["customer", "workman"]),
-  service: z.string().trim().max(40).optional().default(""),
-  experience: z.coerce.number().int().min(0).max(70).optional().default(0),
-  description: z.string().trim().max(1000).optional().default("")
-}).superRefine((v, ctx) => {
-  if (v.role === "workman" && !v.service) ctx.addIssue({ code: "custom", path: ["service"], message: "Choose the service you provide." });
-  if (v.role === "workman" && v.description.length < 10) ctx.addIssue({ code: "custom", path: ["description"], message: "Add at least 10 characters describing your skills." });
+ role: z.literal("customer").optional().default("customer"),
 });
 const loginSchema = z.object({ email, password: z.string().min(1).max(128) });
 const profileSchema = z.object({
