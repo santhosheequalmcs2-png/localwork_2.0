@@ -20,6 +20,14 @@ const registerSchema = z.object({
  role: z.literal("customer").optional().default("customer"),
 });
 const loginSchema = z.object({ email, password: z.string().min(1).max(128) });
+const forgotPasswordSchema = z.object({
+  email
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().regex(/^[a-f0-9]{64}$/i, "Invalid or expired reset link."),
+  password: z.string().min(10).max(128)
+});
 const profileSchema = z.object({
   name: z.string().trim().min(2).max(80),
   phone,
@@ -28,6 +36,11 @@ const profileSchema = z.object({
   experience: z.coerce.number().int().min(0).max(70),
   description: z.string().trim().min(10).max(1000),
   availability: z.enum(["Available", "Busy"])
+});
+const accountProfileSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  phone,
+  location: z.string().trim().min(2).max(120)
 });
 const bookingSchema = z.object({
   workmanId: z.coerce.number().int().positive(),
@@ -41,4 +54,14 @@ const bookingSchema = z.object({
   if (v.date < new Date().toISOString().slice(0, 10)) ctx.addIssue({ code: "custom", path: ["date"], message: "Choose today or a future date." });
 });
 const statusSchema = z.object({ status: z.enum(["Accepted", "Declined", "Completed", "Cancelled"]) });
-module.exports = { validate, registerSchema, loginSchema, profileSchema, bookingSchema, statusSchema };
+module.exports = {
+  validate,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  loginSchema,
+  profileSchema,
+  accountProfileSchema,
+  bookingSchema,
+  statusSchema
+};

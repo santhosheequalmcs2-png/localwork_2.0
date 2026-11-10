@@ -5,7 +5,7 @@ const { validate, profileSchema } = require("../middleware/validation");
 
 const router = express.Router();
 
-// Get all workman profiles
+// Get only admin-approved workman profiles
 router.get("/", async (req, res, next) => {
   try {
     const service = String(req.query.service || "").slice(0, 40);
@@ -17,10 +17,13 @@ router.get("/", async (req, res, next) => {
          wp.service AS profile_service,
          wp.experience AS profile_experience,
          wp.description AS profile_description,
-         wp.availability AS profile_availability
+         wp.availability AS profile_availability,
+         wp.application_status,
+         wp.rejection_reason
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id
-       WHERE ($1 = '' OR wp.service ILIKE '%' || $1 || '%')
+       WHERE wp.application_status = 'Approved'
+       AND ($1 = '' OR wp.service ILIKE '%' || $1 || '%')
        AND ($2 = '' OR u.location ILIKE '%' || $2 || '%')
        ORDER BY
          CASE WHEN wp.availability = 'Available' THEN 0 ELSE 1 END,
@@ -35,7 +38,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// Get one workman profile
+// Get one approved workman profile
 router.get("/:id", async (req, res, next) => {
   try {
     const result = await pool.query(
@@ -44,10 +47,13 @@ router.get("/:id", async (req, res, next) => {
          wp.service AS profile_service,
          wp.experience AS profile_experience,
          wp.description AS profile_description,
-         wp.availability AS profile_availability
+         wp.availability AS profile_availability,
+         wp.application_status,
+         wp.rejection_reason
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id
-       WHERE u.id = $1`,
+       WHERE u.id = $1
+       AND wp.application_status = 'Approved'`,
       [Number(req.params.id)]
     );
 
@@ -65,7 +71,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-// Create or update the logged-in user's workman profile
+// Create or update the logged-in user's workman application
 router.put(
   "/me/profile",
   requireAuth,
@@ -73,12 +79,14 @@ router.put(
   validate(profileSchema),
   async (req, res, next) => {
     const client = await pool.connect();
+    let transactionStarted = false;
 
     try {
       const p = req.body;
       const userId = req.session.user.id;
 
       await client.query("BEGIN");
+      transactionStarted = true;
 
       // Update common account information
       await client.query(
@@ -88,17 +96,44 @@ router.put(
         [p.name, p.phone, p.location, userId]
       );
 
-      // Create the workman profile or update the existing one
+      // Create a new application or update an existing profile
       await client.query(
         `INSERT INTO workman_profiles
-           (user_id, service, experience, description, availability)
-         VALUES ($1, $2, $3, $4, $5)
+           (
+             user_id,
+             service,
+             experience,
+             description,
+             availability,
+             application_status
+           )
+         VALUES ($1, $2, $3, $4, $5, 'Pending')
          ON CONFLICT (user_id)
          DO UPDATE SET
            service = EXCLUDED.service,
            experience = EXCLUDED.experience,
            description = EXCLUDED.description,
-           availability = EXCLUDED.availability`,
+           availability = EXCLUDED.availability,
+           application_status = CASE
+             WHEN workman_profiles.application_status = 'Rejected'
+             THEN 'Pending'
+             ELSE workman_profiles.application_status
+           END,
+           rejection_reason = CASE
+             WHEN workman_profiles.application_status = 'Rejected'
+             THEN NULL
+             ELSE workman_profiles.rejection_reason
+           END,
+           reviewed_at = CASE
+             WHEN workman_profiles.application_status = 'Rejected'
+             THEN NULL
+             ELSE workman_profiles.reviewed_at
+           END,
+           reviewed_by = CASE
+             WHEN workman_profiles.application_status = 'Rejected'
+             THEN NULL
+             ELSE workman_profiles.reviewed_by
+           END`,
         [
           userId,
           p.service,
@@ -109,15 +144,18 @@ router.put(
       );
 
       await client.query("COMMIT");
+      transactionStarted = false;
 
-      // Return the updated account with its workman profile
+      // Return the updated account and application status
       const result = await pool.query(
         `SELECT
            u.*,
            wp.service AS profile_service,
            wp.experience AS profile_experience,
            wp.description AS profile_description,
-           wp.availability AS profile_availability
+           wp.availability AS profile_availability,
+           wp.application_status,
+           wp.rejection_reason
          FROM users u
          LEFT JOIN workman_profiles wp ON wp.user_id = u.id
          WHERE u.id = $1`,
@@ -126,7 +164,9 @@ router.put(
 
       res.json({ user: publicUser(result.rows[0]) });
     } catch (err) {
-      await client.query("ROLLBACK");
+      if (transactionStarted) {
+        await client.query("ROLLBACK");
+      }
       next(err);
     } finally {
       client.release();

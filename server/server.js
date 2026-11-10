@@ -74,13 +74,17 @@ app.use(session({
 
 app.use("/api", requireCsrf);
 
+// Stricter rate limit for password reset requests
 app.use(
-  "/api/auth",
+  "/api/auth/forgot-password",
   rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 30,
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
     standardHeaders: "draft-7",
-    legacyHeaders: false
+    legacyHeaders: false,
+    message: {
+      message: "Too many password reset requests. Please try again later."
+    }
   })
 );
 
@@ -88,7 +92,7 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/workmen", require("./routes/workmen"));
 app.use("/api/bookings", require("./routes/bookings"));
 app.use("/api/admin", require("./routes/admin"));
-
+app.use("/api/profile", require("./routes/profile"));
 const publicDir = path.join(__dirname, "..", "public");
 
 app.use(

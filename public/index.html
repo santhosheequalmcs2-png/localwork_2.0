@@ -9,68 +9,870 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+
 <header class="topbar">
-  <a class="brand" href="/" aria-label="LocalWork home"><span class="brand-icon">LW</span><span>Local<span>Work</span></span></a>
-  <nav><a href="#services">Services</a><a href="#how">How it works</a><button id="login-nav" class="btn btn-quiet">Log in</button><button id="logout-nav" class="btn btn-quiet hidden">Log out</button></nav>
+  <a class="brand" href="/" aria-label="LocalWork home">
+    <span class="brand-icon">LW</span>
+    <span>Local<span>Work</span></span>
+  </a>
+
+ <nav id="public-nav">
+    <a href="#services">Services</a>
+    <a href="#how">How it works</a>
+    <button id="login-nav" class="btn btn-quiet">Log in</button>
+    <button id="logout-nav" class="btn btn-quiet hidden">Log out</button>
+  </nav>
 </header>
+
+<!-- DASHBOARD SIDEBAR -->
+<aside id="dashboard-sidebar" class="dashboard-sidebar hidden">
+
+  <p class="eyebrow">LOCALWORK MENU</p>
+
+  <!-- Common navigation -->
+  <button class="sidebar-link" data-nav-view="home-view">
+    🏠 Home
+  </button>
+
+  <!-- Customer navigation -->
+  <div data-nav-role="customer">
+    <p class="sidebar-heading">CUSTOMER</p>
+
+    <button class="sidebar-link" data-nav-view="customer-view">
+      🔍 Search Workmen
+    </button>
+
+    <button class="sidebar-link" data-nav-view="application-view">
+      🧰 Become a Workman
+    </button>
+  </div>
+
+  <!-- Workman navigation -->
+  <div data-nav-role="workman">
+    <p class="sidebar-heading">WORKMAN</p>
+
+    <button class="sidebar-link" data-nav-view="workman-view">
+      📋 Booking Requests
+    </button>
+
+    <button class="sidebar-link" data-nav-view="customer-view">
+      👥 Customer Dashboard
+    </button>
+  </div>
+
+  <!-- Admin navigation -->
+  <div data-nav-role="admin">
+    <p class="sidebar-heading">ADMIN</p>
+
+    <button class="sidebar-link" data-nav-view="admin-view">
+      ⚙️ Admin Dashboard
+    </button>
+  </div>
+
+  <!-- Account navigation -->
+  <div class="sidebar-bottom">
+
+    <button class="sidebar-link" data-nav-action="profile">
+      👤 My Profile
+    </button>
+
+    <button class="sidebar-link logout-link" id="sidebar-logout">
+      ↪ Log out
+    </button>
+
+  </div>
+
+</aside>
 <main class="wrap">
+
+  <!-- HOME PAGE -->
   <section id="home-view" class="view">
+
     <div class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><i></i> LOCAL SKILLS. LOCAL OPPORTUNITIES.</p>
+
         <h1>Good work is<br><em>closer than you think.</em></h1>
-        <p class="lead">Find skilled people in your neighbourhood—or help your skills find their next customer.</p>
-        <div class="actions"><button class="btn btn-primary" data-register="customer">Find a workman <b>→</b></button><button class="btn btn-light" data-register="workman">Join as a workman</button></div>
-        <p class="hero-foot">✦ A digital bridge between local talent and local needs.</p>
+
+        <p class="lead">
+          Find skilled people in your neighbourhood—or help your skills find their next customer.
+        </p>
+
+        <div class="actions">
+          <button class="btn btn-primary" data-register="customer">
+            Find a workman <b>→</b>
+          </button>
+
+          <button class="btn btn-light" data-register="workman">
+            Join as a workman
+          </button>
+        </div>
+
+        <p class="hero-foot">
+          ✦ A digital bridge between local talent and local needs.
+        </p>
       </div>
-      <div class="visual-card"><div class="visual-label"><span>✳</span> YOUR NEIGHBOURHOOD, CONNECTED</div><div id="three-hero" aria-label="Animated three-dimensional LocalWork illustration"></div><div class="visual-caption"><b>One community.</b><span>Many useful skills.</span></div></div>
+
+      <div class="visual-card">
+        <div class="visual-label">
+          <span>✳</span> YOUR NEIGHBOURHOOD, CONNECTED
+        </div>
+
+        <div id="three-hero"
+             aria-label="Animated three-dimensional LocalWork illustration"></div>
+
+        <div class="visual-caption">
+          <b>One community.</b>
+          <span>Many useful skills.</span>
+        </div>
+      </div>
     </div>
-    <div class="stats-strip"><div><b>01</b><span>Search local skills</span></div><div><b>02</b><span>Explore profiles</span></div><div><b>03</b><span>Send a request</span></div></div>
-    <section id="services" class="section"><div class="section-title"><div><p class="eyebrow">WHAT DO YOU NEED?</p><h2>Help for the jobs on your list.</h2></div><p>Choose a service and discover local professionals.</p></div><div id="category-list" class="categories"></div></section>
-    <section id="how" class="section how"><p class="eyebrow">SIMPLE BY DESIGN</p><h2>Local help, in three steps.</h2><div class="steps"><article><b>01</b><h3>Tell us what you need</h3><p>Search by service and the area where the work is needed.</p></article><article><b>02</b><h3>Explore workman profiles</h3><p>Compare skills, experience and availability.</p></article><article><b>03</b><h3>Send a booking request</h3><p>Share the job details and follow the request status.</p></article></div></section>
-    <section class="impact"><div><p class="eyebrow">LOCALWORK'S PURPOSE</p><h2>More visibility for local skills.</h2><p>Our project supports the spirit of UN Sustainable Development Goal 8.3 by improving visibility for local workers and small businesses.</p></div><span>↗</span></section>
+
+    <div class="stats-strip">
+      <div><b>01</b><span>Search local skills</span></div>
+      <div><b>02</b><span>Explore profiles</span></div>
+      <div><b>03</b><span>Send a request</span></div>
+    </div>
+
+    <section id="services" class="section">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">WHAT DO YOU NEED?</p>
+          <h2>Help for the jobs on your list.</h2>
+        </div>
+
+        <p>Choose a service and discover local professionals.</p>
+      </div>
+
+      <div id="category-list" class="categories"></div>
+    </section>
+
+    <section id="how" class="section how">
+      <p class="eyebrow">SIMPLE BY DESIGN</p>
+      <h2>Local help, in three steps.</h2>
+
+      <div class="steps">
+        <article>
+          <b>01</b>
+          <h3>Tell us what you need</h3>
+          <p>Search by service and the area where the work is needed.</p>
+        </article>
+
+        <article>
+          <b>02</b>
+          <h3>Explore workman profiles</h3>
+          <p>Compare skills, experience and availability.</p>
+        </article>
+
+        <article>
+          <b>03</b>
+          <h3>Send a booking request</h3>
+          <p>Share the job details and follow the request status.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="impact">
+      <div>
+        <p class="eyebrow">LOCALWORK'S PURPOSE</p>
+        <h2>More visibility for local skills.</h2>
+        <p>
+          Our project supports the spirit of UN Sustainable Development Goal 8.3
+          by improving visibility for local workers and small businesses.
+        </p>
+      </div>
+
+      <span>↗</span>
+    </section>
+
   </section>
 
+
+  <!-- LOGIN AND REGISTRATION PAGE -->
   <section id="auth-view" class="view hidden">
-    <div class="auth-grid"><aside class="auth-aside"><button class="back" data-home>← Back to home</button><p class="eyebrow">WELCOME TO LOCALWORK</p><h1>Local talent.<br><em>Real possibility.</em></h1><p>One account to find work or share your skills.</p><div class="tool-icons">🧰　🏠　🔨</div></aside>
-      <div class="auth-box"><div class="tabs"><button id="register-tab" class="active">Create account</button><button id="login-tab">Log in</button></div>
-        <div id="role-choice"><h2>How will you use LocalWork?</h2><p class="muted">Choose your account type to continue.</p><div class="role-choice"><button data-role="customer"><span>🧑</span><b>I'm a Customer</b><small>Find and book local services</small>→</button><button data-role="workman"><span>🧑‍🔧</span><b>I'm a Workman</b><small>Showcase your skills</small>→</button></div></div>
-        <form id="auth-form" class="hidden"><button type="button" class="back" id="change-role">← Change account type</button><h2 id="auth-heading">Create account</h2><div id="auth-error" class="error hidden" role="alert"></div>
-          <div id="signup-fields"><label>Full name<input id="name" maxlength="80" autocomplete="name" required></label><div class="two"><label>Email<input id="email" type="email" maxlength="254" autocomplete="email" required></label><label>Phone<input id="phone" type="tel" maxlength="18" autocomplete="tel" required></label></div><label>Location / area<input id="location" maxlength="120" placeholder="e.g. Anna Nagar, Chennai" required></label>
-            <div id="workman-fields" class="hidden"><label>Service<select id="service"><option value="">Choose service</option><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option><option>Cleaning</option><option>Construction</option><option>Other</option></select></label><div class="two"><label>Experience (years)<input id="experience" type="number" min="0" max="70" value="0"></label><label>Availability<select id="availability"><option>Available</option><option>Busy</option></select></label></div><label>Describe your skills<textarea id="description" maxlength="1000" rows="3"></textarea></label></div>
+
+    <div class="auth-grid">
+
+      <aside class="auth-aside">
+        <button class="back" data-home>← Back to home</button>
+
+        <p class="eyebrow">WELCOME TO LOCALWORK</p>
+
+        <h1>Local talent.<br><em>Real possibility.</em></h1>
+
+        <p>One account to find work or share your skills.</p>
+
+        <div class="tool-icons">🧰　🏠　🔨</div>
+      </aside>
+
+      <div class="auth-box">
+
+        <div class="tabs">
+          <button id="register-tab" class="active">Create account</button>
+          <button id="login-tab">Log in</button>
+        </div>
+
+        <!-- Kept for compatibility with the existing JavaScript.
+             Account type is no longer selected during registration. -->
+        <div id="role-choice" class="hidden"></div>
+
+        <form id="auth-form" class="hidden">
+
+          <button type="button" class="back hidden" id="change-role">
+            ← Back
+          </button>
+
+          <h2 id="auth-heading">Create account</h2>
+
+          <div id="auth-error" class="error hidden" role="alert"></div>
+
+          <!-- REGISTRATION DETAILS -->
+          <div id="signup-fields">
+
+            <label>
+              Full name
+              <input id="name"
+                     maxlength="80"
+                     autocomplete="name"
+                     required>
+            </label>
+
+            <div class="two">
+
+              <label>
+                Email
+                <input id="email"
+                       type="email"
+                       maxlength="254"
+                       autocomplete="email"
+                       required>
+              </label>
+
+              <label>
+                Phone
+                <input id="phone"
+                       type="tel"
+                       maxlength="18"
+                       autocomplete="tel"
+                       required>
+              </label>
+
+            </div>
+
+            <label>
+              Location / area
+              <input id="location"
+                     maxlength="120"
+                     placeholder="e.g. Anna Nagar, Chennai"
+                     required>
+            </label>
+
+            <!-- Workman details are collected later through an application. -->
+            <div id="workman-fields" class="hidden"></div>
+
           </div>
-          <div id="signin-fields" class="hidden"><label>Email<input id="login-email" type="email" autocomplete="username" required></label></div>
-          <label>Password<input id="password" type="password" minlength="10" maxlength="128" autocomplete="new-password" required></label>
-          <label id="confirm-wrap">Confirm password<input id="confirm-password" type="password" minlength="10" maxlength="128" autocomplete="new-password"></label>
-          <button class="btn btn-primary full" id="auth-submit" type="submit">Create account</button><p class="fine">Passwords are securely hashed on the server. Never reuse a password from another account.</p>
+
+          <!-- LOGIN DETAILS -->
+          <div id="signin-fields" class="hidden">
+
+            <label>
+              Email
+              <input id="login-email"
+                     type="email"
+                     autocomplete="username"
+                     required>
+                        </label>
+
+            <button type="button" id="forgot-password-btn">
+              Forgot Password?
+            </button>
+
+          </div>
+
+          <label>
+            Password
+            <input id="password"
+                   type="password"
+                   minlength="10"
+                   maxlength="128"
+                   autocomplete="new-password"
+                   required>
+          </label>
+
+          <label id="confirm-wrap">
+            Confirm password
+            <input id="confirm-password"
+                   type="password"
+                   minlength="10"
+                   maxlength="128"
+                   autocomplete="new-password">
+          </label>
+
+          <button class="btn btn-primary full"
+                  id="auth-submit"
+                  type="submit">
+            Create account
+          </button>
+
+          <p class="fine">
+            Passwords are securely hashed on the server.
+            Never reuse a password from another account.
+          </p>
+
+        </form>
+
+      </div>
+    </div>
+
+   </section>
+
+
+  <!-- FORGOT PASSWORD PAGE -->
+  <section id="forgot-password-view" class="view hidden">
+    <div class="auth-grid">
+      <div class="auth-box">
+        <button type="button" class="back" id="forgot-back">
+          ← Back to Login
+        </button>
+
+        <h2>Forgot Password?</h2>
+        <p>Enter your registered email address. We'll send you a password reset link.</p>
+
+        <form id="forgot-password-form">
+          <label>
+            Email
+            <input
+              id="forgot-email"
+              type="email"
+              maxlength="254"
+              autocomplete="email"
+              required>
+          </label>
+
+          <button class="btn btn-primary full" type="submit">
+            Send Reset Link
+          </button>
+
+          <p id="forgot-message" class="fine hidden" aria-live="polite"></p>
+         <p id="forgot-error" class="error hidden" role="alert"></p>
         </form>
       </div>
     </div>
   </section>
 
+
+  <!-- RESET PASSWORD PAGE -->
+  <section id="reset-password-view" class="view hidden">
+    <div class="auth-grid">
+      <div class="auth-box">
+        <h2>Reset Your Password</h2>
+        <p>Choose a new password for your LocalWork account.</p>
+
+        <form id="reset-password-form">
+          <label>
+            New Password
+            <input
+              id="reset-new-password"
+              type="password"
+              minlength="10"
+              maxlength="128"
+              autocomplete="new-password"
+              required>
+          </label>
+
+          <label>
+            Confirm New Password
+            <input
+              id="reset-confirm-password"
+              type="password"
+              minlength="10"
+              maxlength="128"
+              autocomplete="new-password"
+              required>
+          </label>
+
+          <button class="btn btn-primary full" type="submit">
+            Reset Password
+          </button>
+
+          <p id="reset-message" class="fine hidden" aria-live="polite"></p>
+          <p id="reset-error" class="error hidden" role="alert"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CUSTOMER DASHBOARD -->
   <section id="customer-view" class="view hidden">
-    <div class="page-head"><div><p class="eyebrow">CUSTOMER SPACE</p><h1 id="customer-greeting">Find the right local help.</h1><p class="muted">Search by service and the area where you need help.</p></div></div>
-    <div class="searchbar"><input id="filter-service" placeholder="What service do you need?"><input id="filter-location" placeholder="Enter your area"><button id="search-workmen" class="btn btn-primary">Search →</button></div>
-    <div class="section-title"><div><p class="eyebrow">LOCAL SKILLS</p><h2>Workmen to explore</h2></div><span id="workmen-count" class="muted"></span></div><div id="workmen-grid" class="workmen-grid"></div>
-    <section class="section"><div class="section-title"><div><p class="eyebrow">YOUR REQUESTS</p><h2>Booking history</h2></div></div><div id="customer-bookings" class="booking-list"></div></section>
-    <button id="customer-workman-action" class="btn btn-primary"> Become a Workman
-    </button>
+
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">CUSTOMER SPACE</p>
+
+        <h1 id="customer-greeting">
+          Find the right local help.
+        </h1>
+
+        <p class="muted">
+          Search by service and the area where you need help.
+        </p>
+      </div>
+    </div>
+
+    <!-- SEARCH WORKMEN -->
+    <div class="searchbar">
+
+      <input id="filter-service"
+             placeholder="What service do you need?">
+
+      <input id="filter-location"
+             placeholder="Enter your area">
+
+      <button id="search-workmen" class="btn btn-primary">
+        Search →
+      </button>
+
+    </div>
+
+    <div class="section-title">
+
+      <div>
+        <p class="eyebrow">LOCAL SKILLS</p>
+        <h2>Workmen to explore</h2>
+      </div>
+
+      <span id="workmen-count" class="muted"></span>
+
+    </div>
+
+    <div id="workmen-grid" class="workmen-grid"></div>
+
+    <!-- CUSTOMER BOOKING HISTORY -->
+    <section class="section">
+
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">YOUR REQUESTS</p>
+          <h2>Booking history</h2>
+        </div>
+      </div>
+
+      <div id="customer-bookings" class="booking-list"></div>
+
+    </section>
+
+    <!-- WORKMAN APPLICATION STATUS -->
+    <section class="surface">
+
+      <p class="eyebrow">YOUR WORKMAN APPLICATION</p>
+
+      <h2>Share your skills with LocalWork</h2>
+
+      <p id="workman-application-status" class="muted">
+        You have not applied to become a workman yet.
+      </p>
+
+      <button id="customer-workman-action" class="btn btn-primary">
+        Become a Workman
+      </button>
+
+    </section>
+
   </section>
 
+
+  <!-- WORKMAN APPLICATION PAGE -->
+  <section id="application-view" class="view hidden">
+
+    <div class="page-head">
+
+      <p class="eyebrow">BECOME A WORKMAN</p>
+
+      <h1>Showcase your skills.</h1>
+
+      <p class="muted">
+        Submit your details. Our admin will review your application
+        before your profile becomes public.
+      </p>
+
+    </div>
+
+    <div class="dashboard-columns">
+
+      <section class="surface">
+
+        <p class="eyebrow">WORKMAN APPLICATION</p>
+
+        <h2>Your professional details</h2>
+
+        <form id="profile-form">
+
+          <label>
+            Full name
+            <input id="profile-name"
+                   required
+                   maxlength="80">
+          </label>
+
+          <label>
+            Phone
+            <input id="profile-phone"
+                   required
+                   maxlength="18">
+          </label>
+
+          <label>
+            Location
+            <input id="profile-location"
+                   required
+                   maxlength="120">
+          </label>
+
+          <label>
+            Service
+            <select id="profile-service" required>
+              <option>Electrician</option>
+              <option>Plumber</option>
+              <option>Carpenter</option>
+              <option>Painter</option>
+              <option>Mechanic</option>
+              <option>Cleaning</option>
+              <option>Construction</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <label>
+            Experience (years)
+            <input id="profile-experience"
+                   type="number"
+                   min="0"
+                   max="70"
+                   required>
+          </label>
+
+          <label>
+            Availability
+            <select id="profile-availability" required>
+              <option>Available</option>
+              <option>Busy</option>
+            </select>
+          </label>
+
+          <label>
+            Skills description
+            <textarea id="profile-description"
+                      rows="4"
+                      required
+                      maxlength="1000"></textarea>
+          </label>
+
+          <div id="profile-error"
+               class="error hidden"
+               role="alert"></div>
+
+          <button class="btn btn-primary full" type="submit">
+            Submit Application
+          </button>
+
+        </form>
+
+        <button class="btn btn-light full"
+                type="button"
+                data-home>
+          Back to home
+        </button>
+
+      </section>
+
+      <section class="surface">
+
+        <p class="eyebrow">APPLICATION PROCESS</p>
+
+        <h2>What happens next?</h2>
+
+        <div class="booking-list">
+
+          <div class="booking-item">
+            <b>01 · Submit your application</b>
+            <p>Enter your professional details and submit them.</p>
+          </div>
+
+          <div class="booking-item">
+            <b>02 · Admin review</b>
+            <p>Our admin checks your application.</p>
+          </div>
+
+          <div class="booking-item">
+            <b>03 · Approval</b>
+            <p>After approval, your workman profile becomes visible to customers.</p>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </section>
+
+
+  <!-- APPROVED WORKMAN DASHBOARD -->
   <section id="workman-view" class="view hidden">
-    <div class="page-head"><p class="eyebrow">WORKMAN SPACE</p><h1>Your skills deserve to be seen.</h1><p class="muted">Manage your profile and booking requests.</p></div>
-    <div class="dashboard-columns"><section class="surface"><p class="eyebrow">YOUR PROFILE</p><h2>Profile details</h2><form id="profile-form"><label>Full name<input id="profile-name" required maxlength="80"></label><label>Phone<input id="profile-phone" required maxlength="18"></label><label>Location<input id="profile-location" required maxlength="120"></label><label>Service<select id="profile-service"><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option><option>Cleaning</option><option>Construction</option><option>Other</option></select></label><label>Experience<input id="profile-experience" type="number" min="0" max="70" required></label><label>Availability<select id="profile-availability"><option>Available</option><option>Busy</option></select></label><label>Skills description<textarea id="profile-description" rows="4" required maxlength="1000"></textarea></label><div id="profile-error" class="error hidden"></div><button class="btn btn-primary full">Save profile</button></form></section><section class="surface"><p class="eyebrow">CUSTOMER REQUESTS</p><h2>Booking requests</h2><div id="workman-bookings" class="booking-list"></div></section></div>
+
+    <div class="page-head">
+
+      <p class="eyebrow">WORKMAN SPACE</p>
+
+      <h1>Your skills deserve to be seen.</h1>
+
+      <p class="muted">
+        Manage your booking requests and help customers in your area.
+      </p>
+
+    </div>
+
+    <section class="surface">
+
+      <p class="eyebrow">CUSTOMER REQUESTS</p>
+
+      <h2>Booking requests</h2>
+
+      <div id="workman-bookings" class="booking-list"></div>
+
+    </section>
+
     <button id="workman-customer-action" class="btn btn-light">
-   Customer Dashboard
+      Customer Dashboard
     </button>
+
   </section>
 
+
+  <!-- ADMIN DASHBOARD -->
   <section id="admin-view" class="view hidden">
-    <div class="page-head"><p class="eyebrow">ADMIN CONTROL PANEL</p><h1>LocalWork overview</h1><p class="muted">Manage accounts and monitor booking activity.</p></div><div id="admin-stats" class="admin-stats"></div><section class="surface"><h2>Registered users</h2><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead><tbody id="admin-users"></tbody></table></div></section><section class="surface"><h2>Booking activity</h2><div id="admin-bookings" class="booking-list"></div></section>
+
+    <div class="page-head">
+
+      <p class="eyebrow">ADMIN CONTROL PANEL</p>
+
+      <h1>LocalWork overview</h1>
+
+      <p class="muted">
+        Manage accounts, workman applications and booking activity.
+      </p>
+
+    </div>
+
+    <!-- ADMIN STATISTICS -->
+    <div id="admin-stats" class="admin-stats"></div>
+
+    <!-- WORKMAN APPLICATIONS -->
+    <section class="surface">
+
+      <p class="eyebrow">APPLICATION REVIEW</p>
+
+      <h2>Workman applications</h2>
+
+      <div id="admin-applications" class="booking-list">
+        <div class="empty">
+          No applications to display.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- REGISTERED USERS -->
+    <section class="surface">
+
+      <h2>Registered users</h2>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="admin-users"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- BOOKING ACTIVITY -->
+    <section class="surface">
+
+      <h2>Booking activity</h2>
+
+      <div id="admin-bookings" class="booking-list"></div>
+
+    </section>
+
   </section>
-  <section id="profile-view" class="view hidden"><button class="back" id="profile-back">← Back</button><div id="profile-detail"></div></section>
+
+
+  <!-- WORKMAN PUBLIC PROFILE -->
+  <section id="profile-view" class="view hidden">
+
+    <button class="back" id="profile-back">
+      ← Back
+    </button>
+
+    <div id="profile-detail"></div>
+
+  </section>
+  <!-- MY ACCOUNT PROFILE -->
+  <section id="account-view" class="view hidden">
+
+    <div class="page-head">
+      <p class="eyebrow">ACCOUNT SETTINGS</p>
+      <h1>My Profile</h1>
+      <p class="muted">View and update your personal information.</p>
+    </div>
+
+    <div class="card">
+      <form id="account-profile-form">
+
+        <div class="form-group">
+          <label for="account-name">Full Name</label>
+          <input type="text" id="account-name" required
+                 minlength="2" maxlength="80">
+        </div>
+
+        <div class="form-group">
+          <label for="account-email">Email Address</label>
+          <input type="email" id="account-email" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="account-phone">Phone Number</label>
+          <input type="tel" id="account-phone" required
+                 minlength="8" maxlength="18">
+        </div>
+
+        <div class="form-group">
+          <label for="account-location">Location</label>
+          <input type="text" id="account-location" required
+                 minlength="2" maxlength="120">
+        </div>
+
+        <div class="form-group">
+          <label>Account Role</label>
+          <input type="text" id="account-role" readonly>
+        </div>
+
+        <p id="account-profile-error" class="error hidden"></p>
+
+        <button type="submit" class="btn btn-primary">
+          Save Changes
+        </button>
+
+      </form>
+    </div>
+
+  </section>
 </main>
-<div id="booking-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="booking-title"><div class="modal-box"><button class="close" id="booking-close" aria-label="Close">×</button><p class="eyebrow">LET'S GET THE JOB STARTED</p><h2 id="booking-title">Request a booking</h2><p id="booking-person" class="muted"></p><form id="booking-form"><label>Your name<input id="booking-name" required maxlength="80"></label><label>Phone<input id="booking-phone" required maxlength="18"></label><label>Service address / area<input id="booking-address" required maxlength="200"></label><div class="two"><label>Preferred date<input id="booking-date" type="date" required></label><label>Preferred time<select id="booking-time"><option>Morning (9 AM–12 PM)</option><option>Afternoon (12 PM–4 PM)</option><option>Evening (4 PM–7 PM)</option></select></label></div><label>Describe the job<textarea id="booking-notes" rows="3" maxlength="1000"></textarea></label><div id="booking-error" class="error hidden"></div><button class="btn btn-primary full">Send booking request</button></form></div></div>
+
+
+<!-- BOOKING MODAL -->
+<div id="booking-modal"
+     class="modal hidden"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="booking-title">
+
+  <div class="modal-box">
+
+    <button class="close"
+            id="booking-close"
+            aria-label="Close">
+      ×
+    </button>
+
+    <p class="eyebrow">LET'S GET THE JOB STARTED</p>
+
+    <h2 id="booking-title">Request a booking</h2>
+
+    <p id="booking-person" class="muted"></p>
+
+    <form id="booking-form">
+
+      <label>
+        Your name
+        <input id="booking-name"
+               required
+               maxlength="80">
+      </label>
+
+      <label>
+        Phone
+        <input id="booking-phone"
+               required
+               maxlength="18">
+      </label>
+
+      <label>
+        Service address / area
+        <input id="booking-address"
+               required
+               maxlength="200">
+      </label>
+
+      <div class="two">
+
+        <label>
+          Preferred date
+          <input id="booking-date"
+                 type="date"
+                 required>
+        </label>
+
+        <label>
+          Preferred time
+          <select id="booking-time">
+            <option>Morning (9 AM–12 PM)</option>
+            <option>Afternoon (12 PM–4 PM)</option>
+            <option>Evening (4 PM–7 PM)</option>
+          </select>
+        </label>
+
+      </div>
+
+      <label>
+        Describe the job
+        <textarea id="booking-notes"
+                  rows="3"
+                  maxlength="1000"></textarea>
+      </label>
+
+      <div id="booking-error" class="error hidden"></div>
+
+      <button class="btn btn-primary full" type="submit">
+        Send booking request
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- NOTIFICATION -->
 <div id="toast" class="toast hidden" role="status"></div>
+
 <script type="module" src="/app.js"></script>
-</body></html>
+
+</body>
+</html>

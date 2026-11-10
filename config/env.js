@@ -30,5 +30,8 @@ module.exports = {
   databaseFile: path.resolve(process.env.DATABASE_FILE || "./data/localwork.sqlite"),
   adminEmail: (process.env.ADMIN_EMAIL || "").trim().toLowerCase(),
   adminPassword: process.env.ADMIN_PASSWORD || "",
-  corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean)
+    corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean),
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  emailFrom: process.env.EMAIL_FROM || "LocalWork <onboarding@resend.dev>",
+  appBaseUrl: (process.env.APP_BASE_URL || "http://localhost:3000").replace(/\/+$/, "")
 };

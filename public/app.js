@@ -1,70 +1,279 @@
 import * as THREE from "/vendor/three/three.module.js";
 
 let csrfToken = "";
+let pendingResetToken = "";
 let currentUser = null;
-let chosenRole = "customer";
 let authMode = "register";
 let selectedWorkman = null;
 let previousView = "customer-view";
 let activeDashboard = "customer";
-const $ = id => document.getElementById(id);
-const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const categories = [["⚡","Electrician"],["🔧","Plumber"],["🪚","Carpenter"],["🖌️","Painter"],["🛠️","Mechanic"],["🧹","Cleaning"],["🧱","Construction"],["🧰","Other"]];
+
+const $ = (id) => document.getElementById(id);
+
+const esc = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
+
+const categories = [
+  ["⚡", "Electrician"],
+  ["🔧", "Plumber"],
+  ["🪚", "Carpenter"],
+  ["🖌️", "Painter"],
+  ["🛠️", "Mechanic"],
+  ["🧹", "Cleaning"],
+  ["🧱", "Construction"],
+  ["🧰", "Other"],
+];
 
 async function api(url, options = {}) {
   const method = (options.method || "GET").toUpperCase();
   const headers = { ...(options.headers || {}) };
+
   if (options.body && typeof options.body !== "string") {
     headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(options.body);
   }
-  if (!["GET","HEAD","OPTIONS"].includes(method)) headers["X-CSRF-Token"] = csrfToken;
-  const response = await fetch(url, { ...options, method, headers, credentials: "same-origin" });
+
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    headers["X-CSRF-Token"] = csrfToken;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    method,
+    headers,
+    credentials: "same-origin",
+  });
+
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Something went wrong.");
-  if (data.csrfToken) csrfToken = data.csrfToken;
+
+  if (!response.ok) {
+    throw new Error(data.error || "Something went wrong.");
+  }
+
+  if (data.csrfToken) {
+    csrfToken = data.csrfToken;
+  }
+
   return data;
 }
-function show(view) {
-  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
-  $(view).classList.remove("hidden");
+
+function show(view, { updateHistory = true } = {}) {
+  const target = $(view);
+
+  if (!target) {
+    console.warn("View not found:", view);
+    return;
+  }
+
+  // Add the selected view to Chrome browser history.
+  if (updateHistory && window.history.state?.localworkView !== view) {
+    window.history.pushState(
+      { localworkView: view },
+      document.title,
+      window.location.href,
+    );
+  }
+
+  document.querySelectorAll(".view").forEach((v) => {
+    v.classList.add("hidden");
+  });
+
+  target.classList.remove("hidden");
+
+  const isPublicPage = view === "home-view" || view === "auth-view";
+
+  const publicNav = $("public-nav");
+  const sidebar = $("dashboard-sidebar");
+
+  if (publicNav) {
+    publicNav.classList.toggle("hidden", !isPublicPage);
+  }
+
+  if (sidebar) {
+    sidebar.classList.toggle("hidden", isPublicPage || !currentUser);
+  }
+
+  // Show navigation according to account role.
+  document.querySelectorAll("[data-nav-role]").forEach((section) => {
+    const role = section.dataset.navRole;
+
+    let visible = false;
+
+    if (role === "admin") {
+      visible = currentUser?.role === "admin";
+    }
+
+    if (role === "customer") {
+      visible = !!currentUser && currentUser.role !== "admin";
+    }
+
+    if (role === "workman") {
+      visible =
+        !!currentUser &&
+        currentUser.role !== "admin" &&
+        currentUser.applicationStatus === "Approved";
+    }
+
+    section.classList.toggle("hidden", !visible);
+  });
+
   $("login-nav").classList.toggle("hidden", !!currentUser);
   $("logout-nav").classList.toggle("hidden", !currentUser);
-  window.scrollTo({top:0,behavior:"smooth"});
+
+  // Highlight the active sidebar page.
+  document.querySelectorAll("[data-nav-view]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.navView === view);
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
 }
+
+// Handle Chrome browser Back and Forward buttons.
+window.addEventListener("popstate", async (event) => {
+  const view = event.state?.localworkView;
+
+  if (!view || !$(view)) {
+    show("home-view", { updateHistory: false });
+    return;
+  }
+
+  // Prevent logged-out users from reopening protected pages.
+  const protectedViews = [
+    "customer-view",
+    "workman-view",
+    "admin-view",
+    "application-view",
+    "profile-view",
+    "account-view",
+  ];
+
+  if (protectedViews.includes(view) && !currentUser) {
+    show("home-view", { updateHistory: false });
+
+    window.history.replaceState(
+      { localworkView: "home-view" },
+      document.title,
+      window.location.pathname,
+    );
+
+    return;
+  }
+
+  // Check role permissions before showing protected dashboards.
+  if (view === "admin-view" && currentUser?.role !== "admin") {
+    show("home-view", { updateHistory: false });
+    return;
+  }
+
+  if (
+    view === "workman-view" &&
+    currentUser?.applicationStatus !== "Approved"
+  ) {
+    show("customer-view", { updateHistory: false });
+    return;
+  }
+
+  if (view === "customer-view") {
+    activeDashboard = "customer";
+    show(view, { updateHistory: false });
+
+    try {
+      await loadWorkmen();
+      await loadCustomerBookings();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    return;
+  }
+
+  if (view === "workman-view") {
+    activeDashboard = "workman";
+    show(view, { updateHistory: false });
+
+    try {
+      await loadWorkmanBookings();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    return;
+  }
+
+  if (view === "admin-view") {
+    show(view, { updateHistory: false });
+
+    try {
+      await loadAdmin();
+    } catch (error) {
+      toast(error.message);
+    }
+
+    return;
+  }
+
+  show(view, { updateHistory: false });
+});
+
 function toast(message) {
   $("toast").textContent = message;
   $("toast").classList.remove("hidden");
+
   clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => $("toast").classList.add("hidden"), 3200);
+
+  toast.timer = setTimeout(() => {
+    $("toast").classList.add("hidden");
+  }, 3200);
 }
-function setAuth(mode, role = null) {
+
+/* =========================
+   AUTHENTICATION
+========================= */
+
+function setAuth(mode) {
   authMode = mode;
-if (role === "workman" || role === "customer") {
-  chosenRole = role;
-}
 
   $("register-tab").classList.toggle("active", mode === "register");
   $("login-tab").classList.toggle("active", mode === "login");
 
-  // No role selection during registration
   $("role-choice").classList.add("hidden");
   $("auth-form").classList.remove("hidden");
 
   $("signup-fields").classList.toggle("hidden", mode === "login");
   $("signin-fields").classList.toggle("hidden", mode !== "login");
 
-  // Enable or disable fields
-  $("signup-fields").querySelectorAll("input, select, textarea")
-    .forEach(field => field.disabled = mode === "login");
+  $("signup-fields")
+    .querySelectorAll("input, select, textarea")
+    .forEach((field) => {
+      field.disabled = mode === "login";
+    });
 
-  $("signin-fields").querySelectorAll("input, select, textarea")
-    .forEach(field => field.disabled = mode !== "login");
+  $("signin-fields")
+    .querySelectorAll("input, select, textarea")
+    .forEach((field) => {
+      field.disabled = mode !== "login";
+    });
 
-  // Workman details will be added later
   $("workman-fields").classList.add("hidden");
-  $("workman-fields").querySelectorAll("input, select, textarea")
-    .forEach(field => field.disabled = true);
+
+  $("workman-fields")
+    .querySelectorAll("input, select, textarea")
+    .forEach((field) => {
+      field.disabled = true;
+    });
 
   $("confirm-wrap").classList.toggle("hidden", mode === "login");
 
@@ -74,44 +283,101 @@ if (role === "workman" || role === "customer") {
   $("auth-heading").textContent =
     mode === "login" ? "Welcome back" : "Create your account";
 
-  $("auth-submit").textContent =
-    mode === "login" ? "Log in" : "Create account";
+  $("auth-submit").textContent = mode === "login" ? "Log in" : "Create account";
 
   $("auth-error").classList.add("hidden");
 }
-function openAuth(mode="register", role=null) { setAuth(mode, role); show("auth-view"); }
-function renderCategories() {
-  $("category-list").innerHTML = categories.map(([icon,name]) => `<button class="category" data-category="${esc(name)}"><span>${icon}</span><b>${esc(name)}</b></button>`).join("");
-  $("category-list").querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
-    $("filter-service").value = button.dataset.category;
-    if (!currentUser) openAuth("register","customer");
-    else if (currentUser.role === "customer") { show("customer-view"); loadWorkmen(); }
-  }));
+
+function openAuth(mode = "register") {
+  setAuth(mode);
+  show("auth-view");
 }
+function openForgotPassword() {
+  $("forgot-email").value = $("login-email").value;
+  $("forgot-message").classList.add("hidden");
+  $("forgot-error").classList.add("hidden");
+
+  show("forgot-password-view");
+}
+
+/* =========================
+   CATEGORIES
+========================= */
+
+function renderCategories() {
+  $("category-list").innerHTML = categories
+    .map(
+      ([icon, name]) => `
+    <button class="category" data-category="${esc(name)}">
+      <span>${icon}</span>
+      <b>${esc(name)}</b>
+    </button>
+  `,
+    )
+    .join("");
+
+  $("category-list")
+    .querySelectorAll("[data-category]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        $("filter-service").value = button.dataset.category;
+
+        if (!currentUser) {
+          openAuth("register");
+        } else if (currentUser.role !== "admin") {
+          activeDashboard = "customer";
+          show("customer-view");
+          loadWorkmen().catch((e) => toast(e.message));
+        }
+      });
+    });
+}
+
+/* =========================
+   DASHBOARD ROUTING
+========================= */
+
 async function routeUser() {
   if (!currentUser) {
+    activeDashboard = "customer";
     show("home-view");
     return;
   }
 
-  // Admin has a separate dashboard
   if (currentUser.role === "admin") {
     show("admin-view");
     await loadAdmin();
     return;
   }
 
-  // Update customer dashboard
+  const status = currentUser.applicationStatus || "Not Applied";
+
   $("customer-greeting").textContent =
     `Welcome, ${currentUser.name.split(" ")[0]}! Find local help.`;
 
-  // Change button text depending on workman profile
-  $("customer-workman-action").textContent =
-    currentUser.service ? "Workman Dashboard" : "Become a Workman";
+  const actionButton = $("customer-workman-action");
+  const statusMessage = $("workman-application-status");
 
-  if (activeDashboard === "workman") {
+  if (status === "Approved") {
+    actionButton.textContent = "Workman Dashboard";
+    statusMessage.textContent =
+      "Your workman application has been approved. You can access your Workman Dashboard.";
+  } else if (status === "Pending") {
+    actionButton.textContent = "Application Pending";
+    statusMessage.textContent =
+      "Your workman application is waiting for admin approval.";
+  } else if (status === "Rejected") {
+    actionButton.textContent = "Resubmit Application";
+    statusMessage.textContent = `Your application was rejected. Reason: ${currentUser.rejectionReason || "Please update your details and resubmit."}`;
+  } else {
+    actionButton.textContent = "Become a Workman";
+    statusMessage.textContent =
+      "Want to provide local services? Apply to become a workman.";
+  }
+
+  // Only approved workmen can enter Workman Dashboard.
+  if (activeDashboard === "workman" && status === "Approved") {
     show("workman-view");
-    fillProfile();
     await loadWorkmanBookings();
   } else {
     activeDashboard = "customer";
@@ -120,58 +386,320 @@ async function routeUser() {
     await loadCustomerBookings();
   }
 }
+
+/* =========================
+   BECOME A WORKMAN
+========================= */
+
+function openApplication() {
+  if (!currentUser) {
+    openAuth("login");
+    return;
+  }
+
+  const status = currentUser.applicationStatus || "Not Applied";
+
+  if (status === "Pending") {
+    toast("Your application is still waiting for admin approval.");
+    return;
+  }
+
+  if (status === "Approved") {
+    activeDashboard = "workman";
+    routeUser().catch((e) => toast(e.message));
+    return;
+  }
+
+  fillProfile();
+
+  $("profile-error").classList.add("hidden");
+
+  show("application-view");
+}
+
+/* =========================
+   FIND WORKMEN
+========================= */
+
 async function loadWorkmen() {
   const service = $("filter-service").value.trim();
   const location = $("filter-location").value.trim();
-  const {workmen} = await api(`/api/workmen?service=${encodeURIComponent(service)}&location=${encodeURIComponent(location)}`);
-  $("workmen-count").textContent = `${workmen.length} profile${workmen.length===1?"":"s"} found`;
-  $("workmen-grid").innerHTML = workmen.length ? workmen.map(w => `
-    <article class="workman-card"><p class="eyebrow">${esc(w.service)} · ${esc(w.availability)}</p><h3>${esc(w.name)}</h3>
-    <p>${esc(w.description || "Local service professional.")}</p><div class="meta">${esc(w.location)} · ${Number(w.experience)||0} years' experience</div>
-    <div class="card-actions"><button class="btn btn-light" data-profile="${w.id}">View profile</button><button class="btn btn-primary" data-book="${w.id}">Book</button></div></article>`).join("") : `<div class="empty">No profiles found. Try a different service or area.</div>`;
-  $("workmen-grid").querySelectorAll("[data-profile]").forEach(b => b.addEventListener("click", () => openProfile(Number(b.dataset.profile))));
-  $("workmen-grid").querySelectorAll("[data-book]").forEach(b => b.addEventListener("click", () => openBooking(Number(b.dataset.book))));
+
+  const { workmen } = await api(
+    `/api/workmen?service=${encodeURIComponent(service)}&location=${encodeURIComponent(location)}`,
+  );
+
+  $("workmen-count").textContent =
+    `${workmen.length} profile${workmen.length === 1 ? "" : "s"} found`;
+
+  $("workmen-grid").innerHTML = workmen.length
+    ? workmen
+        .map(
+          (w) => `
+      <article class="workman-card">
+        <p class="eyebrow">
+          ${esc(w.service)} · ${esc(w.availability)}
+        </p>
+
+        <h3>${esc(w.name)}</h3>
+
+        <p>${esc(w.description || "Local service professional.")}</p>
+
+        <div class="meta">
+          ${esc(w.location)} · ${Number(w.experience) || 0} years' experience
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-light" data-profile="${w.id}">
+            View profile
+          </button>
+
+          <button class="btn btn-primary" data-book="${w.id}">
+            Book
+          </button>
+        </div>
+      </article>
+    `,
+        )
+        .join("")
+    : `<div class="empty">No profiles found. Try a different service or area.</div>`;
+
+  $("workmen-grid")
+    .querySelectorAll("[data-profile]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        openProfile(Number(button.dataset.profile)).catch((e) =>
+          toast(e.message),
+        );
+      });
+    });
+
+  $("workmen-grid")
+    .querySelectorAll("[data-book]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        openBooking(Number(button.dataset.book));
+      });
+    });
 }
+
+/* =========================
+   WORKMAN PROFILE
+========================= */
+
 async function openProfile(id) {
-  const {workman:w} = await api(`/api/workmen/${id}`);
+  const { workman: w } = await api(`/api/workmen/${id}`);
+
   previousView = "customer-view";
-  $("profile-detail").innerHTML = `<article class="profile-detail"><p class="eyebrow">${esc(w.service)} · ${esc(w.availability)}</p><h1>${esc(w.name)}</h1><p>${esc(w.description)}</p><p><b>Area:</b> ${esc(w.location)} &nbsp; <b>Experience:</b> ${Number(w.experience)||0} years</p><button class="btn btn-primary" id="profile-book">Request a booking</button></article>`;
-  $("profile-book").addEventListener("click", () => openBooking(id));
+
+  $("profile-detail").innerHTML = `
+    <article class="profile-detail">
+      <p class="eyebrow">
+        ${esc(w.service)} · ${esc(w.availability)}
+      </p>
+
+      <h1>${esc(w.name)}</h1>
+
+      <p>${esc(w.description)}</p>
+
+      <p>
+        <b>Area:</b> ${esc(w.location)}
+        &nbsp;
+        <b>Experience:</b> ${Number(w.experience) || 0} years
+      </p>
+
+      <button class="btn btn-primary" id="profile-book">
+        Request a booking
+      </button>
+    </article>
+  `;
+
+  $("profile-book").addEventListener("click", () => {
+    openBooking(id);
+  });
+
   show("profile-view");
 }
+
+/* =========================
+   BOOKING
+========================= */
+
 function openBooking(id) {
-  if (!currentUser || currentUser.role !== "customer") { toast("Please log in as a customer to book a workman."); openAuth("login"); return; }
+  if (!currentUser || currentUser.role === "admin") {
+    toast("Please log in with a customer account to book a workman.");
+    openAuth("login");
+    return;
+  }
+
   selectedWorkman = id;
+
   $("booking-name").value = currentUser.name || "";
   $("booking-phone").value = currentUser.phone || "";
   $("booking-address").value = currentUser.location || "";
-  $("booking-date").min = new Date().toISOString().slice(0,10);
+
+  $("booking-date").min = new Date().toISOString().slice(0, 10);
   $("booking-date").value = "";
+
   $("booking-error").classList.add("hidden");
+
   $("booking-modal").classList.remove("hidden");
-  api(`/api/workmen/${id}`).then(({workman}) => $("booking-person").textContent = `Booking request for ${workman.name} (${workman.service})`).catch(() => {});
+
+  api(`/api/workmen/${id}`)
+    .then(({ workman }) => {
+      $("booking-person").textContent =
+        `Booking request for ${workman.name} (${workman.service})`;
+    })
+    .catch(() => {});
 }
+
+async function saveBooking(event) {
+  event.preventDefault();
+
+  try {
+    await api("/api/bookings", {
+      method: "POST",
+      body: {
+        workmanId: selectedWorkman,
+        customerName: $("booking-name").value,
+        phone: $("booking-phone").value,
+        address: $("booking-address").value,
+        date: $("booking-date").value,
+        time: $("booking-time").value,
+        notes: $("booking-notes").value,
+      },
+    });
+
+    $("booking-modal").classList.add("hidden");
+
+    toast("Booking request sent successfully.");
+
+    await loadCustomerBookings();
+  } catch (e) {
+    $("booking-error").textContent = e.message;
+    $("booking-error").classList.remove("hidden");
+  }
+}
+
+/* =========================
+   CUSTOMER BOOKINGS
+========================= */
+
 async function loadCustomerBookings() {
-  const {bookings} = await api("/api/bookings/mine");
-  $("customer-bookings").innerHTML = bookings.length ? bookings.map(b => `<div class="booking-item"><b>${esc(b.workman_name)} · ${esc(b.booking_date)}</b><p>${esc(b.booking_time)} · ${esc(b.address)} · Status: <b>${esc(b.status)}</b></p><p>${esc(b.notes)}</p></div>`).join("") : `<div class="empty">You have not sent any booking requests yet.</div>`;
+  const { bookings } = await api("/api/bookings/mine");
+
+  $("customer-bookings").innerHTML = bookings.length
+    ? bookings
+        .map(
+          (b) => `
+      <div class="booking-item">
+        <b>${esc(b.workman_name)} · ${esc(b.booking_date)}</b>
+
+        <p>
+          ${esc(b.booking_time)} ·
+          ${esc(b.address)} ·
+          Status: <b>${esc(b.status)}</b>
+        </p>
+
+        <p>${esc(b.notes)}</p>
+      </div>
+    `,
+        )
+        .join("")
+    : `<div class="empty">You have not sent any booking requests yet.</div>`;
 }
+
+/* =========================
+   WORKMAN BOOKINGS
+========================= */
+
 async function loadWorkmanBookings() {
-  const {bookings} = await api("/api/bookings/workman");
-  $("workman-bookings").innerHTML = bookings.length ? bookings.map(b => `<div class="booking-item"><b>${esc(b.customer_name)} · ${esc(b.booking_date)}</b><p>${esc(b.booking_time)} · ${esc(b.address)} · ${esc(b.phone)}</p><p>${esc(b.notes)}</p><b>Status: ${esc(b.status)}</b><div>${b.status==="Pending" ? `<button class="btn btn-primary" data-status="Accepted" data-id="${b.id}">Accept</button><button class="btn btn-light" data-status="Declined" data-id="${b.id}">Decline</button>` : ""}</div></div>`).join("") : `<div class="empty">No booking requests yet.</div>`;
-  $("workman-bookings").querySelectorAll("[data-status]").forEach(b => b.addEventListener("click", async () => {
-    try { await api(`/api/bookings/${b.dataset.id}/status`, {method:"PATCH",body:{status:b.dataset.status}}); toast("Booking status updated."); await loadWorkmanBookings(); }
-    catch(e) { toast(e.message); }
-  }));
+  const { bookings } = await api("/api/bookings/workman");
+
+  $("workman-bookings").innerHTML = bookings.length
+    ? bookings
+        .map(
+          (b) => `
+      <div class="booking-item">
+        <b>${esc(b.customer_name)} · ${esc(b.booking_date)}</b>
+
+        <p>
+          ${esc(b.booking_time)} ·
+          ${esc(b.address)} ·
+          ${esc(b.phone)}
+        </p>
+
+        <p>${esc(b.notes)}</p>
+
+        <b>Status: ${esc(b.status)}</b>
+
+        <div>
+          ${
+            b.status === "Pending"
+              ? `
+            <button
+              class="btn btn-primary"
+              data-status="Accepted"
+              data-id="${b.id}">
+              Accept
+            </button>
+
+            <button
+              class="btn btn-light"
+              data-status="Declined"
+              data-id="${b.id}">
+              Decline
+            </button>
+          `
+              : ""
+          }
+        </div>
+      </div>
+    `,
+        )
+        .join("")
+    : `<div class="empty">No booking requests yet.</div>`;
+
+  $("workman-bookings")
+    .querySelectorAll("[data-status]")
+    .forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          await api(`/api/bookings/${button.dataset.id}/status`, {
+            method: "PATCH",
+            body: {
+              status: button.dataset.status,
+            },
+          });
+
+          toast("Booking status updated.");
+
+          await loadWorkmanBookings();
+        } catch (e) {
+          toast(e.message);
+        }
+      });
+    });
 }
+
+/* =========================
+   WORKMAN APPLICATION FORM
+========================= */
+
 function fillProfile() {
   $("profile-name").value = currentUser.name || "";
   $("profile-phone").value = currentUser.phone || "";
   $("profile-location").value = currentUser.location || "";
+
   $("profile-service").value = currentUser.service || "Other";
+
   $("profile-experience").value = currentUser.experience ?? 0;
+
   $("profile-availability").value = currentUser.availability || "Available";
+
   $("profile-description").value = currentUser.description || "";
 }
+
 async function saveProfile(event) {
   event.preventDefault();
 
@@ -183,160 +711,818 @@ async function saveProfile(event) {
       service: $("profile-service").value,
       experience: $("profile-experience").value,
       availability: $("profile-availability").value,
-      description: $("profile-description").value
+      description: $("profile-description").value,
     };
 
     const result = await api("/api/workmen/me/profile", {
       method: "PUT",
-      body: data
+      body: data,
     });
 
     currentUser = result.user;
-    activeDashboard = "workman";
 
-    fillProfile();
+    // Stay in Customer Dashboard until admin approval.
+    activeDashboard = "customer";
 
     $("profile-error").classList.add("hidden");
 
-    toast("Your Workman profile has been created successfully!");
+    toast("Application submitted. Waiting for admin approval.");
 
     await routeUser();
-
   } catch (e) {
     $("profile-error").textContent = e.message;
     $("profile-error").classList.remove("hidden");
   }
 }
-async function saveBooking(event) {
-  event.preventDefault();
-  try {
-    await api("/api/bookings",{method:"POST",body:{
-      workmanId:selectedWorkman, customerName:$("booking-name").value, phone:$("booking-phone").value,
-      address:$("booking-address").value, date:$("booking-date").value, time:$("booking-time").value,
-      notes:$("booking-notes").value
-    }});
-    $("booking-modal").classList.add("hidden"); toast("Booking request sent successfully.");
-    await loadCustomerBookings();
-  } catch(e) { $("booking-error").textContent=e.message; $("booking-error").classList.remove("hidden"); }
-}
+
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
 async function loadAdmin() {
-  const {counts,users,bookings} = await api("/api/admin/overview");
-  $("admin-stats").innerHTML = Object.entries(counts).map(([key,value])=>`<div class="admin-stat"><b>${value}</b><span>${esc(key)}</span></div>`).join("");
-  $("admin-users").innerHTML = users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.role)}</td><td>${esc(u.createdAt)}</td><td>${u.role!=="admin"?`<button class="btn btn-light" data-delete-user="${u.id}">Delete</button>`:"Protected"}</td></tr>`).join("");
-  $("admin-users").querySelectorAll("[data-delete-user]").forEach(b=>b.addEventListener("click",async()=>{
-    if(!confirm("Delete this user account? Their bookings will also be deleted."))return;
-    try{await api(`/api/admin/users/${b.dataset.deleteUser}`,{method:"DELETE"});toast("User deleted.");await loadAdmin();}catch(e){toast(e.message);}
-  }));
-  $("admin-bookings").innerHTML = bookings.length ? bookings.map(b=>`<div class="booking-item"><b>${esc(b.customer_account_name)} → ${esc(b.workman_name)}</b><p>${esc(b.booking_date)} · ${esc(b.booking_time)} · ${esc(b.status)}</p></div>`).join("") : `<div class="empty">No booking activity yet.</div>`;
+  const [overview, applicationData] = await Promise.all([
+    api("/api/admin/overview"),
+    api("/api/admin/applications"),
+  ]);
+
+  const { counts, users, bookings } = overview;
+  const { applications } = applicationData;
+
+  // Statistics
+  $("admin-stats").innerHTML = Object.entries(counts)
+    .map(
+      ([key, value]) => `
+      <div class="admin-stat">
+        <b>${Number(value) || 0}</b>
+        <span>${esc(key)}</span>
+      </div>
+    `,
+    )
+    .join("");
+
+  // Users
+  $("admin-users").innerHTML = users
+    .map(
+      (u) => `
+    <tr>
+      <td>${esc(u.name)}</td>
+      <td>${esc(u.email)}</td>
+      <td>${esc(u.role)}</td>
+      <td>${esc(u.createdAt)}</td>
+      <td>
+        ${
+          u.role !== "admin"
+            ? `
+          <button
+            class="btn btn-light"
+            data-delete-user="${u.id}">
+            Delete
+          </button>
+        `
+            : "Protected"
+        }
+      </td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  $("admin-users")
+    .querySelectorAll("[data-delete-user]")
+    .forEach((button) => {
+      button.addEventListener("click", async () => {
+        if (
+          !confirm(
+            "Delete this user account? Their bookings will also be deleted.",
+          )
+        ) {
+          return;
+        }
+
+        try {
+          await api(`/api/admin/users/${button.dataset.deleteUser}`, {
+            method: "DELETE",
+          });
+
+          toast("User deleted.");
+
+          await loadAdmin();
+        } catch (e) {
+          toast(e.message);
+        }
+      });
+    });
+
+  // Workman applications
+  $("admin-applications").innerHTML = applications.length
+    ? applications
+        .map(
+          (a) => `
+      <article class="booking-item">
+        <h3>${esc(a.name)}</h3>
+
+        <p>
+          <b>Email:</b> ${esc(a.email)}<br>
+          <b>Phone:</b> ${esc(a.phone)}<br>
+          <b>Location:</b> ${esc(a.location)}
+        </p>
+
+        <p>
+          <b>Service:</b> ${esc(a.service)}<br>
+          <b>Experience:</b> ${Number(a.experience) || 0} years<br>
+          <b>Availability:</b> ${esc(a.availability)}
+        </p>
+
+        <p>${esc(a.description)}</p>
+
+        <p>
+          <b>Application Status:</b>
+          ${esc(a.applicationStatus)}
+        </p>
+
+        ${
+          a.rejectionReason
+            ? `
+          <p>
+            <b>Rejection reason:</b>
+            ${esc(a.rejectionReason)}
+          </p>
+        `
+            : ""
+        }
+
+        ${
+          a.applicationStatus === "Pending"
+            ? `
+          <div class="card-actions">
+            <button
+              class="btn btn-primary"
+              data-approve="${a.id}">
+              Approve
+            </button>
+
+            <button
+              class="btn btn-light"
+              data-reject="${a.id}">
+              Reject
+            </button>
+          </div>
+        `
+            : ""
+        }
+      </article>
+    `,
+        )
+        .join("")
+    : `<div class="empty">No workman applications yet.</div>`;
+
+  // Approve applications
+  $("admin-applications")
+    .querySelectorAll("[data-approve]")
+    .forEach((button) => {
+      button.addEventListener("click", async () => {
+        if (!confirm("Approve this workman application?")) {
+          return;
+        }
+
+        try {
+          await api(
+            `/api/admin/applications/${button.dataset.approve}/approve`,
+            {
+              method: "PATCH",
+              body: {},
+            },
+          );
+
+          toast("Workman application approved.");
+
+          await loadAdmin();
+        } catch (e) {
+          toast(e.message);
+        }
+      });
+    });
+
+  // Reject applications
+  $("admin-applications")
+    .querySelectorAll("[data-reject]")
+    .forEach((button) => {
+      button.addEventListener("click", async () => {
+        const reason = prompt(
+          "Enter the reason for rejecting this application (at least 3 characters):",
+        );
+
+        if (reason === null) {
+          return;
+        }
+
+        if (reason.trim().length < 3 || reason.trim().length > 500) {
+          toast("Please enter a reason between 3 and 500 characters.");
+          return;
+        }
+
+        try {
+          await api(`/api/admin/applications/${button.dataset.reject}/reject`, {
+            method: "PATCH",
+            body: {
+              reason: reason.trim(),
+            },
+          });
+
+          toast("Workman application rejected.");
+
+          await loadAdmin();
+        } catch (e) {
+          toast(e.message);
+        }
+      });
+    });
+
+  // Booking activity
+  $("admin-bookings").innerHTML = bookings.length
+    ? bookings
+        .map(
+          (b) => `
+      <div class="booking-item">
+        <b>
+          ${esc(b.customer_account_name)}
+          → ${esc(b.workman_name)}
+        </b>
+
+        <p>
+          ${esc(b.booking_date)} ·
+          ${esc(b.booking_time)} ·
+          ${esc(b.status)}
+        </p>
+      </div>
+    `,
+        )
+        .join("")
+    : `<div class="empty">No booking activity yet.</div>`;
 }
+
+/* =========================
+   LOGOUT
+========================= */
+
 async function logout() {
-  try { await api("/api/auth/logout",{method:"POST"}); } catch(e) {}
-currentUser = null;
-activeDashboard = "customer";
-csrfToken = "";
-await initialise();
+  try {
+    await api("/api/auth/logout", {
+      method: "POST",
+    });
+  } catch (e) {}
+
+  currentUser = null;
+  activeDashboard = "customer";
+  csrfToken = "";
+
+  await initialise();
 }
+
+/* =========================
+   THREE.JS ANIMATION
+   PRESERVED FROM ORIGINAL
+========================= */
+
 function setupThree() {
   const host = $("three-hero");
+
   if (!host || !window.WebGLRenderingContext) return;
+
   let renderer;
+
   try {
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, host.clientWidth/host.clientHeight, .1, 100);
-    camera.position.set(0,0,8);
-    renderer = new THREE.WebGLRenderer({alpha:true,antialias:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-    renderer.setSize(host.clientWidth,host.clientHeight);
+
+    const camera = new THREE.PerspectiveCamera(
+      38,
+      host.clientWidth / host.clientHeight,
+      0.1,
+      100,
+    );
+
+    camera.position.set(0, 0, 8);
+
+    renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    renderer.setSize(host.clientWidth, host.clientHeight);
+
     host.appendChild(renderer.domElement);
-    scene.add(new THREE.AmbientLight(0xffffff,2.1));
-    const key = new THREE.DirectionalLight(0xffffff,2.5); key.position.set(4,5,6); scene.add(key);
-    const group = new THREE.Group(); scene.add(group);
-    const matGreen = new THREE.MeshStandardMaterial({color:0x246b4d,roughness:.3,metalness:.12});
-    const matLime = new THREE.MeshStandardMaterial({color:0xc8e67b,roughness:.35,metalness:.1});
-    const matCream = new THREE.MeshStandardMaterial({color:0xf8f4df,roughness:.45});
-    const box = new THREE.Mesh(new THREE.BoxGeometry(1.7,1.25,1.1),matGreen); box.position.set(0,-.1,0); group.add(box);
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.35,.9,4),matLime); roof.rotation.y=Math.PI/4; roof.position.set(0,1.02,0); group.add(roof);
-    const door = new THREE.Mesh(new THREE.BoxGeometry(.38,.72,.06),matCream); door.position.set(.3,-.34,.58); group.add(door);
-    const torus = new THREE.Mesh(new THREE.TorusGeometry(2.15,.025,8,100),new THREE.MeshBasicMaterial({color:0x8bad5a,transparent:true,opacity:.7})); torus.rotation.x=.8; group.add(torus);
-    const toolGroup = new THREE.Group(); scene.add(toolGroup);
-    const toolMat = new THREE.MeshStandardMaterial({color:0xd69b43,metalness:.65,roughness:.25});
-    for(let i=0;i<3;i++){const cube=new THREE.Mesh(new THREE.BoxGeometry(.32,.32,.32),i===1?matLime:toolMat);cube.position.set((i-1)*2.15,Math.sin(i*2)*.65,.2);toolGroup.add(cube);}
-    function resize(){const w=host.clientWidth,h=host.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
-    const observer = new ResizeObserver(resize); observer.observe(host);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 2.1));
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.5);
+    key.position.set(4, 5, 6);
+    scene.add(key);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const matGreen = new THREE.MeshStandardMaterial({
+      color: 0x246b4d,
+      roughness: 0.3,
+      metalness: 0.12,
+    });
+
+    const matLime = new THREE.MeshStandardMaterial({
+      color: 0xc8e67b,
+      roughness: 0.35,
+      metalness: 0.1,
+    });
+
+    const matCream = new THREE.MeshStandardMaterial({
+      color: 0xf8f4df,
+      roughness: 0.45,
+    });
+
+    const box = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.25, 1.1), matGreen);
+
+    box.position.set(0, -0.1, 0);
+    group.add(box);
+
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.35, 0.9, 4), matLime);
+
+    roof.rotation.y = Math.PI / 4;
+    roof.position.set(0, 1.02, 0);
+    group.add(roof);
+
+    const door = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.72, 0.06),
+      matCream,
+    );
+
+    door.position.set(0.3, -0.34, 0.58);
+    group.add(door);
+
+    const torus = new THREE.Mesh(
+      new THREE.TorusGeometry(2.15, 0.025, 8, 100),
+      new THREE.MeshBasicMaterial({
+        color: 0x8bad5a,
+        transparent: true,
+        opacity: 0.7,
+      }),
+    );
+
+    torus.rotation.x = 0.8;
+    group.add(torus);
+
+    const toolGroup = new THREE.Group();
+    scene.add(toolGroup);
+
+    const toolMat = new THREE.MeshStandardMaterial({
+      color: 0xd69b43,
+      metalness: 0.65,
+      roughness: 0.25,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const cube = new THREE.Mesh(
+        new THREE.BoxGeometry(0.32, 0.32, 0.32),
+        i === 1 ? matLime : toolMat,
+      );
+
+      cube.position.set((i - 1) * 2.15, Math.sin(i * 2) * 0.65, 0.2);
+
+      toolGroup.add(cube);
+    }
+
+    function resize() {
+      const w = host.clientWidth;
+      const h = host.clientHeight;
+
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(w, h);
+    }
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(host);
+
     const clock = new THREE.Clock();
-    function animate(){const t=clock.getElapsedTime();group.rotation.y=Math.sin(t*.45)*.22;group.position.y=Math.sin(t*.8)*.12;toolGroup.rotation.y=t*.35;toolGroup.children.forEach((o,i)=>{o.position.y=Math.sin(t*1.3+i*2)*.7;});torus.rotation.z=t*.15;renderer.render(scene,camera);requestAnimationFrame(animate);}
+
+    function animate() {
+      const t = clock.getElapsedTime();
+
+      group.rotation.y = Math.sin(t * 0.45) * 0.22;
+      group.position.y = Math.sin(t * 0.8) * 0.12;
+
+      toolGroup.rotation.y = t * 0.35;
+
+      toolGroup.children.forEach((o, i) => {
+        o.position.y = Math.sin(t * 1.3 + i * 2) * 0.7;
+      });
+
+      torus.rotation.z = t * 0.15;
+
+      renderer.render(scene, camera);
+
+      requestAnimationFrame(animate);
+    }
+
     animate();
-  } catch(err) { console.warn("3D scene could not start:",err); if(renderer)renderer.dispose(); }
+  } catch (err) {
+    console.warn("3D scene could not start:", err);
+
+    if (renderer) {
+      renderer.dispose();
+    }
+  }
 }
+
+/* =========================
+   INITIALISE
+========================= */
+
 async function initialise() {
   try {
-    const csrf = await fetch("/api/auth/csrf",{credentials:"same-origin"});
-    const csrfData = await csrf.json(); csrfToken = csrfData.csrfToken;
-    try { const me = await api("/api/auth/me"); currentUser = me.user; } catch { currentUser=null; }
-    await routeUser();
-  } catch(e) { toast("Could not connect to the LocalWork server. Start it with npm start."); show("home-view"); }
-}
-function bind() {
-  $("login-nav").addEventListener("click",()=>openAuth("login"));
-  $("logout-nav").addEventListener("click",logout);
-  // Switch to Workman Dashboard
-$("customer-workman-action").addEventListener("click", async () => {
-  activeDashboard = "workman";
-  await routeUser();
-});
+    const csrf = await fetch("/api/auth/csrf", {
+      credentials: "same-origin",
+    });
 
-// Switch to Customer Dashboard
-$("workman-customer-action").addEventListener("click", async () => {
-  activeDashboard = "customer";
-  await routeUser();
-});
-  document.querySelectorAll("[data-register]").forEach(b=>b.addEventListener("click",()=>openAuth("register",b.dataset.register)));
-  document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>show("home-view")));
-  document.querySelectorAll("[data-role]").forEach(b=>b.addEventListener("click",()=>{chosenRole=b.dataset.role;setAuth("register",chosenRole);}));
-  $("register-tab").addEventListener("click",()=>{chosenRole=null;setAuth("register");});$("register-tab").addEventListener("click", () => {
-  setAuth("register", chosenRole);
-});
-  $("login-tab").addEventListener("click", () => {
-  setAuth("login", chosenRole);
+    const csrfData = await csrf.json();
+
+    csrfToken = csrfData.csrfToken;
+
+    // Check whether the user opened a password reset link
+    pendingResetToken =
+      new URLSearchParams(window.location.search).get("resetToken") || "";
+
+    // Set the starting page in browser history.
+    window.history.replaceState(
+      { localworkView: "home-view" },
+      document.title,
+      window.location.pathname,
+    );
+    if (pendingResetToken) {
+      // Remove the token from the browser address bar
+      window.history.replaceState(
+        { localworkView: "reset-password-view" },
+        document.title,
+        window.location.pathname,
+      );
+
+      show("reset-password-view");
+      return;
+    }
+
+    try {
+      const me = await api("/api/auth/me");
+      currentUser = me.user;
+    } catch {
+      currentUser = null;
+    }
+
+    await routeUser();
+  } catch (e) {
+    toast(
+      "Could not connect to the LocalWork server. Start it with npm start.",
+    );
+    show("home-view");
+  }
+}
+// Load the logged-in user's account profile
+async function loadAccountProfile() {
+  if (!currentUser) {
+    openAuth("login");
+    return;
+  }
+
+  try {
+    const result = await api("/api/profile/me");
+
+    currentUser = result.user;
+
+    $("account-name").value = currentUser.name || "";
+    $("account-email").value = currentUser.email || "";
+    $("account-phone").value = currentUser.phone || "";
+    $("account-location").value = currentUser.location || "";
+    $("account-role").value =
+      currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+
+    $("account-profile-error").classList.add("hidden");
+
+    show("account-view");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+// Save updated account profile
+async function saveAccountProfile(event) {
+  event.preventDefault();
+
+  const errorBox = $("account-profile-error");
+  errorBox.classList.add("hidden");
+
+  try {
+    const result = await api("/api/profile/me", {
+      method: "PUT",
+      body: {
+        name: $("account-name").value,
+        phone: $("account-phone").value,
+        location: $("account-location").value,
+      },
+    });
+
+    currentUser = result.user;
+
+    toast("Profile updated successfully!");
+
+    await loadAccountProfile();
+  } catch (error) {
+    errorBox.textContent = error.message;
+    errorBox.classList.remove("hidden");
+  }
+}
+/* =========================
+   EVENT LISTENERS
+========================= */
+
+function bind() {
+  $("login-nav").addEventListener("click", () => {
+    openAuth("login");
   });
-  $("change-role").addEventListener("click",()=>{chosenRole=null;setAuth("register");});
-  $("auth-form").addEventListener("submit",async e=>{
-    e.preventDefault();$("auth-error").classList.add("hidden");
+
+  $("logout-nav").addEventListener("click", logout);
+
+  // Open My Profile
+  document.querySelectorAll('[data-nav-action="profile"]').forEach((button) => {
+    button.addEventListener("click", () => {
+      loadAccountProfile();
+    });
+  });
+  // Become a Workman / Workman Dashboard
+  $("customer-workman-action").addEventListener("click", () => {
+    openApplication();
+  });
+
+  // Return to Customer Dashboard
+  $("workman-customer-action").addEventListener("click", async () => {
+    activeDashboard = "customer";
+
+    try {
+      await routeUser();
+    } catch (e) {
+      toast(e.message);
+    }
+  });
+
+  // Registration buttons
+  document.querySelectorAll("[data-register]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.dataset.register === "workman") {
+        openApplication();
+      } else {
+        openAuth("register");
+      }
+    });
+  });
+
+  // Home buttons
+  document.querySelectorAll("[data-home]").forEach((button) => {
+    button.addEventListener("click", () => {
+      show("home-view");
+    });
+  });
+  // Dashboard sidebar navigation
+  document.querySelectorAll("[data-nav-view]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const view = button.dataset.navView;
+
+      try {
+        if (view === "home-view") {
+          show("home-view");
+        } else if (view === "customer-view") {
+          activeDashboard = "customer";
+          await routeUser();
+        } else if (view === "workman-view") {
+          if (currentUser?.applicationStatus !== "Approved") {
+            toast("Your workman application must be approved first.");
+            return;
+          }
+
+          activeDashboard = "workman";
+          await routeUser();
+        } else if (view === "admin-view") {
+          if (currentUser?.role !== "admin") {
+            toast("Access denied.");
+            return;
+          }
+
+          show("admin-view");
+          await loadAdmin();
+        } else if (view === "application-view") {
+          openApplication();
+        }
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+  });
+
+  // Sidebar logout
+  const sidebarLogout = $("sidebar-logout");
+
+  if (sidebarLogout) {
+    sidebarLogout.addEventListener("click", logout);
+  }
+
+  // Register and login tabs
+  $("register-tab").addEventListener("click", () => {
+    setAuth("register");
+  });
+
+  $("login-tab").addEventListener("click", () => {
+    setAuth("login");
+  });
+  $("forgot-password-btn").addEventListener("click", openForgotPassword);
+
+  $("forgot-back").addEventListener("click", () => {
+    setAuth("login");
+    show("auth-view");
+  });
+
+  // Forgot password form
+  $("forgot-password-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    $("forgot-message").classList.add("hidden");
+    $("forgot-error").classList.add("hidden");
+
+    try {
+      const result = await api("/api/auth/forgot-password", {
+        method: "POST",
+        body: {
+          email: $("forgot-email").value.trim(),
+        },
+      });
+
+      $("forgot-message").textContent = result.message;
+      $("forgot-message").classList.remove("hidden");
+    } catch (err) {
+      $("forgot-error").textContent = err.message;
+      $("forgot-error").classList.remove("hidden");
+    }
+  });
+
+  // Reset password form
+  $("reset-password-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    $("reset-message").classList.add("hidden");
+    $("reset-error").classList.add("hidden");
+
+    try {
+      const password = $("reset-new-password").value;
+      const confirmPassword = $("reset-confirm-password").value;
+
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match.");
+      }
+
+      const token = pendingResetToken;
+
+      if (!token) {
+        throw new Error("Reset link is missing. Please request a new one.");
+      }
+
+      const result = await api("/api/auth/reset-password", {
+        method: "POST",
+        body: {
+          token,
+          password,
+        },
+      });
+
+      $("reset-message").textContent = result.message;
+      pendingResetToken = "";
+      $("reset-message").classList.remove("hidden");
+
+      $("reset-password-form").reset();
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      setTimeout(() => {
+        setAuth("login");
+        show("auth-view");
+      }, 2000);
+    } catch (err) {
+      $("reset-error").textContent = err.message;
+      $("reset-error").classList.remove("hidden");
+    }
+  });
+
+  // Authentication form
+  $("auth-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    $("auth-error").classList.add("hidden");
+
     try {
       let result;
-      if(authMode==="register"){
-        if($("password").value!==$("confirm-password").value)throw new Error("Passwords do not match.");
-        result=await api("/api/auth/register",{method:"POST",body:{
-  name:$("name").value,
-  email:$("email").value,
-  phone:$("phone").value,
-  location:$("location").value,
-  password:$("password").value
-}});
-      } else result=await api("/api/auth/login",{method:"POST",body:{email:$("login-email").value,password:$("password").value}});
+
+      if (authMode === "register") {
+        if ($("password").value !== $("confirm-password").value) {
+          throw new Error("Passwords do not match.");
+        }
+
+        result = await api("/api/auth/register", {
+          method: "POST",
+          body: {
+            name: $("name").value,
+            email: $("email").value,
+            phone: $("phone").value,
+            location: $("location").value,
+            password: $("password").value,
+          },
+        });
+      } else {
+        result = await api("/api/auth/login", {
+          method: "POST",
+          body: {
+            email: $("login-email").value,
+            password: $("password").value,
+          },
+        });
+      }
+
       currentUser = result.user;
 
-if (currentUser.role === "admin") {
-  activeDashboard = "customer";
-} else {
-  activeDashboard = chosenRole === "workman" ? "workman" : "customer";
+      activeDashboard = "customer";
+
+      toast("Welcome to LocalWork!");
+
+      await routeUser();
+    } catch (err) {
+      $("auth-error").textContent = err.message;
+      $("auth-error").classList.remove("hidden");
+    }
+  });
+
+  // Search workmen
+  $("search-workmen").addEventListener("click", () => {
+    loadWorkmen().catch((e) => toast(e.message));
+  });
+
+  $("filter-service").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      loadWorkmen().catch((e) => toast(e.message));
+    }
+  });
+
+  $("filter-location").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      loadWorkmen().catch((e) => toast(e.message));
+    }
+  });
+
+  // Workman application form
+  $("profile-form").addEventListener("submit", saveProfile);
+
+  // My Account Profile form
+  $("account-profile-form").addEventListener("submit", saveAccountProfile);
+  // Booking form
+  $("booking-form").addEventListener("submit", saveBooking);
+
+  $("booking-close").addEventListener("click", () => {
+    $("booking-modal").classList.add("hidden");
+  });
+
+  $("booking-modal").addEventListener("click", (event) => {
+    if (event.target.id === "booking-modal") {
+      $("booking-modal").classList.add("hidden");
+    }
+  });
+
+  // Return from profile page
+  $("profile-back").addEventListener("click", () => {
+    show(previousView);
+  });
+
+  // Close booking modal using Escape
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      $("booking-modal").classList.add("hidden");
+    }
+  });
 }
 
-toast("Welcome to LocalWork!");
-await routeUser();
-    } catch(err){$("auth-error").textContent=err.message;$("auth-error").classList.remove("hidden");}
-  });
-  $("search-workmen").addEventListener("click",()=>loadWorkmen().catch(e=>toast(e.message)));
-  $("filter-service").addEventListener("keydown",e=>{if(e.key==="Enter")loadWorkmen().catch(x=>toast(x.message));});
-  $("filter-location").addEventListener("keydown",e=>{if(e.key==="Enter")loadWorkmen().catch(x=>toast(x.message));});
-  $("profile-form").addEventListener("submit",saveProfile);
-  $("booking-form").addEventListener("submit",saveBooking);
-  $("booking-close").addEventListener("click",()=>$("booking-modal").classList.add("hidden"));
-  $("booking-modal").addEventListener("click",e=>{if(e.target.id==="booking-modal")$("booking-modal").classList.add("hidden");});
-  $("profile-back").addEventListener("click",()=>show(previousView));
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")$("booking-modal").classList.add("hidden");});
-}
+/* =========================
+   START APPLICATION
+========================= */
+
 async function start() {
-  renderCategories();bind();setupThree();await initialise();
+  renderCategories();
+  bind();
+  setupThree();
+
+  await initialise();
 }
+
 start();
