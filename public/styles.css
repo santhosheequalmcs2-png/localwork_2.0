@@ -468,6 +468,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 .cat-carpentry { background: #fef2f2; }
 .cat-painting { background: #fae8ff; }
 .cat-cleaning { background: #f0fdf4; }
+.cat-mechanic { background: #f1f5f9; }
+.cat-construction { background: #fef08a; }
+.cat-other { background: #e2e8f0; }
 .cat-appliance { background: #e0e7ff; }
 .cat-masonry { background: #ffedd5; }
 .cat-gardening { background: #ecfccb; }

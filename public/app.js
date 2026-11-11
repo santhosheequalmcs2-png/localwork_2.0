@@ -331,7 +331,9 @@ async function initGoogleAuth() {
       if (customBtn) {
         customBtn.classList.remove("hidden");
         customBtn.onclick = () => {
-          toast("Google Sign-In: Set GOOGLE_CLIENT_ID in your Render environment variables to activate.");
+          const gm = $("google-modal");
+          if (gm) gm.classList.remove("hidden");
+          else toast("Google Sign-In: Add GOOGLE_CLIENT_ID to Render environment variables.");
         };
       }
       if (signinBtnContainer) signinBtnContainer.classList.add("hidden");
@@ -2155,8 +2157,36 @@ function bind() {
   if (customGoogleBtn) {
     customGoogleBtn.addEventListener("click", () => {
       if (!googleClientId) {
-        toast("Google Sign-In: Add your GOOGLE_CLIENT_ID in Render Environment variables to activate.");
+        const gm = $("google-modal");
+        if (gm) gm.classList.remove("hidden");
+        else toast("Google Sign-In: Add your GOOGLE_CLIENT_ID in Render Environment variables to activate.");
       }
+    });
+  }
+
+  // Google modal controls
+  const googleModal = $("google-modal");
+  const googleClose = $("google-modal-close");
+  const googleDemoBtn = $("google-demo-login-btn");
+
+  if (googleClose) {
+    googleClose.addEventListener("click", () => {
+      if (googleModal) googleModal.classList.add("hidden");
+    });
+  }
+
+  if (googleModal) {
+    googleModal.addEventListener("click", (e) => {
+      if (e.target.id === "google-modal") {
+        googleModal.classList.add("hidden");
+      }
+    });
+  }
+
+  if (googleDemoBtn) {
+    googleDemoBtn.addEventListener("click", async () => {
+      if (googleModal) googleModal.classList.add("hidden");
+      await handleGoogleCredentialResponse({ credential: "demo_google_account" });
     });
   }
 
