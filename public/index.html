@@ -6,6 +6,12 @@
   <meta name="description" content="LocalWork connects customers with skilled local workmen.">
   <meta name="theme-color" content="#12251d">
   <title>LocalWork — Local skills. Local opportunities.</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -403,81 +409,207 @@
   </section>
 
 
-  <!-- CUSTOMER DASHBOARD -->
-  <section id="customer-view" class="view hidden">
+  <!-- CUSTOMER DASHBOARD (PREMIUM HOME SERVICES) -->
+  <section id="customer-view" class="view customer-dashboard hidden">
 
-    <div class="page-head">
-      <div>
-        <p class="eyebrow">CUSTOMER SPACE</p>
+    <!-- WELCOME HERO SHOWCASE -->
+    <div class="customer-hero-card">
+      <div class="customer-hero-text">
+        <div class="customer-badge">
+          <span class="badge-icon">🌿</span>
+          <span>PREMIUM HOME SERVICES</span>
+        </div>
 
-        <h1 id="customer-greeting">
+        <h1 id="customer-greeting" class="customer-title">
           Find the right local help.
         </h1>
 
-        <p class="muted">
-          Search by service and the area where you need help.
+        <p class="customer-subtitle">
+          Connect with trusted, background-checked local workmen for repairs, installations, and renovations. Fast, reliable, and right in your neighborhood.
         </p>
-      </div>
-    </div>
 
-    <!-- SEARCH WORKMEN -->
-    <div class="searchbar">
-
-      <input id="filter-service"
-             placeholder="What service do you need?">
-
-      <input id="filter-location"
-             placeholder="Enter your area">
-
-      <button id="search-workmen" class="btn btn-primary">
-        Search →
-      </button>
-
-    </div>
-
-    <div class="section-title">
-
-      <div>
-        <p class="eyebrow">LOCAL SKILLS</p>
-        <h2>Workmen to explore</h2>
-      </div>
-
-      <span id="workmen-count" class="muted"></span>
-
-    </div>
-
-    <div id="workmen-grid" class="workmen-grid"></div>
-
-    <!-- CUSTOMER BOOKING HISTORY -->
-    <section class="section">
-
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">YOUR REQUESTS</p>
-          <h2>Booking history</h2>
+        <div class="customer-perks">
+          <div class="perk-chip">
+            <span class="perk-icon">🛡️</span>
+            <div>
+              <strong>Verified Experts</strong>
+              <small>Background-checked</small>
+            </div>
+          </div>
+          <div class="perk-chip">
+            <span class="perk-icon">⚡</span>
+            <div>
+              <strong>Instant Requests</strong>
+              <small>Quick response</small>
+            </div>
+          </div>
+          <div class="perk-chip">
+            <span class="perk-icon">💬</span>
+            <div>
+              <strong>Direct Contact</strong>
+              <small>No middlemen</small>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="customer-bookings" class="booking-list"></div>
+      <!-- 3D ANIMATED HOUSE FRAME -->
+      <div class="customer-3d-wrapper">
+        <div class="customer-3d-card">
+          <div class="customer-3d-badge">
+            <span class="badge-dot"></span>
+            <span>Interactive 3D Home Studio</span>
+          </div>
+          <div id="customer-three-hero" class="customer-three-canvas"></div>
+          <div class="customer-3d-caption">
+            <span>LocalWork Care Studio</span>
+            <small>Live 3D Preview</small>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- QUICK-FILTER SERVICE CATEGORIES -->
+    <div class="customer-categories-section">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">QUICK EXPLORE</p>
+          <h2>Popular Home Services</h2>
+        </div>
+        <p class="section-hint">Click a category to filter workmen instantly</p>
+      </div>
+
+      <div class="customer-categories-grid">
+        <button class="customer-category-card" data-category="Electrical">
+          <div class="cat-icon-wrap cat-electrical">⚡</div>
+          <strong>Electrical</strong>
+          <small>Wiring, fixtures, repairs</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Plumbing">
+          <div class="cat-icon-wrap cat-plumbing">🔧</div>
+          <strong>Plumbing</strong>
+          <small>Pipes, leaks, fittings</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Carpentry">
+          <div class="cat-icon-wrap cat-carpentry">🪚</div>
+          <strong>Carpentry</strong>
+          <small>Furniture, woodwork, doors</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Painting">
+          <div class="cat-icon-wrap cat-painting">🎨</div>
+          <strong>Painting</strong>
+          <small>Interior, exterior, polish</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Cleaning">
+          <div class="cat-icon-wrap cat-cleaning">🧹</div>
+          <strong>Cleaning</strong>
+          <small>Deep clean, sanitisation</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Appliance">
+          <div class="cat-icon-wrap cat-appliance">❄️</div>
+          <strong>Appliances</strong>
+          <small>AC, washing machine, fridge</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Masonry">
+          <div class="cat-icon-wrap cat-masonry">🧱</div>
+          <strong>Masonry</strong>
+          <small>Tiling, brickwork, plaster</small>
+        </button>
+
+        <button class="customer-category-card" data-category="Gardening">
+          <div class="cat-icon-wrap cat-gardening">🌿</div>
+          <strong>Gardening</strong>
+          <small>Lawn care, maintenance</small>
+        </button>
+      </div>
+    </div>
+
+    <!-- SEARCH WORKMEN BAR -->
+    <div class="customer-search-card">
+      <div class="customer-searchbar">
+        <div class="search-input-field">
+          <span class="search-icon">🔍</span>
+          <input id="filter-service"
+                 placeholder="Search by trade (e.g. Electrician, Plumber)..."
+                 autocomplete="off">
+        </div>
+
+        <div class="search-input-field">
+          <span class="search-icon">📍</span>
+          <input id="filter-location"
+                 placeholder="Area or neighbourhood (e.g. Central)..."
+                 autocomplete="off">
+        </div>
+
+        <button id="search-workmen" class="btn btn-primary customer-search-btn">
+          <span>Search Workmen</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- WORKMEN EXPLORE SECTION -->
+    <section class="section customer-workmen-section">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">VERIFIED TALENT</p>
+          <h2>Workmen Available in Your Area</h2>
+        </div>
+        <span id="workmen-count" class="customer-count-badge"></span>
+      </div>
+
+      <div id="workmen-grid" class="workmen-grid customer-grid"></div>
     </section>
 
-    <!-- WORKMAN APPLICATION STATUS -->
-    <section class="surface">
+    <!-- BOTTOM SPLIT SECTION: BOOKINGS & BECOME A WORKMAN -->
+    <div class="customer-bottom-grid">
 
-      <p class="eyebrow">YOUR WORKMAN APPLICATION</p>
+      <!-- CUSTOMER BOOKING HISTORY -->
+      <section class="customer-card-surface customer-bookings-panel">
+        <div class="panel-header">
+          <div class="panel-header-icon">📋</div>
+          <div>
+            <p class="eyebrow">APPOINTMENTS</p>
+            <h2>Your Booking Requests</h2>
+          </div>
+        </div>
+        <p class="panel-desc">Track status and dates of your requested home services.</p>
 
-      <h2>Share your skills with LocalWork</h2>
+        <div id="customer-bookings" class="booking-list customer-booking-list"></div>
+      </section>
 
-      <p id="workman-application-status" class="muted">
-        You have not applied to become a workman yet.
-      </p>
+      <!-- WORKMAN APPLICATION BANNER -->
+      <section class="customer-card-surface customer-application-panel">
+        <div class="panel-header">
+          <div class="panel-header-icon">🧰</div>
+          <div>
+            <p class="eyebrow">OPPORTUNITY</p>
+            <h2>Join as a Workman</h2>
+          </div>
+        </div>
 
-      <button id="customer-workman-action" class="btn btn-primary">
-        Become a Workman
-      </button>
+        <div class="application-callout-box">
+          <p id="workman-application-status" class="application-status-text">
+            You have not applied to become a workman yet.
+          </p>
 
-    </section>
+          <p class="application-perks-text">
+            Are you a skilled plumber, electrician, carpenter, or painter? Start receiving job requests from nearby homeowners today.
+          </p>
+
+          <button id="customer-workman-action" class="btn btn-primary btn-customer-action">
+            Become a Workman →
+          </button>
+        </div>
+      </section>
+
+    </div>
 
   </section>
 

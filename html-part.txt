@@ -1,0 +1,17 @@
+  <section id="auth-view" class="view hidden">
+    <div class="auth-grid"><aside class="auth-aside"><button class="back" data-home>← Back to home</button><p class="eyebrow">WELCOME TO LOCALWORK</p><h1>Local talent.<br><em>Real possibility.</em></h1><p>One account to find work or share your skills.</p><div class="tool-icons">🧰　🏠　🔨</div></aside>
+      <div class="auth-box"><div class="tabs"><button id="register-tab" class="active">Create account</button><button id="login-tab">Log in</button></div>
+        <div id="role-choice"><h2>How will you use LocalWork?</h2><p class="muted">Choose your account type to continue.</p><div class="role-choice"><button data-role="customer"><span>🧑</span><b>I'm a Customer</b><small>Find and book local services</small>→</button><button data-role="workman"><span>🧑‍🔧</span><b>I'm a Workman</b><small>Showcase your skills</small>→</button></div></div>
+        <form id="auth-form" class="hidden"><button type="button" class="back" id="change-role">← Change account type</button><h2 id="auth-heading">Create account</h2><div id="auth-error" class="error hidden" role="alert"></div>
+          <div id="signup-fields"><label>Full name<input id="name" maxlength="80" autocomplete="name" required></label><div class="two"><label>Email<input id="email" type="email" maxlength="254" autocomplete="email" required></label><label>Phone<input id="phone" type="tel" maxlength="18" autocomplete="tel" required></label></div><label>Location / area<input id="location" maxlength="120" placeholder="e.g. Anna Nagar, Chennai" required></label>
+            <div id="workman-fields" class="hidden"><label>Service<select id="service"><option value="">Choose service</option><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option><option>Cleaning</option><option>Construction</option><option>Other</option></select></label><div class="two"><label>Experience (years)<input id="experience" type="number" min="0" max="70" value="0"></label><label>Availability<select id="availability"><option>Available</option><option>Busy</option></select></label></div><label>Describe your skills<textarea id="description" maxlength="1000" rows="3"></textarea></label></div>
+          </div>
+          <div id="signin-fields" class="hidden"><label>Email<input id="login-email" type="email" autocomplete="username" required></label></div>
+          <label>Password<input id="password" type="password" minlength="10" maxlength="128" autocomplete="new-password" required></label>
+          <label id="confirm-wrap">Confirm password<input id="confirm-password" type="password" minlength="10" maxlength="128" autocomplete="new-password"></label>
+          <button class="btn btn-primary full" id="auth-submit" type="submit">Create account</button><p class="fine">Passwords are securely hashed on the server. Never reuse a password from another account.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+

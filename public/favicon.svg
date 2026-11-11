@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Emerald Green Gradient -->
+    <linearGradient id="lwEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#24724f"/>
+      <stop offset="100%" stop-color="#144630"/>
+    </linearGradient>
+    
+    <!-- Warm Orange Accent Gradient -->
+    <linearGradient id="lwOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow for depth -->
+    <filter id="lwShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#071b12" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect width="512" height="512" rx="116" ry="116" fill="url(#lwEmerald)"/>
+
+  <!-- Subtle Inner Border Highlight -->
+  <rect x="8" y="8" width="496" height="496" rx="108" ry="108" fill="none" stroke="#4ade80" stroke-width="4" stroke-opacity="0.22"/>
+
+  <!-- Warm Orange Chimney -->
+  <rect x="336" y="138" width="42" height="74" rx="8" fill="url(#lwOrange)"/>
+
+  <!-- Emblem Group with Shadow -->
+  <g filter="url(#lwShadow)">
+    <!-- House Roof Gable (Crisp, bold, symmetrical) -->
+    <path d="M256 98 L92 236 C84 242 84 254 92 260 C100 266 112 266 118 260 L256 144 L394 260 C400 266 412 266 420 260 C428 254 428 242 420 236 Z" fill="#ffffff"/>
+
+    <!-- Letter "L" (Left wall + baseplate foundation) -->
+    <path d="M144 248 C144 238 152 230 162 230 L188 230 C198 230 206 238 206 248 L206 364 L304 364 C314 364 322 372 322 382 L322 396 C322 406 314 414 304 414 L162 414 C152 414 144 406 144 396 Z" fill="#ffffff"/>
+
+    <!-- Professional Tool: Precision Spanner / Wrench Head angled inside the right bay -->
+    <g transform="translate(322, 302) rotate(-38)">
+      <!-- Wrench Shaft -->
+      <rect x="-18" y="-16" width="36" height="114" rx="12" fill="#ffffff"/>
+      <!-- Wrench Open Head -->
+      <path d="M-38 -16 C-38 -42 -18 -62 8 -62 C24 -62 38 -52 46 -38 L22 -24 C18 -30 10 -34 2 -34 C-12 -34 -22 -22 -22 -8 C-22 6 -12 18 2 18 C10 18 18 14 22 8 L46 22 C38 36 24 46 8 46 C-18 46 -38 27 -38 2 Z" fill="#ffffff" transform="translate(8, -10)"/>
+      <!-- Warm Orange Hex Nut inside the Wrench Jaw -->
+      <polygon points="12,-16 26,-8 26,8 12,16 -2,8 -2,-8" fill="url(#lwOrange)"/>
+    </g>
+  </g>
+</svg>

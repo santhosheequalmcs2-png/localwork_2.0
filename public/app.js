@@ -90,6 +90,10 @@ function show(view, { updateHistory = true } = {}) {
 
   target.classList.remove("hidden");
 
+  if (view === "customer-view" && typeof customerThreeAnimate === "function") {
+    setTimeout(() => customerThreeAnimate(), 50);
+  }
+
   const isPublicPage = view === "home-view" || view === "auth-view";
 
   const publicNav = $("public-nav");
@@ -1135,6 +1139,301 @@ function setupThree() {
   }
 }
 
+/* ==========================================================================
+   CUSTOMER DASHBOARD 3D ANIMATION
+   Cozy, welcoming 3D Home & Service Hub (Cream, Emerald Green, Warm Orange)
+   ========================================================================== */
+
+let customerThreeAnimate = null;
+
+function setupCustomerThree() {
+  const host = $("customer-three-hero");
+  if (!host || !window.WebGLRenderingContext) return;
+
+  let renderer;
+
+  try {
+    const scene = new THREE.Scene();
+    const w = host.clientWidth || 320;
+    const h = host.clientHeight || 250;
+
+    const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
+    camera.position.set(3.8, 3.1, 5.6);
+    camera.lookAt(0, 0.4, 0);
+
+    renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "low-power",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    host.appendChild(renderer.domElement);
+
+    // Warm, welcoming lighting
+    const ambientLight = new THREE.AmbientLight(0xfff8ee, 2.0);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffedd5, 2.2);
+    sunLight.position.set(5, 7, 4);
+    scene.add(sunLight);
+
+    const fillLight = new THREE.DirectionalLight(0xdcfce7, 0.9);
+    fillLight.position.set(-4, -2, -3);
+    scene.add(fillLight);
+
+    // House Root Group
+    const houseGroup = new THREE.Group();
+    scene.add(houseGroup);
+
+    // Materials
+    const matCream = new THREE.MeshStandardMaterial({
+      color: 0xfdfbf7,
+      roughness: 0.45,
+      metalness: 0.05,
+    });
+
+    const matRoof = new THREE.MeshStandardMaterial({
+      color: 0x247a52,
+      roughness: 0.3,
+      metalness: 0.12,
+    });
+
+    const matOrange = new THREE.MeshStandardMaterial({
+      color: 0xea580c,
+      roughness: 0.4,
+      metalness: 0.08,
+    });
+
+    const matWindow = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.5,
+      roughness: 0.2,
+    });
+
+    const matLawn = new THREE.MeshStandardMaterial({
+      color: 0xe5efe3,
+      roughness: 0.7,
+    });
+
+    const matTreeLeaves = new THREE.MeshStandardMaterial({
+      color: 0x1e6b47,
+      roughness: 0.4,
+    });
+
+    const matWood = new THREE.MeshStandardMaterial({
+      color: 0x854d0e,
+      roughness: 0.7,
+    });
+
+    // 1. Garden Pedestal Base (Lawn)
+    const lawn = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.35, 2.45, 0.2, 32),
+      matLawn,
+    );
+    lawn.position.set(0, -0.7, 0);
+    houseGroup.add(lawn);
+
+    // Cobblestone walkway
+    const walkway = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.02, 1.2),
+      new THREE.MeshStandardMaterial({ color: 0xd3e0d2, roughness: 0.8 }),
+    );
+    walkway.position.set(0.2, -0.59, 1.1);
+    houseGroup.add(walkway);
+
+    // 2. House Body (Warm Cream)
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(1.65, 1.2, 1.45),
+      matCream,
+    );
+    body.position.set(0, 0, 0);
+    houseGroup.add(body);
+
+    // 3. Gable Roof (Emerald Green)
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(1.5, 0.88, 4),
+      matRoof,
+    );
+    roof.position.set(0, 1.04, 0);
+    roof.rotation.y = Math.PI / 4;
+    houseGroup.add(roof);
+
+    // 4. Front Door (Warm Orange)
+    const door = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.68, 0.06),
+      matOrange,
+    );
+    door.position.set(0.2, -0.26, 0.74);
+    houseGroup.add(door);
+
+    // Golden Door Knob
+    const knob = new THREE.Mesh(
+      new THREE.SphereGeometry(0.03, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 }),
+    );
+    knob.position.set(0.33, -0.26, 0.78);
+    houseGroup.add(knob);
+
+    // 5. Windows (Glowing Warm Amber)
+    const winFront = new THREE.Mesh(
+      new THREE.BoxGeometry(0.34, 0.34, 0.04),
+      matWindow,
+    );
+    winFront.position.set(-0.46, 0.16, 0.74);
+    houseGroup.add(winFront);
+
+    const winSide = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.34, 0.34),
+      matWindow,
+    );
+    winSide.position.set(0.84, 0.16, 0);
+    houseGroup.add(winSide);
+
+    // 6. Chimney (Warm Orange)
+    const chimney = new THREE.Mesh(
+      new THREE.BoxGeometry(0.25, 0.58, 0.25),
+      matOrange,
+    );
+    chimney.position.set(0.5, 1.18, -0.2);
+    houseGroup.add(chimney);
+
+    // 7. Chimney Smoke Puffs (translucent rising bubbles)
+    const smokeGroup = new THREE.Group();
+    houseGroup.add(smokeGroup);
+    const smokeMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.9,
+    });
+    const smokePuffs = [];
+    for (let i = 0; i < 3; i++) {
+      const puff = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08 + i * 0.02, 8, 8),
+        smokeMat,
+      );
+      puff.position.set(0.5, 1.5 + i * 0.2, -0.2);
+      smokeGroup.add(puff);
+      smokePuffs.push(puff);
+    }
+
+    // 8. Garden Tree (Wood trunk + lush emerald foliage)
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.08, 0.55, 8),
+      matWood,
+    );
+    trunk.position.set(-1.35, -0.36, 0.6);
+    houseGroup.add(trunk);
+
+    const foliage = new THREE.Mesh(
+      new THREE.SphereGeometry(0.38, 12, 12),
+      matTreeLeaves,
+    );
+    foliage.position.set(-1.35, 0.08, 0.6);
+    houseGroup.add(foliage);
+
+    // 9. Orbiting Service Icons / Orbs
+    const orbitGroup = new THREE.Group();
+    scene.add(orbitGroup);
+
+    // Blue Orb (Plumbing)
+    const plumbingOrb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.14, 12, 12),
+      new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.3 }),
+    );
+    plumbingOrb.position.set(2.2, 0.3, 0);
+    orbitGroup.add(plumbingOrb);
+
+    // Gold Spark (Electrical)
+    const electricalOrb = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.14, 0),
+      new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        emissive: 0xd97706,
+        emissiveIntensity: 0.5,
+        roughness: 0.2,
+      }),
+    );
+    electricalOrb.position.set(-2.0, 0.7, 0.8);
+    orbitGroup.add(electricalOrb);
+
+    // Warm Orange Tool Cube (Carpentry / Craft)
+    const toolCube = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 0.2, 0.2),
+      matOrange,
+    );
+    toolCube.position.set(0.4, 0.2, -2.1);
+    orbitGroup.add(toolCube);
+
+    function resize() {
+      const currentW = host.clientWidth || 320;
+      const currentH = host.clientHeight || 250;
+      camera.aspect = currentW / currentH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(currentW, currentH);
+    }
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(host);
+
+    const clock = new THREE.Clock();
+    let isRunning = false;
+
+    function animate() {
+      const customerView = $("customer-view");
+      if (!customerView || customerView.classList.contains("hidden") || document.hidden) {
+        isRunning = false;
+        return;
+      }
+
+      isRunning = true;
+      requestAnimationFrame(animate);
+
+      const t = clock.getElapsedTime();
+
+      // Gentle floating house sway
+      houseGroup.rotation.y = Math.sin(t * 0.3) * 0.25;
+      houseGroup.position.y = Math.sin(t * 0.8) * 0.06;
+
+      // Orbiting service items
+      orbitGroup.rotation.y = t * 0.45;
+      electricalOrb.rotation.x = t;
+      electricalOrb.rotation.y = t * 1.5;
+      toolCube.rotation.x = t * 0.8;
+      toolCube.rotation.z = t * 0.5;
+
+      // Animated chimney smoke puffs
+      smokePuffs.forEach((puff, idx) => {
+        puff.position.y = 1.45 + ((t * 0.4 + idx * 0.35) % 0.8);
+        const progress = ((t * 0.4 + idx * 0.35) % 0.8) / 0.8;
+        puff.scale.setScalar(1 + progress * 0.8);
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    customerThreeAnimate = () => {
+      resize();
+      if (!isRunning) {
+        clock.start();
+        animate();
+      }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && $("customer-view") && !$("customer-view").classList.contains("hidden")) {
+        customerThreeAnimate();
+      }
+    });
+
+  } catch (err) {
+    console.warn("Could not start Customer 3D canvas:", err.message);
+    if (renderer) renderer.dispose();
+  }
+}
+
 /* =========================
    INITIALISE
 ========================= */
@@ -1465,6 +1764,27 @@ function bind() {
     }
   });
 
+  // Quick-Filter Category Cards for Customer Dashboard
+  document.querySelectorAll(".customer-category-card").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const category = btn.dataset.category || "";
+      const serviceInput = $("filter-service");
+
+      if (serviceInput.value.toLowerCase() === category.toLowerCase()) {
+        serviceInput.value = "";
+        btn.classList.remove("active");
+      } else {
+        serviceInput.value = category;
+        document
+          .querySelectorAll(".customer-category-card")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+
+      loadWorkmen().catch((e) => toast(e.message));
+    });
+  });
+
   // Search workmen
   $("search-workmen").addEventListener("click", () => {
     loadWorkmen().catch((e) => toast(e.message));
@@ -1521,6 +1841,7 @@ async function start() {
   renderCategories();
   bind();
   setupThree();
+  setupCustomerThree();
 
   await initialise();
 }
