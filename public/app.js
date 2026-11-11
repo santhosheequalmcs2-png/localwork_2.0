@@ -31,6 +31,13 @@ const categories = [
   ["🛠️", "Mechanic"],
   ["🧹", "Cleaning"],
   ["🧱", "Construction"],
+  ["❄️", "AC Repair"],
+  ["📺", "Appliance Repair"],
+  ["🌿", "Gardening"],
+  ["🐜", "Pest Control"],
+  ["⚙️", "Welding"],
+  ["🏗️", "Masonry & Tiling"],
+  ["💧", "Waterproofing"],
   ["🧰", "Other"],
 ];
 
@@ -1160,14 +1167,24 @@ async function loadAdmin() {
 
 async function logout() {
   try {
-    await api("/api/auth/logout", {
+    await fetch("/api/auth/logout", {
       method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Content-Type": "application/json"
+      }
     });
-  } catch (e) {}
+  } catch (e) {
+    console.warn("Logout request:", e);
+  }
 
   currentUser = null;
   activeDashboard = "customer";
   csrfToken = "";
+
+  show("home-view");
+  toast("You have logged out.");
 
   await initialise();
 }
@@ -1931,7 +1948,6 @@ function setupWorkmanThree() {
   }
 }
 
-/* =========================================================================
 function setupAdminThree() {}
 
 /* =========================
@@ -2051,8 +2067,6 @@ function bind() {
     openAuth("login");
   });
 
-  $("logout-nav").addEventListener("click", logout);
-
   // Open My Profile
   document.querySelectorAll('[data-nav-action="profile"]').forEach((button) => {
     button.addEventListener("click", () => {
@@ -2128,11 +2142,22 @@ function bind() {
     });
   });
 
-  // Sidebar logout
-  const sidebarLogout = $("sidebar-logout");
+  // Sidebar and Navbar logout
+  document.querySelectorAll("#sidebar-logout, #logout-nav, .logout-link").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      logout();
+    });
+  });
 
-  if (sidebarLogout) {
-    sidebarLogout.addEventListener("click", logout);
+  // Google custom button click
+  const customGoogleBtn = $("google-custom-btn");
+  if (customGoogleBtn) {
+    customGoogleBtn.addEventListener("click", () => {
+      if (!googleClientId) {
+        toast("Google Sign-In: Add your GOOGLE_CLIENT_ID in Render Environment variables to activate.");
+      }
+    });
   }
 
   // Register and login tabs
@@ -2343,10 +2368,10 @@ function bind() {
 async function start() {
   renderCategories();
   bind();
-  setupThree();
-  setupCustomerThree();
-  setupWorkmanThree();
-  setupAdminThree();
+  try { setupThree(); } catch (e) { console.warn("Three hero:", e); }
+  try { setupCustomerThree(); } catch (e) { console.warn("Three customer:", e); }
+  try { setupWorkmanThree(); } catch (e) { console.warn("Three workman:", e); }
+  try { setupAdminThree(); } catch (e) { console.warn("Three admin:", e); }
 
   await initialise();
 }
