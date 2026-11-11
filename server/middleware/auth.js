@@ -15,6 +15,9 @@ function requireCsrf(req, res, next) {
     req.originalUrl === "/api/auth/logout" ||
     req.path === "/auth/logout" ||
     req.path === "/logout" ||
+    req.originalUrl === "/api/auth/google" ||
+    req.path === "/auth/google" ||
+    req.path === "/google" ||
     req.originalUrl.startsWith("/api/ai") ||
     req.path.startsWith("/ai")
   ) {
