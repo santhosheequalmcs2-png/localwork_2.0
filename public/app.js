@@ -2434,6 +2434,7 @@ function formatAIMarkdown(text) {
 
 function initAIAssistant() {
   const fab = $("ai-assistant-fab");
+  const fabContainer = $("ai-fab-container");
   const win = $("ai-chat-window");
   const closeBtn = $("ai-close-btn");
   const clearBtn = $("ai-clear-btn");
@@ -2443,10 +2444,144 @@ function initAIAssistant() {
 
   if (!fab || !win || !form) return;
 
-  fab.addEventListener("click", () => {
+  // ============================================
+  // DRAGGABLE / MOVABLE FAB BUTTON LOGIC
+  // ============================================
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0;
+  let startY = 0;
+  let initialLeft = 0;
+  let initialTop = 0;
+
+  function onPointerDown(e) {
+    if (e.type === "mousedown" && e.button !== 0) return;
+
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
+
+    isDragging = true;
+    hasMoved = false;
+    startX = clientX;
+    startY = clientY;
+
+    const targetEl = fabContainer || fab;
+    const rect = targetEl.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+
+    targetEl.style.bottom = "auto";
+    targetEl.style.right = "auto";
+    targetEl.style.left = `${initialLeft}px`;
+    targetEl.style.top = `${initialTop}px`;
+    fab.classList.add("dragging");
+
+    window.addEventListener("mousemove", onPointerMove);
+    window.addEventListener("mouseup", onPointerUp);
+    window.addEventListener("touchmove", onPointerMove, { passive: false });
+    window.addEventListener("touchend", onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+
+    const clientX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
+
+    const deltaX = clientX - startX;
+    const deltaY = clientY - startY;
+
+    if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+      hasMoved = true;
+      if (e.cancelable) e.preventDefault();
+    }
+
+    if (!hasMoved) return;
+
+    const targetEl = fabContainer || fab;
+    const rect = targetEl.getBoundingClientRect();
+    const width = rect.width || 120;
+    const height = rect.height || 48;
+
+    // Viewport bounds with 10px safe margin
+    const minX = 10;
+    const maxX = window.innerWidth - width - 10;
+    const minY = 10;
+    const maxY = window.innerHeight - height - 10;
+
+    let newLeft = initialLeft + deltaX;
+    let newTop = initialTop + deltaY;
+
+    newLeft = Math.max(minX, Math.min(newLeft, maxX));
+    newTop = Math.max(minY, Math.min(newTop, maxY));
+
+    targetEl.style.left = `${newLeft}px`;
+    targetEl.style.top = `${newTop}px`;
+
+    // If chat window is open, update its docked position
+    if (!win.classList.contains("hidden")) {
+      positionChatWindow();
+    }
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    fab.classList.remove("dragging");
+
+    window.removeEventListener("mousemove", onPointerMove);
+    window.removeEventListener("mouseup", onPointerUp);
+    window.removeEventListener("touchmove", onPointerMove);
+    window.removeEventListener("touchend", onPointerUp);
+  }
+
+  fab.addEventListener("mousedown", onPointerDown);
+  fab.addEventListener("touchstart", onPointerDown, { passive: true });
+
+  // Intelligent window docking relative to current FAB position
+  function positionChatWindow() {
+    const targetEl = fabContainer || fab;
+    const fabRect = targetEl.getBoundingClientRect();
+    const winWidth = Math.min(380, window.innerWidth - 32);
+    const winHeight = Math.min(520, window.innerHeight - 120);
+    const pad = 14;
+
+    // Horizontal placement: align with FAB, keeping window fully on-screen
+    let left = fabRect.left;
+    if (left + winWidth > window.innerWidth - pad) {
+      left = window.innerWidth - winWidth - pad;
+    }
+    left = Math.max(pad, left);
+
+    // Vertical placement: place above FAB if in bottom half, below if in top half
+    let top;
+    if (fabRect.top > window.innerHeight / 2) {
+      top = fabRect.top - winHeight - 10;
+    } else {
+      top = fabRect.bottom + 10;
+    }
+    top = Math.max(pad, Math.min(top, window.innerHeight - winHeight - pad));
+
+    win.style.bottom = "auto";
+    win.style.right = "auto";
+    win.style.left = `${left}px`;
+    win.style.top = `${top}px`;
+  }
+
+  fab.addEventListener("click", (e) => {
+    // If user dragged the button, do not toggle the chat window
+    if (hasMoved) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    const willOpen = win.classList.contains("hidden");
     win.classList.toggle("hidden");
-    if (!win.classList.contains("hidden") && input) {
-      input.focus();
+
+    if (willOpen) {
+      positionChatWindow();
+      if (input) input.focus();
     }
   });
 

@@ -1332,6 +1332,8 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   bottom: 24px;
   right: 24px;
   z-index: 999;
+  user-select: none;
+  touch-action: none;
 }
 
 .ai-fab {
@@ -1345,7 +1347,8 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   padding: 12px 20px;
   font-size: 0.95rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: grab;
+  user-select: none;
   box-shadow: 0 8px 24px rgba(27, 67, 50, 0.35);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
 }
@@ -1353,6 +1356,13 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 .ai-fab:hover {
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 12px 30px rgba(27, 67, 50, 0.45);
+}
+
+.ai-fab:active,
+.ai-fab.dragging {
+  cursor: grabbing !important;
+  transform: scale(0.97) !important;
+  box-shadow: 0 4px 14px rgba(27, 67, 50, 0.4) !important;
 }
 
 .ai-fab-icon {
