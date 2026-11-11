@@ -57,7 +57,7 @@ async function api(url, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || "Something went wrong.");
+    throw new Error(data.error || data.message || "Something went wrong.");
   }
 
   if (data.csrfToken) {
@@ -297,7 +297,117 @@ function setAuth(mode) {
 
   $("auth-submit").textContent = mode === "login" ? "Log in" : "Create account";
 
+  const googleText = $("google-btn-text");
+  if (googleText) {
+    googleText.textContent = mode === "login" ? "Sign in with Google" : "Sign up with Google";
+  }
+
+  if (googleScriptLoaded) {
+    renderGoogleButton();
+  }
+
   $("auth-error").classList.add("hidden");
+}
+
+let googleClientId = "";
+let googleScriptLoaded = false;
+
+async function initGoogleAuth() {
+  try {
+    const config = await api("/api/auth/config").catch(() => ({}));
+    googleClientId = (config.googleClientId || "").trim();
+
+    const customBtn = $("google-custom-btn");
+    const signinBtnContainer = $("google-signin-btn");
+
+    if (!googleClientId) {
+      if (customBtn) {
+        customBtn.classList.remove("hidden");
+        customBtn.onclick = () => {
+          toast("Google Sign-In: Set GOOGLE_CLIENT_ID in your Render environment variables to activate.");
+        };
+      }
+      if (signinBtnContainer) signinBtnContainer.classList.add("hidden");
+      return;
+    }
+
+    if (!googleScriptLoaded) {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        googleScriptLoaded = true;
+        renderGoogleButton();
+      };
+      document.head.appendChild(script);
+    } else {
+      renderGoogleButton();
+    }
+  } catch (err) {
+    console.error("Failed to initialize Google Auth:", err);
+  }
+}
+
+function renderGoogleButton() {
+  if (!window.google || !window.google.accounts || !window.google.accounts.id || !googleClientId) {
+    return;
+  }
+
+  const signinBtnContainer = $("google-signin-btn");
+  const customBtn = $("google-custom-btn");
+
+  if (!signinBtnContainer) return;
+
+  try {
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false
+    });
+
+    signinBtnContainer.innerHTML = "";
+    window.google.accounts.id.renderButton(signinBtnContainer, {
+      theme: "outline",
+      size: "large",
+      type: "standard",
+      text: authMode === "login" ? "signin_with" : "signup_with",
+      shape: "rectangular",
+      logo_alignment: "left",
+      width: 280
+    });
+
+    signinBtnContainer.classList.remove("hidden");
+    if (customBtn) customBtn.classList.add("hidden");
+  } catch (e) {
+    console.error("Error rendering Google button:", e);
+  }
+}
+
+async function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    toast("Google sign-in was cancelled.");
+    return;
+  }
+
+  $("auth-error").classList.add("hidden");
+
+  try {
+    const result = await api("/api/auth/google", {
+      method: "POST",
+      body: {
+        credential: response.credential
+      }
+    });
+
+    currentUser = result.user;
+    activeDashboard = "customer";
+    toast(`Welcome to LocalWork, ${currentUser.name || "Customer"}!`);
+    await routeUser();
+  } catch (err) {
+    $("auth-error").textContent = err.message;
+    $("auth-error").classList.remove("hidden");
+  }
 }
 
 function openAuth(mode = "register") {
@@ -832,16 +942,13 @@ async function loadAdmin() {
   $("admin-stats").innerHTML = Object.entries(counts)
     .map(
       ([key, value]) => {
-        const meta = metricMeta[key] || { label: key, icon: "📊" };
+        const meta = metricMeta[key] || { label: key };
         return `
-      <div class="admin-stat">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-          <span>${meta.icon}</span>
+        <div class="admin-stat">
+          <b>${Number(value) || 0}</b>
           <span>${esc(meta.label)}</span>
         </div>
-        <b>${Number(value) || 0}</b>
-      </div>
-    `;
+      `;
       }
     )
     .join("");
@@ -1824,254 +1931,8 @@ function setupWorkmanThree() {
   }
 }
 
-/* ==========================================================================
-   ADMIN DASHBOARD 3D ANIMATION
-   Cybernetic Neural Data Mesh & Constellation (Deep Navy, Violet, Cyan)
-   ========================================================================== */
-
-let adminThreeAnimate = null;
-
-function setupAdminThree() {
-  const host = $("admin-three-hero");
-  if (!host || !window.WebGLRenderingContext) return;
-
-  let renderer;
-
-  try {
-    const scene = new THREE.Scene();
-    const w = host.clientWidth || 320;
-    const h = host.clientHeight || 250;
-
-    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-    camera.position.set(0, 0, 5.4);
-
-    renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: "low-power",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(w, h);
-    host.appendChild(renderer.domElement);
-
-    // Dynamic Sci-Fi Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-    scene.add(ambientLight);
-
-    const violetLight = new THREE.PointLight(0xa78bfa, 3.5, 12);
-    violetLight.position.set(0, 0, 0);
-    scene.add(violetLight);
-
-    const cyanLight = new THREE.DirectionalLight(0x06b6d4, 2.5);
-    cyanLight.position.set(4, 5, 3);
-    scene.add(cyanLight);
-
-    const backBlueLight = new THREE.DirectionalLight(0x4338ca, 2.0);
-    backBlueLight.position.set(-4, -4, -3);
-    scene.add(backBlueLight);
-
-    // Root Group
-    const meshRoot = new THREE.Group();
-    scene.add(meshRoot);
-
-    // 1. Central Core: Cybernetic Dodecahedron
-    const coreMat = new THREE.MeshStandardMaterial({
-      color: 0x8b5cf6,
-      emissive: 0x6d28d9,
-      emissiveIntensity: 0.6,
-      roughness: 0.2,
-      metalness: 0.8,
-    });
-    const core = new THREE.Mesh(new THREE.DodecahedronGeometry(0.72, 0), coreMat);
-    meshRoot.add(core);
-
-    // Core Wireframe Cage
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0xc4b5fd,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.4,
-    });
-    const wireCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.92, 1), wireMat);
-    meshRoot.add(wireCore);
-
-    // 2. Concentric Orbiting Rings (Toruses)
-    const ringMat1 = new THREE.MeshStandardMaterial({
-      color: 0xa78bfa,
-      emissive: 0x7c3aed,
-      emissiveIntensity: 0.4,
-      roughness: 0.3,
-      metalness: 0.7,
-    });
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.02, 8, 80), ringMat1);
-    ring1.rotation.x = Math.PI / 3;
-    meshRoot.add(ring1);
-
-    const ringMat2 = new THREE.MeshStandardMaterial({
-      color: 0x06b6d4,
-      emissive: 0x0891b2,
-      emissiveIntensity: 0.4,
-      roughness: 0.3,
-      metalness: 0.7,
-    });
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.018, 8, 80), ringMat2);
-    ring2.rotation.y = Math.PI / 3;
-    ring2.rotation.x = -Math.PI / 6;
-    meshRoot.add(ring2);
-
-    // 3. Network Constellation Nodes & Connecting Lines
-    const nodeCount = 18;
-    const nodes = [];
-    const nodePositions = [];
-    const nodeMatViolet = new THREE.MeshStandardMaterial({
-      color: 0xc4b5fd,
-      emissive: 0x8b5cf6,
-      emissiveIntensity: 0.7,
-      roughness: 0.2,
-    });
-    const nodeMatCyan = new THREE.MeshStandardMaterial({
-      color: 0x67e8f9,
-      emissive: 0x06b6d4,
-      emissiveIntensity: 0.8,
-      roughness: 0.2,
-    });
-
-    const goldenRatio = (1 + Math.sqrt(5)) / 2;
-    for (let i = 0; i < nodeCount; i++) {
-      const theta = (2 * Math.PI * i) / goldenRatio;
-      const phi = Math.acos(1 - (2 * (i + 0.5)) / nodeCount);
-      const rad = 2.05 + (i % 3) * 0.15;
-
-      const x = rad * Math.sin(phi) * Math.cos(theta);
-      const y = rad * Math.sin(phi) * Math.sin(theta);
-      const z = rad * Math.cos(phi);
-
-      const nodeGeom = new THREE.SphereGeometry(0.065, 8, 8);
-      const mat = i % 2 === 0 ? nodeMatViolet : nodeMatCyan;
-      const node = new THREE.Mesh(nodeGeom, mat);
-      node.position.set(x, y, z);
-      meshRoot.add(node);
-
-      nodes.push(node);
-      nodePositions.push(new THREE.Vector3(x, y, z));
-    }
-
-    // Connect close nodes with line segments
-    const lineIndices = [];
-    for (let i = 0; i < nodeCount; i++) {
-      for (let j = i + 1; j < nodeCount; j++) {
-        if (nodePositions[i].distanceTo(nodePositions[j]) < 1.7) {
-          lineIndices.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
-          lineIndices.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
-        }
-      }
-    }
-
-    const lineGeom = new THREE.BufferGeometry();
-    lineGeom.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(lineIndices, 3)
-    );
-    const lineMat = new THREE.LineBasicMaterial({
-      color: 0x6366f1,
-      transparent: true,
-      opacity: 0.35,
-    });
-    const networkLines = new THREE.LineSegments(lineGeom, lineMat);
-    meshRoot.add(networkLines);
-
-    // 4. Data Packets orbiting along the rings
-    const packetGroup = new THREE.Group();
-    scene.add(packetGroup);
-
-    const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const packet1 = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), packetMat);
-    const packet2 = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), packetMat);
-    packetGroup.add(packet1);
-    packetGroup.add(packet2);
-
-    function resize() {
-      const currentW = host.clientWidth || 320;
-      const currentH = host.clientHeight || 250;
-      camera.aspect = currentW / currentH;
-      camera.updateProjectionMatrix();
-      renderer.setSize(currentW, currentH);
-    }
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(host);
-
-    const clock = new THREE.Clock();
-    let isRunning = false;
-
-    function animate() {
-      const adminView = $("admin-view");
-      if (!adminView || adminView.classList.contains("hidden") || document.hidden) {
-        isRunning = false;
-        return;
-      }
-
-      isRunning = true;
-      requestAnimationFrame(animate);
-
-      const t = clock.getElapsedTime();
-
-      // Mesh rotation & breathing
-      meshRoot.rotation.y = t * 0.28;
-      meshRoot.rotation.x = Math.sin(t * 0.2) * 0.15;
-
-      core.rotation.y = -t * 0.5;
-      core.rotation.z = t * 0.3;
-
-      wireCore.rotation.y = t * 0.35;
-      wireCore.rotation.x = t * 0.25;
-
-      ring1.rotation.z = t * 0.45;
-      ring2.rotation.z = -t * 0.35;
-
-      // Pulse nodes gently
-      nodes.forEach((n, idx) => {
-        const s = 1 + Math.sin(t * 2.5 + idx) * 0.2;
-        n.scale.set(s, s, s);
-      });
-
-      // Data packet motion
-      const angle1 = t * 1.5;
-      packet1.position.set(
-        1.5 * Math.cos(angle1),
-        1.5 * Math.sin(angle1) * Math.cos(Math.PI / 3),
-        1.5 * Math.sin(angle1) * Math.sin(Math.PI / 3)
-      );
-
-      const angle2 = -t * 1.2;
-      packet2.position.set(
-        1.85 * Math.cos(angle2) * Math.cos(Math.PI / 3),
-        1.85 * Math.sin(angle2),
-        1.85 * Math.cos(angle2) * Math.sin(Math.PI / 3)
-      );
-
-      renderer.render(scene, camera);
-    }
-
-    adminThreeAnimate = () => {
-      resize();
-      if (!isRunning) {
-        clock.start();
-        animate();
-      }
-    };
-
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden && $("admin-view") && !$("admin-view").classList.contains("hidden")) {
-        adminThreeAnimate();
-      }
-    });
-
-  } catch (err) {
-    console.warn("Could not start Admin 3D canvas:", err.message);
-    if (renderer) renderer.dispose();
-  }
-}
+/* =========================================================================
+function setupAdminThree() {}
 
 /* =========================
    INITIALISE
@@ -2086,6 +1947,9 @@ async function initialise() {
     const csrfData = await csrf.json();
 
     csrfToken = csrfData.csrfToken;
+
+    // Initialize Google Identity Services
+    initGoogleAuth();
 
     // Check whether the user opened a password reset link
     pendingResetToken =

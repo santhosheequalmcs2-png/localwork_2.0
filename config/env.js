@@ -33,5 +33,6 @@ module.exports = {
     corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean),
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "LocalWork <onboarding@resend.dev>",
-  appBaseUrl: (process.env.APP_BASE_URL || "http://localhost:3000").replace(/\/+$/, "")
+  googleClientId: (process.env.GOOGLE_CLIENT_ID || "").trim(),
+  appBaseUrl: (process.env.APP_BASE_URL || (nodeEnv === "production" || process.env.RENDER ? "https://localwork-2-0.onrender.com" : "http://localhost:3000")).replace(/\/+$/, "")
 };

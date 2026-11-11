@@ -232,6 +232,24 @@
 
           <div id="auth-error" class="error hidden" role="alert"></div>
 
+          <!-- GOOGLE ONE-CLICK AUTH -->
+          <div id="google-auth-wrapper" class="google-auth-container">
+            <div id="google-signin-btn"></div>
+            <button type="button" id="google-custom-btn" class="btn-google-custom">
+              <svg class="google-icon-svg" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span id="google-btn-text">Sign in with Google</span>
+            </button>
+          </div>
+
+          <div class="oauth-divider">
+            <span>or with email</span>
+          </div>
+
           <!-- REGISTRATION DETAILS -->
           <div id="signup-fields">
 
@@ -861,112 +879,43 @@
   </section>
 
 
-  <!-- ADMIN DASHBOARD (ADVANCED SAAS MANAGEMENT CENTER) -->
-  <section id="admin-view" class="view admin-dashboard hidden">
+  <!-- ADMIN DASHBOARD -->
+  <section id="admin-view" class="view hidden">
 
-    <!-- ADMIN HERO & NETWORK MONITOR -->
-    <div class="admin-hero-card">
-      <div class="admin-hero-content">
-        <div class="admin-badge-row">
-          <span class="admin-saas-badge">
-            <span class="badge-dot-violet"></span>
-            <span>ENTERPRISE CONTROL CENTER</span>
-          </span>
-          <span class="admin-status-pill">
-            <span class="pulse-indicator-violet"></span>
-            <span>Core Systems Active</span>
-          </span>
-        </div>
-
-        <h1 class="admin-title">Platform Intelligence</h1>
-
-        <p class="admin-subtitle">
-          Real-time network monitoring, user provisioning, trade validation, and booking telemetry.
-        </p>
-
-        <!-- Live Server Status Indicator -->
-        <div class="admin-telemetry-strip">
-          <div class="telemetry-pill">
-            <span class="telemetry-label">Cluster</span>
-            <strong>Neon PostgreSQL</strong>
-          </div>
-          <div class="telemetry-pill">
-            <span class="telemetry-label">Security</span>
-            <strong>CSRF & Session Shield</strong>
-          </div>
-          <div class="telemetry-pill">
-            <span class="telemetry-label">Telemetry</span>
-            <strong id="admin-telemetry-status">Sync 100%</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3D DATA / NETWORK CONSTELLATION FRAME -->
-      <div class="admin-3d-wrapper">
-        <div class="admin-3d-card">
-          <div class="admin-3d-badge">
-            <span class="violet-beacon"></span>
-            <span>3D Neural Data Mesh</span>
-          </div>
-          <div id="admin-three-hero" class="admin-three-canvas"></div>
-          <div class="admin-3d-caption">
-            <span>Marketplace Mesh Graph</span>
-            <small>Live WebGL Visualization</small>
-          </div>
-        </div>
-      </div>
+    <div class="page-head">
+      <p class="eyebrow">ADMIN CONTROL PANEL</p>
+      <h1>LocalWork overview</h1>
+      <p class="muted">
+        Manage accounts, workman applications and booking activity.
+      </p>
     </div>
 
-    <!-- REAL DATABASE KPI CARDS -->
-    <div class="admin-metrics-section">
-      <div class="section-title admin-section-title">
-        <div>
-          <p class="admin-eyebrow">METRICS & TELEMETRY</p>
-          <h2>Platform Performance KPIs</h2>
+    <!-- ADMIN STATISTICS -->
+    <div id="admin-stats" class="admin-stats"></div>
+
+    <!-- WORKMAN APPLICATIONS -->
+    <section class="surface">
+      <p class="eyebrow">APPLICATION REVIEW</p>
+      <h2>Workman applications</h2>
+      <div id="admin-applications" class="booking-list">
+        <div class="empty">
+          No applications to display.
         </div>
-        <span class="admin-live-tag">Live Neon DB Data</span>
-      </div>
-
-      <!-- ADMIN STATISTICS (populates with real counts) -->
-      <div id="admin-stats" class="admin-stats-grid"></div>
-    </div>
-
-    <!-- PENDING WORKMAN APPLICATIONS -->
-    <section class="admin-surface admin-applications-surface">
-      <div class="admin-surface-header">
-        <div class="surface-header-icon surface-icon-violet">🛡️</div>
-        <div>
-          <p class="admin-eyebrow">VERIFICATION QUEUE</p>
-          <h2>Workman Applications</h2>
-        </div>
-      </div>
-      <p class="surface-desc">Review submitted trade credentials and decide whether to approve or reject local workmen.</p>
-
-      <div id="admin-applications" class="admin-applications-list">
-        <div class="empty">No applications to display.</div>
       </div>
     </section>
 
-    <!-- REGISTERED USERS TABLE -->
-    <section class="admin-surface admin-users-surface">
-      <div class="admin-surface-header">
-        <div class="surface-header-icon surface-icon-blue">👥</div>
-        <div>
-          <p class="admin-eyebrow">IDENTITY DIRECTORY</p>
-          <h2>Registered Users</h2>
-        </div>
-      </div>
-      <p class="surface-desc">Global user management across customer, workman, and administrative roles.</p>
-
-      <div class="table-wrap admin-table-wrap">
-        <table class="admin-table">
+    <!-- REGISTERED USERS -->
+    <section class="surface">
+      <h2>Registered users</h2>
+      <div class="table-wrap">
+        <table>
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Joined Date</th>
-              <th>Management</th>
+              <th>Joined</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="admin-users"></tbody>
@@ -974,18 +923,10 @@
       </div>
     </section>
 
-    <!-- BOOKING ACTIVITY MONITOR -->
-    <section class="admin-surface admin-bookings-surface">
-      <div class="admin-surface-header">
-        <div class="surface-header-icon surface-icon-amber">📊</div>
-        <div>
-          <p class="admin-eyebrow">PLATFORM AUDIT</p>
-          <h2>Booking Activity & Audit Trail</h2>
-        </div>
-      </div>
-      <p class="surface-desc">Real-time log of customer bookings, workman allocations, and appointment schedules.</p>
-
-      <div id="admin-bookings" class="admin-bookings-list"></div>
+    <!-- BOOKING ACTIVITY -->
+    <section class="surface">
+      <h2>Booking activity</h2>
+      <div id="admin-bookings" class="booking-list"></div>
     </section>
 
   </section>

@@ -12,7 +12,7 @@ const { requireCsrf } = require("./middleware/auth");
 
 const app = express();
 
-if (env.isProduction) app.set("trust proxy", 1);
+if (env.isProduction || process.env.RENDER) app.set("trust proxy", 1);
 
 app.disable("x-powered-by");
 
@@ -20,10 +20,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://accounts.google.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https://accounts.google.com"],
+      connectSrc: ["'self'", "https://accounts.google.com", "https://oauth2.googleapis.com"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
@@ -78,12 +79,12 @@ app.use("/api", requireCsrf);
 app.use(
   "/api/auth/forgot-password",
   rateLimit({
-    windowMs: 60 * 60 * 1000,
-    limit: 5,
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     message: {
-      message: "Too many password reset requests. Please try again later."
+      error: "Too many password reset requests. Please wait a few minutes before trying again."
     }
   })
 );

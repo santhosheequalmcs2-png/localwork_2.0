@@ -23,6 +23,87 @@ router.get("/csrf", (req, res) => {
   res.json({ csrfToken: req.session.csrfToken });
 });
 
+// Public authentication configuration (e.g. Google Client ID)
+router.get("/config", (req, res) => {
+  res.json({
+    googleClientId: env.googleClientId || ""
+  });
+});
+
+// Sign in or Sign up with Google
+router.post("/google", async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+    if (!credential || typeof credential !== "string") {
+      return res.status(400).json({ error: "Missing Google credential." });
+    }
+
+    // Verify token with Google's tokeninfo API
+    const verifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`;
+    const googleRes = await fetch(verifyUrl, {
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!googleRes.ok) {
+      return res.status(401).json({ error: "Invalid Google credential." });
+    }
+
+    const payload = await googleRes.json();
+
+    if (!payload.email || (payload.email_verified !== "true" && payload.email_verified !== true)) {
+      return res.status(400).json({ error: "Google email is unverified or missing." });
+    }
+
+    // Verify Google Client ID if configured
+    if (env.googleClientId && payload.aud !== env.googleClientId) {
+      return res.status(401).json({ error: "Google client ID mismatch." });
+    }
+
+    const email = payload.email.toLowerCase().trim();
+    const name = (payload.name || payload.given_name || email.split("@")[0]).trim().slice(0, 80);
+
+    // Look for existing user
+    const existing = await pool.query(
+      "SELECT * FROM users WHERE LOWER(email) = LOWER($1)",
+      [email]
+    );
+
+    let user;
+
+    if (existing.rows.length > 0) {
+      user = existing.rows[0];
+    } else {
+      // Register new user as customer
+      const randomPassword = crypto.randomBytes(32).toString("hex");
+      const passwordHash = await bcrypt.hash(randomPassword, 12);
+
+      const insertResult = await pool.query(
+        `INSERT INTO users (name, email, phone, location, role, password_hash)
+         VALUES ($1, $2, 'Google Account', 'Local Area', 'customer', $3)
+         RETURNING *`,
+        [name, email, passwordHash]
+      );
+      user = insertResult.rows[0];
+    }
+
+    // Regenerate session to prevent fixation attacks
+    req.session.regenerate((err) => {
+      if (err) return next(err);
+
+      req.session.userId = user.id;
+      req.session.csrfToken = crypto.randomBytes(32).toString("hex");
+
+      res.json({
+        user: publicUser(user),
+        csrfToken: req.session.csrfToken
+      });
+    });
+  } catch (err) {
+    console.error("Google authentication error:", err.message);
+    next(err);
+  }
+});
+
 // Register: Every new user starts as a Customer
 router.post("/register", validate(registerSchema), async (req, res, next) => {
   try {
@@ -136,14 +217,17 @@ router.post(
       }
 
       if (!env.resendApiKey) {
-        throw new Error("Email service is not configured.");
+        console.error("Password reset error: RESEND_API_KEY is not configured.");
+        return res.status(503).json({
+          error: "Email service is not configured on the server. Please check RESEND_API_KEY."
+        });
       }
 
       const rawToken = crypto.randomBytes(32).toString("hex");
       tokenHash = crypto
-      .createHash("sha256")
-      .update(rawToken)
-      .digest("hex");
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
 
       client = await pool.connect();
 
@@ -164,8 +248,18 @@ router.post(
 
       await client.query("COMMIT");
 
+      // Determine the base URL dynamically from the request headers so links work on Render
+      let baseUrl = env.appBaseUrl;
+      const host = req.get("x-forwarded-host") || req.get("host");
+      if ((!baseUrl || baseUrl.includes("localhost")) && host && !host.includes("localhost")) {
+        const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+        baseUrl = `${proto}://${host}`;
+      } else if ((env.isProduction || process.env.RENDER) && (!baseUrl || baseUrl.includes("localhost"))) {
+        baseUrl = "https://localwork-2-0.onrender.com";
+      }
+
       const resetUrl =
-        `${env.appBaseUrl}/?resetToken=${encodeURIComponent(rawToken)}`;
+        `${baseUrl}/?resetToken=${encodeURIComponent(rawToken)}`;
 
       await sendPasswordResetEmail({
         to: user.email,
@@ -175,20 +269,27 @@ router.post(
 
       return res.json(message);
     } catch (err) {
-  if (client) {
-    await client.query("ROLLBACK").catch(() => {});
-  }
+      if (client) {
+        await client.query("ROLLBACK").catch(() => {});
+      }
 
-  if (tokenHash) {
-    await pool.query(
-      "DELETE FROM password_reset_tokens WHERE token_hash = $1",
-      [tokenHash]
-    ).catch(() => {});
-  }
+      if (tokenHash) {
+        await pool.query(
+          "DELETE FROM password_reset_tokens WHERE token_hash = $1",
+          [tokenHash]
+        ).catch(() => {});
+      }
 
-  console.error("Password reset request failed.");
-  return res.json(message);
-}finally {
+      console.error("Password reset request failed:", err.message);
+
+      if (err.message && err.message.startsWith("Email provider error")) {
+        return res.status(502).json({
+          error: err.message
+        });
+      }
+
+      return res.json(message);
+    } finally {
       if (client) client.release();
     }
   }
@@ -304,24 +405,30 @@ router.get("/me", requireAuth, async (req, res, next) => {
   }
 });
 
-// Logout
-router.post("/logout", requireAuth, (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({
-        error: "Could not log out."
-      });
-    }
+// Logout: Always destroy session and clear session cookie cleanly
+router.post("/logout", (req, res) => {
+  const isSecure = env.isProduction || Boolean(process.env.RENDER) || req.protocol === "https";
 
+  const finishLogout = () => {
     res.clearCookie("localwork.sid", {
       httpOnly: true,
       sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecure,
       path: "/"
     });
+    return res.json({ message: "You have logged out." });
+  };
 
-    res.json({ message: "You have logged out." });
-  });
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Session destroy error:", err);
+      }
+      finishLogout();
+    });
+  } else {
+    finishLogout();
+  }
 });
 
 module.exports = router;
