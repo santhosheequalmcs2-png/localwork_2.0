@@ -750,105 +750,242 @@
   </section>
 
 
-  <!-- APPROVED WORKMAN DASHBOARD -->
-  <section id="workman-view" class="view hidden">
+  <!-- APPROVED WORKMAN DASHBOARD (PROFESSIONAL WORK HUB) -->
+  <section id="workman-view" class="view workman-dashboard hidden">
 
-    <div class="page-head">
+    <!-- HERO / COMMAND CENTER -->
+    <div class="workman-hero-card">
+      <div class="workman-hero-content">
+        <div class="workman-badge-row">
+          <span class="workman-pro-badge">
+            <span class="badge-icon">⚡</span>
+            <span>VERIFIED PROFESSIONAL</span>
+          </span>
+          <span id="workman-trade-availability" class="workman-avail-badge">
+            Available
+          </span>
+        </div>
 
-      <p class="eyebrow">WORKMAN SPACE</p>
+        <h1 id="workman-greeting" class="workman-title">
+          Your Pro Work Hub
+        </h1>
 
-      <h1>Your skills deserve to be seen.</h1>
+        <p class="workman-subtitle">
+          Manage your incoming job requests, coordinate with local customers, and keep your trade schedule organized.
+        </p>
 
-      <p class="muted">
-        Manage your booking requests and help customers in your area.
-      </p>
+        <!-- WORKMAN PROFILE STRIP -->
+        <div class="workman-profile-strip">
+          <div class="workman-pill">
+            <span class="pill-label">Trade</span>
+            <strong id="workman-trade-name">Tradesperson</strong>
+          </div>
+          <div class="workman-pill">
+            <span class="pill-label">Service Area</span>
+            <strong id="workman-trade-location">Local Area</strong>
+          </div>
+          <div class="workman-pill">
+            <span class="pill-label">Experience</span>
+            <strong id="workman-trade-experience">Professional</strong>
+          </div>
+        </div>
+      </div>
 
+      <!-- 3D ANIMATED TOOLBOX FRAME -->
+      <div class="workman-3d-wrapper">
+        <div class="workman-3d-card">
+          <div class="workman-3d-badge">
+            <span class="workman-dot"></span>
+            <span>Pro Toolkit 3D Studio</span>
+          </div>
+          <div id="workman-three-hero" class="workman-three-canvas"></div>
+          <div class="workman-3d-caption">
+            <span>LocalWork Pro Hardware</span>
+            <small>Active 3D Render</small>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <section class="surface">
+    <!-- REAL-TIME WORK STATISTICS -->
+    <div class="workman-stats-grid">
+      <div class="workman-stat-card">
+        <div class="stat-icon-wrap stat-total">📋</div>
+        <div class="stat-body">
+          <strong id="workman-stat-total">0</strong>
+          <span>Total Requests</span>
+        </div>
+      </div>
 
-      <p class="eyebrow">CUSTOMER REQUESTS</p>
+      <div class="workman-stat-card">
+        <div class="stat-icon-wrap stat-pending">⏳</div>
+        <div class="stat-body">
+          <strong id="workman-stat-pending">0</strong>
+          <span>Pending Action</span>
+        </div>
+      </div>
 
-      <h2>Booking requests</h2>
+      <div class="workman-stat-card">
+        <div class="stat-icon-wrap stat-active">🛠️</div>
+        <div class="stat-body">
+          <strong id="workman-stat-active">0</strong>
+          <span>Active Jobs</span>
+        </div>
+      </div>
 
-      <div id="workman-bookings" class="booking-list"></div>
+      <div class="workman-stat-card">
+        <div class="stat-icon-wrap stat-completed">✅</div>
+        <div class="stat-body">
+          <strong id="workman-stat-completed">0</strong>
+          <span>Completed</span>
+        </div>
+      </div>
+    </div>
 
+    <!-- BOOKINGS & JOB REQUESTS PANEL -->
+    <section class="workman-jobs-section">
+      <div class="workman-section-header">
+        <div>
+          <p class="workman-eyebrow">ACTIVE INBOX</p>
+          <h2>Customer Booking Requests</h2>
+        </div>
+        <button id="workman-customer-action" class="btn btn-workman-secondary">
+          <span>Explore Customer Marketplace</span>
+          <span>→</span>
+        </button>
+      </div>
+
+      <div id="workman-bookings" class="workman-booking-list"></div>
     </section>
-
-    <button id="workman-customer-action" class="btn btn-light">
-      Customer Dashboard
-    </button>
 
   </section>
 
 
-  <!-- ADMIN DASHBOARD -->
-  <section id="admin-view" class="view hidden">
+  <!-- ADMIN DASHBOARD (ADVANCED SAAS MANAGEMENT CENTER) -->
+  <section id="admin-view" class="view admin-dashboard hidden">
 
-    <div class="page-head">
+    <!-- ADMIN HERO & NETWORK MONITOR -->
+    <div class="admin-hero-card">
+      <div class="admin-hero-content">
+        <div class="admin-badge-row">
+          <span class="admin-saas-badge">
+            <span class="badge-dot-violet"></span>
+            <span>ENTERPRISE CONTROL CENTER</span>
+          </span>
+          <span class="admin-status-pill">
+            <span class="pulse-indicator-violet"></span>
+            <span>Core Systems Active</span>
+          </span>
+        </div>
 
-      <p class="eyebrow">ADMIN CONTROL PANEL</p>
+        <h1 class="admin-title">Platform Intelligence</h1>
 
-      <h1>LocalWork overview</h1>
+        <p class="admin-subtitle">
+          Real-time network monitoring, user provisioning, trade validation, and booking telemetry.
+        </p>
 
-      <p class="muted">
-        Manage accounts, workman applications and booking activity.
-      </p>
-
-    </div>
-
-    <!-- ADMIN STATISTICS -->
-    <div id="admin-stats" class="admin-stats"></div>
-
-    <!-- WORKMAN APPLICATIONS -->
-    <section class="surface">
-
-      <p class="eyebrow">APPLICATION REVIEW</p>
-
-      <h2>Workman applications</h2>
-
-      <div id="admin-applications" class="booking-list">
-        <div class="empty">
-          No applications to display.
+        <!-- Live Server Status Indicator -->
+        <div class="admin-telemetry-strip">
+          <div class="telemetry-pill">
+            <span class="telemetry-label">Cluster</span>
+            <strong>Neon PostgreSQL</strong>
+          </div>
+          <div class="telemetry-pill">
+            <span class="telemetry-label">Security</span>
+            <strong>CSRF & Session Shield</strong>
+          </div>
+          <div class="telemetry-pill">
+            <span class="telemetry-label">Telemetry</span>
+            <strong id="admin-telemetry-status">Sync 100%</strong>
+          </div>
         </div>
       </div>
 
+      <!-- 3D DATA / NETWORK CONSTELLATION FRAME -->
+      <div class="admin-3d-wrapper">
+        <div class="admin-3d-card">
+          <div class="admin-3d-badge">
+            <span class="violet-beacon"></span>
+            <span>3D Neural Data Mesh</span>
+          </div>
+          <div id="admin-three-hero" class="admin-three-canvas"></div>
+          <div class="admin-3d-caption">
+            <span>Marketplace Mesh Graph</span>
+            <small>Live WebGL Visualization</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REAL DATABASE KPI CARDS -->
+    <div class="admin-metrics-section">
+      <div class="section-title admin-section-title">
+        <div>
+          <p class="admin-eyebrow">METRICS & TELEMETRY</p>
+          <h2>Platform Performance KPIs</h2>
+        </div>
+        <span class="admin-live-tag">Live Neon DB Data</span>
+      </div>
+
+      <!-- ADMIN STATISTICS (populates with real counts) -->
+      <div id="admin-stats" class="admin-stats-grid"></div>
+    </div>
+
+    <!-- PENDING WORKMAN APPLICATIONS -->
+    <section class="admin-surface admin-applications-surface">
+      <div class="admin-surface-header">
+        <div class="surface-header-icon surface-icon-violet">🛡️</div>
+        <div>
+          <p class="admin-eyebrow">VERIFICATION QUEUE</p>
+          <h2>Workman Applications</h2>
+        </div>
+      </div>
+      <p class="surface-desc">Review submitted trade credentials and decide whether to approve or reject local workmen.</p>
+
+      <div id="admin-applications" class="admin-applications-list">
+        <div class="empty">No applications to display.</div>
+      </div>
     </section>
 
-    <!-- REGISTERED USERS -->
-    <section class="surface">
+    <!-- REGISTERED USERS TABLE -->
+    <section class="admin-surface admin-users-surface">
+      <div class="admin-surface-header">
+        <div class="surface-header-icon surface-icon-blue">👥</div>
+        <div>
+          <p class="admin-eyebrow">IDENTITY DIRECTORY</p>
+          <h2>Registered Users</h2>
+        </div>
+      </div>
+      <p class="surface-desc">Global user management across customer, workman, and administrative roles.</p>
 
-      <h2>Registered users</h2>
-
-      <div class="table-wrap">
-
-        <table>
-
+      <div class="table-wrap admin-table-wrap">
+        <table class="admin-table">
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Joined</th>
-              <th>Action</th>
+              <th>Joined Date</th>
+              <th>Management</th>
             </tr>
           </thead>
-
           <tbody id="admin-users"></tbody>
-
         </table>
-
       </div>
-
     </section>
 
-    <!-- BOOKING ACTIVITY -->
-    <section class="surface">
+    <!-- BOOKING ACTIVITY MONITOR -->
+    <section class="admin-surface admin-bookings-surface">
+      <div class="admin-surface-header">
+        <div class="surface-header-icon surface-icon-amber">📊</div>
+        <div>
+          <p class="admin-eyebrow">PLATFORM AUDIT</p>
+          <h2>Booking Activity & Audit Trail</h2>
+        </div>
+      </div>
+      <p class="surface-desc">Real-time log of customer bookings, workman allocations, and appointment schedules.</p>
 
-      <h2>Booking activity</h2>
-
-      <div id="admin-bookings" class="booking-list"></div>
-
+      <div id="admin-bookings" class="admin-bookings-list"></div>
     </section>
 
   </section>

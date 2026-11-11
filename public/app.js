@@ -94,6 +94,14 @@ function show(view, { updateHistory = true } = {}) {
     setTimeout(() => customerThreeAnimate(), 50);
   }
 
+  if (view === "workman-view" && typeof workmanThreeAnimate === "function") {
+    setTimeout(() => workmanThreeAnimate(), 50);
+  }
+
+  if (view === "admin-view" && typeof adminThreeAnimate === "function") {
+    setTimeout(() => adminThreeAnimate(), 50);
+  }
+
   const isPublicPage = view === "home-view" || view === "auth-view";
 
   const publicNav = $("public-nav");
@@ -620,39 +628,95 @@ async function loadCustomerBookings() {
 async function loadWorkmanBookings() {
   const { bookings } = await api("/api/bookings/workman");
 
+  // Populate Workman Profile Strip & Greeting
+  if (currentUser) {
+    const greetingEl = $("workman-greeting");
+    if (greetingEl) {
+      greetingEl.textContent = `Welcome back, ${currentUser.name.split(" ")[0]}!`;
+    }
+    if ($("workman-trade-name")) {
+      $("workman-trade-name").textContent = currentUser.service || "Tradesperson";
+    }
+    if ($("workman-trade-location")) {
+      $("workman-trade-location").textContent = currentUser.location || "Nearby";
+    }
+    if ($("workman-trade-experience")) {
+      $("workman-trade-experience").textContent = `${Number(currentUser.experience) || 0} Years`;
+    }
+    if ($("workman-trade-availability")) {
+      $("workman-trade-availability").textContent = currentUser.availability || "Available";
+    }
+  }
+
+  // Calculate Real-Time Booking Statistics
+  const total = bookings.length;
+  const pending = bookings.filter((b) => b.status === "Pending").length;
+  const active = bookings.filter((b) => b.status === "Accepted").length;
+  const completed = bookings.filter((b) => b.status === "Completed").length;
+
+  if ($("workman-stat-total")) $("workman-stat-total").textContent = total;
+  if ($("workman-stat-pending")) $("workman-stat-pending").textContent = pending;
+  if ($("workman-stat-active")) $("workman-stat-active").textContent = active;
+  if ($("workman-stat-completed")) $("workman-stat-completed").textContent = completed;
+
+  // Render Modern Job Cards
   $("workman-bookings").innerHTML = bookings.length
     ? bookings
         .map(
           (b) => `
-      <div class="booking-item">
-        <b>${esc(b.customer_name)} · ${esc(b.booking_date)}</b>
+      <div class="workman-job-card workman-job-${(b.status || "").toLowerCase()}">
+        <div class="job-card-header">
+          <div>
+            <h3 class="job-customer-name">${esc(b.customer_name)}</h3>
+            <span class="job-date">📅 ${esc(b.booking_date)} at ${esc(b.booking_time)}</span>
+          </div>
+          <span class="job-status-pill status-${(b.status || "").toLowerCase()}">
+            ${esc(b.status)}
+          </span>
+        </div>
 
-        <p>
-          ${esc(b.booking_time)} ·
-          ${esc(b.address)} ·
-          ${esc(b.phone)}
-        </p>
+        <div class="job-card-details">
+          <div class="job-detail-row">
+            <span class="detail-icon">📍</span>
+            <span>${esc(b.address)}</span>
+          </div>
+          <div class="job-detail-row">
+            <span class="detail-icon">📞</span>
+            <a href="tel:${esc(b.phone)}" class="job-phone-link">${esc(b.phone)}</a>
+          </div>
+          ${
+            b.notes
+              ? `<div class="job-notes-box">
+                  <strong>Customer Note:</strong> ${esc(b.notes)}
+                </div>`
+              : ""
+          }
+        </div>
 
-        <p>${esc(b.notes)}</p>
-
-        <b>Status: ${esc(b.status)}</b>
-
-        <div>
+        <div class="job-card-actions">
           ${
             b.status === "Pending"
               ? `
             <button
-              class="btn btn-primary"
+              class="btn btn-workman-accept"
               data-status="Accepted"
               data-id="${b.id}">
-              Accept
+              ✓ Accept Request
             </button>
-
             <button
-              class="btn btn-light"
+              class="btn btn-workman-decline"
               data-status="Declined"
               data-id="${b.id}">
-              Decline
+              ✕ Decline
+            </button>
+          `
+              : b.status === "Accepted"
+              ? `
+            <button
+              class="btn btn-workman-complete"
+              data-status="Completed"
+              data-id="${b.id}">
+              ★ Mark as Completed
             </button>
           `
               : ""
@@ -662,7 +726,11 @@ async function loadWorkmanBookings() {
     `,
         )
         .join("")
-    : `<div class="empty">No booking requests yet.</div>`;
+    : `<div class="workman-empty-jobs">
+        <div class="empty-icon">🧰</div>
+        <h3>No booking requests yet</h3>
+        <p>When customers in your area request your trade skills, their job requests will appear here with contact details.</p>
+       </div>`;
 
   $("workman-bookings")
     .querySelectorAll("[data-status]")
@@ -676,8 +744,7 @@ async function loadWorkmanBookings() {
             },
           });
 
-          toast("Booking status updated.");
-
+          toast(`Booking marked as ${button.dataset.status}.`);
           await loadWorkmanBookings();
         } catch (e) {
           toast(e.message);
@@ -752,15 +819,30 @@ async function loadAdmin() {
   const { counts, users, bookings } = overview;
   const { applications } = applicationData;
 
+  const metricMeta = {
+    users: { label: "Total Accounts", icon: "👥" },
+    customers: { label: "Active Customers", icon: "🏡" },
+    workmen: { label: "Approved Workmen", icon: "⚡" },
+    bookings: { label: "Platform Bookings", icon: "📋" },
+    pending: { label: "Pending Bookings", icon: "⏳" },
+    pendingApplications: { label: "Pending Approvals", icon: "🛡️" },
+  };
+
   // Statistics
   $("admin-stats").innerHTML = Object.entries(counts)
     .map(
-      ([key, value]) => `
+      ([key, value]) => {
+        const meta = metricMeta[key] || { label: key, icon: "📊" };
+        return `
       <div class="admin-stat">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+          <span>${meta.icon}</span>
+          <span>${esc(meta.label)}</span>
+        </div>
         <b>${Number(value) || 0}</b>
-        <span>${esc(key)}</span>
       </div>
-    `,
+    `;
+      }
     )
     .join("");
 
@@ -1433,6 +1515,563 @@ function setupCustomerThree() {
     if (renderer) renderer.dispose();
   }
 }
+/* ==========================================================================
+   WORKMAN DASHBOARD 3D ANIMATION
+   Heavy-Duty Contractor Toolbox with Floating Tools (Hammer, Spanner, Screwdriver)
+   Theme: Charcoal, Electric Blue, Amber
+   ========================================================================== */
+
+let workmanThreeAnimate = null;
+
+function setupWorkmanThree() {
+  const host = $("workman-three-hero");
+  if (!host || !window.WebGLRenderingContext) return;
+
+  let renderer;
+
+  try {
+    const scene = new THREE.Scene();
+    const w = host.clientWidth || 320;
+    const h = host.clientHeight || 250;
+
+    const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
+    camera.position.set(3.4, 3.2, 5.2);
+    camera.lookAt(0, 0.3, 0);
+
+    renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "low-power",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    host.appendChild(renderer.domElement);
+
+    // Dramatic Studio Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    scene.add(ambientLight);
+
+    const blueLight = new THREE.DirectionalLight(0x3b82f6, 2.8);
+    blueLight.position.set(5, 5, 4);
+    scene.add(blueLight);
+
+    const amberLight = new THREE.DirectionalLight(0xf59e0b, 2.2);
+    amberLight.position.set(-4, -2, -3);
+    scene.add(amberLight);
+
+    const topWhiteLight = new THREE.DirectionalLight(0xf8fafc, 2.0);
+    topWhiteLight.position.set(0, 6, 2);
+    scene.add(topWhiteLight);
+
+    // Root Group
+    const toolboxRoot = new THREE.Group();
+    scene.add(toolboxRoot);
+
+    // Materials (Charcoal, Electric Blue, Amber, Chrome, Wood)
+    const matCharcoal = new THREE.MeshStandardMaterial({
+      color: 0x1a212b,
+      metalness: 0.65,
+      roughness: 0.3,
+    });
+
+    const matBlue = new THREE.MeshStandardMaterial({
+      color: 0x2563eb,
+      metalness: 0.55,
+      roughness: 0.25,
+    });
+
+    const matAmber = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      metalness: 0.8,
+      roughness: 0.2,
+    });
+
+    const matChrome = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15,
+    });
+
+    const matDarkMetal = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      metalness: 0.8,
+      roughness: 0.4,
+    });
+
+    const matWood = new THREE.MeshStandardMaterial({
+      color: 0xb45309,
+      metalness: 0.1,
+      roughness: 0.65,
+    });
+
+    // 1. Heavy-Duty Toolbox Base (Charcoal)
+    const boxBody = new THREE.Mesh(
+      new THREE.BoxGeometry(2.1, 1.05, 1.25),
+      matCharcoal,
+    );
+    boxBody.position.set(0, -0.4, 0);
+    toolboxRoot.add(boxBody);
+
+    // Electric Blue Lid
+    const boxLid = new THREE.Mesh(
+      new THREE.BoxGeometry(2.16, 0.28, 1.3),
+      matBlue,
+    );
+    boxLid.position.set(0, 0.2, 0);
+    toolboxRoot.add(boxLid);
+
+    // Top Handle (Sturdy Arch)
+    const handleBar = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 0.08, 0.08),
+      matDarkMetal,
+    );
+    handleBar.position.set(0, 0.5, 0);
+    toolboxRoot.add(handleBar);
+
+    const handlePostL = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.22, 0.08),
+      matDarkMetal,
+    );
+    handlePostL.position.set(-0.42, 0.4, 0);
+    toolboxRoot.add(handlePostL);
+
+    const handlePostR = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.22, 0.08),
+      matDarkMetal,
+    );
+    handlePostR.position.set(0.42, 0.4, 0);
+    toolboxRoot.add(handlePostR);
+
+    // Amber Heavy-Duty Metal Clasps
+    const latchL = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.25, 0.06),
+      matAmber,
+    );
+    latchL.position.set(-0.55, 0.02, 0.64);
+    toolboxRoot.add(latchL);
+
+    const latchR = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.25, 0.06),
+      matAmber,
+    );
+    latchR.position.set(0.55, 0.02, 0.64);
+    toolboxRoot.add(latchR);
+
+    // Corner Protectors (4 Bottom corners)
+    const cornerOffsets = [
+      [-1.04, -0.88, 0.61],
+      [1.04, -0.88, 0.61],
+      [-1.04, -0.88, -0.61],
+      [1.04, -0.88, -0.61],
+    ];
+    cornerOffsets.forEach(([cx, cy, cz]) => {
+      const corner = new THREE.Mesh(
+        new THREE.BoxGeometry(0.14, 0.16, 0.14),
+        matDarkMetal,
+      );
+      corner.position.set(cx, cy, cz);
+      toolboxRoot.add(corner);
+    });
+
+    // 2. Floating Professional Tools Group
+    const toolsOrbitGroup = new THREE.Group();
+    scene.add(toolsOrbitGroup);
+
+    // Tool A: Hammer (🔨)
+    const hammer = new THREE.Group();
+    const hammerHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.055, 1.15, 10),
+      matWood,
+    );
+    hammerHandle.position.set(0, -0.2, 0);
+    hammer.add(hammerHandle);
+
+    const hammerHead = new THREE.Mesh(
+      new THREE.BoxGeometry(0.22, 0.28, 0.46),
+      matChrome,
+    );
+    hammerHead.position.set(0, 0.38, 0.05);
+    hammer.add(hammerHead);
+
+    const hammerFace = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 0.08, 12),
+      matChrome,
+    );
+    hammerFace.rotation.x = Math.PI / 2;
+    hammerFace.position.set(0, 0.38, 0.3);
+    hammer.add(hammerFace);
+
+    hammer.position.set(1.9, 0.8, 0);
+    hammer.rotation.z = 0.4;
+    hammer.rotation.x = 0.3;
+    toolsOrbitGroup.add(hammer);
+
+    // Tool B: Chrome Spanner / Wrench (🔧)
+    const spanner = new THREE.Group();
+    const spannerShaft = new THREE.Mesh(
+      new THREE.BoxGeometry(0.11, 1.1, 0.05),
+      matChrome,
+    );
+    spanner.add(spannerShaft);
+
+    const jawOuter = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2, 0.2, 0.05, 16),
+      matChrome,
+    );
+    jawOuter.position.set(0, 0.55, 0);
+    spanner.add(jawOuter);
+
+    const ringOuter = new THREE.Mesh(
+      new THREE.TorusGeometry(0.15, 0.04, 8, 20),
+      matChrome,
+    );
+    ringOuter.position.set(0, -0.55, 0);
+    spanner.add(ringOuter);
+
+    spanner.position.set(-1.8, 0.7, 0.6);
+    spanner.rotation.z = -0.5;
+    spanner.rotation.y = 0.4;
+    toolsOrbitGroup.add(spanner);
+
+    // Tool C: Amber Screwdriver (🪛)
+    const screwdriver = new THREE.Group();
+    const driverHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.09, 0.08, 0.48, 12),
+      matAmber,
+    );
+    screwdriver.add(driverHandle);
+
+    const driverShank = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 0.75, 8),
+      matChrome,
+    );
+    driverShank.position.set(0, 0.58, 0);
+    screwdriver.add(driverShank);
+
+    const driverTip = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.12, 0.02),
+      matDarkMetal,
+    );
+    driverTip.position.set(0, 0.98, 0);
+    screwdriver.add(driverTip);
+
+    screwdriver.position.set(0.2, 0.9, -1.8);
+    screwdriver.rotation.x = -0.6;
+    toolsOrbitGroup.add(screwdriver);
+
+    function resize() {
+      const currentW = host.clientWidth || 320;
+      const currentH = host.clientHeight || 250;
+      camera.aspect = currentW / currentH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(currentW, currentH);
+    }
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(host);
+
+    const clock = new THREE.Clock();
+    let isRunning = false;
+
+    function animate() {
+      const workmanView = $("workman-view");
+      if (!workmanView || workmanView.classList.contains("hidden") || document.hidden) {
+        isRunning = false;
+        return;
+      }
+
+      isRunning = true;
+      requestAnimationFrame(animate);
+
+      const t = clock.getElapsedTime();
+
+      // Gentle floating toolbox sway
+      toolboxRoot.rotation.y = Math.sin(t * 0.35) * 0.22;
+      toolboxRoot.position.y = Math.sin(t * 0.7) * 0.06;
+
+      // Orbiting floating tools
+      toolsOrbitGroup.rotation.y = t * 0.4;
+
+      hammer.rotation.y = t * 0.8;
+      hammer.position.y = 0.8 + Math.sin(t * 1.2) * 0.14;
+
+      spanner.rotation.x = t * 0.6;
+      spanner.position.y = 0.7 + Math.sin(t * 1.4 + 1) * 0.12;
+
+      screwdriver.rotation.z = t * 0.9;
+      screwdriver.position.y = 0.9 + Math.sin(t * 1.3 + 2) * 0.15;
+
+      renderer.render(scene, camera);
+    }
+
+    workmanThreeAnimate = () => {
+      resize();
+      if (!isRunning) {
+        clock.start();
+        animate();
+      }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && $("workman-view") && !$("workman-view").classList.contains("hidden")) {
+        workmanThreeAnimate();
+      }
+    });
+
+  } catch (err) {
+    console.warn("Could not start Workman 3D canvas:", err.message);
+    if (renderer) renderer.dispose();
+  }
+}
+
+/* ==========================================================================
+   ADMIN DASHBOARD 3D ANIMATION
+   Cybernetic Neural Data Mesh & Constellation (Deep Navy, Violet, Cyan)
+   ========================================================================== */
+
+let adminThreeAnimate = null;
+
+function setupAdminThree() {
+  const host = $("admin-three-hero");
+  if (!host || !window.WebGLRenderingContext) return;
+
+  let renderer;
+
+  try {
+    const scene = new THREE.Scene();
+    const w = host.clientWidth || 320;
+    const h = host.clientHeight || 250;
+
+    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+    camera.position.set(0, 0, 5.4);
+
+    renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "low-power",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    host.appendChild(renderer.domElement);
+
+    // Dynamic Sci-Fi Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
+
+    const violetLight = new THREE.PointLight(0xa78bfa, 3.5, 12);
+    violetLight.position.set(0, 0, 0);
+    scene.add(violetLight);
+
+    const cyanLight = new THREE.DirectionalLight(0x06b6d4, 2.5);
+    cyanLight.position.set(4, 5, 3);
+    scene.add(cyanLight);
+
+    const backBlueLight = new THREE.DirectionalLight(0x4338ca, 2.0);
+    backBlueLight.position.set(-4, -4, -3);
+    scene.add(backBlueLight);
+
+    // Root Group
+    const meshRoot = new THREE.Group();
+    scene.add(meshRoot);
+
+    // 1. Central Core: Cybernetic Dodecahedron
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0x8b5cf6,
+      emissive: 0x6d28d9,
+      emissiveIntensity: 0.6,
+      roughness: 0.2,
+      metalness: 0.8,
+    });
+    const core = new THREE.Mesh(new THREE.DodecahedronGeometry(0.72, 0), coreMat);
+    meshRoot.add(core);
+
+    // Core Wireframe Cage
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0xc4b5fd,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.4,
+    });
+    const wireCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.92, 1), wireMat);
+    meshRoot.add(wireCore);
+
+    // 2. Concentric Orbiting Rings (Toruses)
+    const ringMat1 = new THREE.MeshStandardMaterial({
+      color: 0xa78bfa,
+      emissive: 0x7c3aed,
+      emissiveIntensity: 0.4,
+      roughness: 0.3,
+      metalness: 0.7,
+    });
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.02, 8, 80), ringMat1);
+    ring1.rotation.x = Math.PI / 3;
+    meshRoot.add(ring1);
+
+    const ringMat2 = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      emissive: 0x0891b2,
+      emissiveIntensity: 0.4,
+      roughness: 0.3,
+      metalness: 0.7,
+    });
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.018, 8, 80), ringMat2);
+    ring2.rotation.y = Math.PI / 3;
+    ring2.rotation.x = -Math.PI / 6;
+    meshRoot.add(ring2);
+
+    // 3. Network Constellation Nodes & Connecting Lines
+    const nodeCount = 18;
+    const nodes = [];
+    const nodePositions = [];
+    const nodeMatViolet = new THREE.MeshStandardMaterial({
+      color: 0xc4b5fd,
+      emissive: 0x8b5cf6,
+      emissiveIntensity: 0.7,
+      roughness: 0.2,
+    });
+    const nodeMatCyan = new THREE.MeshStandardMaterial({
+      color: 0x67e8f9,
+      emissive: 0x06b6d4,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+    });
+
+    const goldenRatio = (1 + Math.sqrt(5)) / 2;
+    for (let i = 0; i < nodeCount; i++) {
+      const theta = (2 * Math.PI * i) / goldenRatio;
+      const phi = Math.acos(1 - (2 * (i + 0.5)) / nodeCount);
+      const rad = 2.05 + (i % 3) * 0.15;
+
+      const x = rad * Math.sin(phi) * Math.cos(theta);
+      const y = rad * Math.sin(phi) * Math.sin(theta);
+      const z = rad * Math.cos(phi);
+
+      const nodeGeom = new THREE.SphereGeometry(0.065, 8, 8);
+      const mat = i % 2 === 0 ? nodeMatViolet : nodeMatCyan;
+      const node = new THREE.Mesh(nodeGeom, mat);
+      node.position.set(x, y, z);
+      meshRoot.add(node);
+
+      nodes.push(node);
+      nodePositions.push(new THREE.Vector3(x, y, z));
+    }
+
+    // Connect close nodes with line segments
+    const lineIndices = [];
+    for (let i = 0; i < nodeCount; i++) {
+      for (let j = i + 1; j < nodeCount; j++) {
+        if (nodePositions[i].distanceTo(nodePositions[j]) < 1.7) {
+          lineIndices.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
+          lineIndices.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
+        }
+      }
+    }
+
+    const lineGeom = new THREE.BufferGeometry();
+    lineGeom.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(lineIndices, 3)
+    );
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0x6366f1,
+      transparent: true,
+      opacity: 0.35,
+    });
+    const networkLines = new THREE.LineSegments(lineGeom, lineMat);
+    meshRoot.add(networkLines);
+
+    // 4. Data Packets orbiting along the rings
+    const packetGroup = new THREE.Group();
+    scene.add(packetGroup);
+
+    const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const packet1 = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), packetMat);
+    const packet2 = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), packetMat);
+    packetGroup.add(packet1);
+    packetGroup.add(packet2);
+
+    function resize() {
+      const currentW = host.clientWidth || 320;
+      const currentH = host.clientHeight || 250;
+      camera.aspect = currentW / currentH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(currentW, currentH);
+    }
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(host);
+
+    const clock = new THREE.Clock();
+    let isRunning = false;
+
+    function animate() {
+      const adminView = $("admin-view");
+      if (!adminView || adminView.classList.contains("hidden") || document.hidden) {
+        isRunning = false;
+        return;
+      }
+
+      isRunning = true;
+      requestAnimationFrame(animate);
+
+      const t = clock.getElapsedTime();
+
+      // Mesh rotation & breathing
+      meshRoot.rotation.y = t * 0.28;
+      meshRoot.rotation.x = Math.sin(t * 0.2) * 0.15;
+
+      core.rotation.y = -t * 0.5;
+      core.rotation.z = t * 0.3;
+
+      wireCore.rotation.y = t * 0.35;
+      wireCore.rotation.x = t * 0.25;
+
+      ring1.rotation.z = t * 0.45;
+      ring2.rotation.z = -t * 0.35;
+
+      // Pulse nodes gently
+      nodes.forEach((n, idx) => {
+        const s = 1 + Math.sin(t * 2.5 + idx) * 0.2;
+        n.scale.set(s, s, s);
+      });
+
+      // Data packet motion
+      const angle1 = t * 1.5;
+      packet1.position.set(
+        1.5 * Math.cos(angle1),
+        1.5 * Math.sin(angle1) * Math.cos(Math.PI / 3),
+        1.5 * Math.sin(angle1) * Math.sin(Math.PI / 3)
+      );
+
+      const angle2 = -t * 1.2;
+      packet2.position.set(
+        1.85 * Math.cos(angle2) * Math.cos(Math.PI / 3),
+        1.85 * Math.sin(angle2),
+        1.85 * Math.cos(angle2) * Math.sin(Math.PI / 3)
+      );
+
+      renderer.render(scene, camera);
+    }
+
+    adminThreeAnimate = () => {
+      resize();
+      if (!isRunning) {
+        clock.start();
+        animate();
+      }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && $("admin-view") && !$("admin-view").classList.contains("hidden")) {
+        adminThreeAnimate();
+      }
+    });
+
+  } catch (err) {
+    console.warn("Could not start Admin 3D canvas:", err.message);
+    if (renderer) renderer.dispose();
+  }
+}
 
 /* =========================
    INITIALISE
@@ -1842,6 +2481,8 @@ async function start() {
   bind();
   setupThree();
   setupCustomerThree();
+  setupWorkmanThree();
+  setupAdminThree();
 
   await initialise();
 }

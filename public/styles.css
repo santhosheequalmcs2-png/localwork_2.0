@@ -744,3 +744,1009 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
     flex-direction: column;
   }
 }
+
+/* ==========================================================================
+   PHASE 5: WORKMAN DASHBOARD — PROFESSIONAL WORK HUB IDENTITY
+   Theme: Bold, Energetic, Professional
+   Colors: Dark Charcoal (#12151b), Electric Blue (#3b82f6), Amber (#f59e0b)
+   ========================================================================== */
+
+.workman-dashboard {
+  background: #0f1318;
+  color: #f1f5f9;
+  border-radius: 28px;
+  padding: 36px 36px 70px;
+  margin: 20px 0 60px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid #1e2633;
+}
+
+/* 1. Hero / Command Center */
+.workman-hero-card {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
+  align-items: center;
+  background: linear-gradient(135deg, #171d26 0%, #1e2532 50%, #171f2b 100%);
+  border: 1px solid #283548;
+  border-radius: 26px;
+  padding: 38px 42px;
+  margin-bottom: 30px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.workman-hero-card::after {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.workman-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.workman-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #142038;
+  color: #60a5fa;
+  border: 1px solid #1d4ed8;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.workman-avail-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #0f291e;
+  color: #34d399;
+  border: 1px solid #059669;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.workman-title {
+  font: 800 clamp(2rem, 3.4vw, 2.9rem) / 1.15 Manrope, sans-serif;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  margin: 0 0 14px;
+}
+
+.workman-subtitle {
+  color: #94a3b8;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  margin: 0 0 24px;
+  max-width: 530px;
+}
+
+.workman-profile-strip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.workman-pill {
+  background: #11161f;
+  border: 1px solid #232d3d;
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pill-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.workman-pill strong {
+  font-size: 0.88rem;
+  color: #f1f5f9;
+}
+
+/* 3D Frame in Workman Hero */
+.workman-3d-wrapper {
+  position: relative;
+}
+
+.workman-3d-card {
+  background: #11151c;
+  border: 1.5px solid #283549;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+
+.workman-3d-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  background: #172236;
+  border: 1px solid #2563eb;
+  color: #60a5fa;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+
+.workman-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b82f6;
+  display: inline-block;
+  box-shadow: 0 0 8px #3b82f6;
+  animation: workman-glow 2s infinite;
+}
+
+@keyframes workman-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.workman-three-canvas {
+  height: 250px;
+  width: 100%;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #18202d 0%, #0d1117 100%);
+}
+
+.workman-three-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.workman-3d-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #1f2735;
+  padding-top: 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.workman-3d-caption small {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+/* 2. Real-Time Statistics Grid */
+.workman-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 35px;
+}
+
+.workman-stat-card {
+  background: #161c26;
+  border: 1px solid #232d3e;
+  border-radius: 20px;
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.22s ease;
+}
+
+.workman-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: #3b82f6;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.stat-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  font-size: 1.45rem;
+}
+
+.stat-total { background: #172640; border: 1px solid #1d4ed8; }
+.stat-pending { background: #3b280c; border: 1px solid #b45309; }
+.stat-active { background: #0c2e3d; border: 1px solid #0284c7; }
+.stat-completed { background: #0f2e22; border: 1px solid #059669; }
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-body strong {
+  font: 800 1.9rem Manrope, sans-serif;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-body span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* 3. Jobs & Booking Requests Panel */
+.workman-jobs-section {
+  background: #141922;
+  border: 1px solid #232c3b;
+  border-radius: 24px;
+  padding: 32px;
+}
+
+.workman-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.workman-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #38bdf8;
+  margin: 0 0 6px;
+}
+
+.workman-section-header h2 {
+  font: 800 1.55rem Manrope, sans-serif;
+  color: #ffffff;
+  margin: 0;
+}
+
+.btn-workman-secondary {
+  background: #1b2330;
+  color: #93c5fd;
+  border: 1px solid #2d3b50;
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-workman-secondary:hover {
+  background: #232e40;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.workman-booking-list {
+  display: grid;
+  gap: 16px;
+}
+
+.workman-job-card {
+  background: #19202c;
+  border: 1.5px solid #263244;
+  border-radius: 20px;
+  padding: 24px;
+  transition: all 0.22s ease;
+  position: relative;
+}
+
+.workman-job-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.job-customer-name {
+  font: 800 1.25rem Manrope, sans-serif;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.job-date {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.job-status-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.status-pending { background: #3c2a0c; color: #fbbf24; border: 1px solid #b45309; }
+.status-accepted { background: #132a48; color: #60a5fa; border: 1px solid #1d4ed8; }
+.status-completed { background: #0e3020; color: #4ade80; border: 1px solid #059669; }
+.status-declined { background: #3a1518; color: #f87171; border: 1px solid #991b1b; }
+.status-cancelled { background: #262c36; color: #94a3b8; border: 1px solid #3e4756; }
+
+.job-card-details {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.job-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+.job-phone-link {
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.job-phone-link:hover {
+  text-decoration: underline;
+}
+
+.job-notes-box {
+  background: #131821;
+  border-left: 3px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: #e2e8f0;
+  margin-top: 6px;
+}
+
+.job-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-workman-accept {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-workman-accept:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-workman-decline {
+  background: #1f2735;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-workman-decline:hover {
+  background: #2d181b;
+  color: #f87171;
+  border-color: #ef4444;
+}
+
+.btn-workman-complete {
+  background: #f59e0b;
+  color: #0f172a;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-workman-complete:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.workman-empty-jobs {
+  text-align: center;
+  padding: 48px 24px;
+  background: #10141a;
+  border-radius: 18px;
+  border: 1px dashed #242f40;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.workman-empty-jobs h3 {
+  color: #ffffff;
+  margin: 0 0 8px;
+  font: 800 1.25rem Manrope, sans-serif;
+}
+
+.workman-empty-jobs p {
+  color: #64748b;
+  font-size: 0.9rem;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Workman Responsive */
+@media (max-width: 950px) {
+  .workman-hero-card {
+    grid-template-columns: 1fr;
+    padding: 30px;
+  }
+  .workman-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .workman-dashboard {
+    padding: 20px 16px 50px;
+  }
+  .workman-hero-card {
+    padding: 22px 18px;
+  }
+  .workman-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   PHASE 7: ADMIN DASHBOARD — ADVANCED MANAGEMENT CENTER IDENTITY
+   Theme: Premium SaaS Technology Platform
+   Colors: Deep Navy (#080e1e), Radiant White (#ffffff), Electric Violet (#8b5cf6)
+   ========================================================================== */
+
+.admin-dashboard {
+  background: #080e1e;
+  color: #f8fafc;
+  border-radius: 28px;
+  padding: 36px 36px 70px;
+  margin: 20px 0 60px;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.55);
+  border: 1px solid #1a2540;
+}
+
+/* 1. Hero & Network Monitor */
+.admin-hero-card {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
+  align-items: center;
+  background: linear-gradient(135deg, #0d172e 0%, #152244 50%, #101c38 100%);
+  border: 1px solid #233457;
+  border-radius: 26px;
+  padding: 38px 42px;
+  margin-bottom: 30px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-hero-card::after {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.admin-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-saas-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e1b4b;
+  color: #a78bfa;
+  border: 1px solid #4338ca;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.badge-dot-violet {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  box-shadow: 0 0 8px #8b5cf6;
+}
+
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0a2533;
+  color: #22d3ee;
+  border: 1px solid #0891b2;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.pulse-indicator-violet {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #06b6d4;
+  box-shadow: 0 0 8px #06b6d4;
+  animation: admin-pulse 2s infinite;
+}
+
+@keyframes admin-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.admin-title {
+  font: 800 clamp(2rem, 3.4vw, 2.9rem) / 1.15 Manrope, sans-serif;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  margin: 0 0 14px;
+}
+
+.admin-subtitle {
+  color: #94a3b8;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  margin: 0 0 24px;
+  max-width: 530px;
+}
+
+.admin-telemetry-strip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.telemetry-pill {
+  background: #0c1326;
+  border: 1px solid #1e2945;
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.telemetry-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.telemetry-pill strong {
+  font-size: 0.88rem;
+  color: #f1f5f9;
+}
+
+/* 3D Frame in Admin Hero */
+.admin-3d-wrapper {
+  position: relative;
+}
+
+.admin-3d-card {
+  background: #0a1122;
+  border: 1.5px solid #243459;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-3d-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  background: #171b38;
+  border: 1px solid #4338ca;
+  color: #c4b5fd;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+
+.violet-beacon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 8px #a78bfa;
+  animation: admin-pulse 2s infinite;
+}
+
+.admin-three-canvas {
+  height: 250px;
+  width: 100%;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #131c38 0%, #060b18 100%);
+}
+
+.admin-three-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.admin-3d-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #1a2642;
+  padding-top: 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.admin-3d-caption small {
+  color: #a78bfa;
+  font-weight: 600;
+}
+
+/* 2. Admin Metrics & KPIs */
+.admin-metrics-section {
+  margin-bottom: 35px;
+}
+
+.admin-section-title {
+  margin-bottom: 20px;
+}
+
+.admin-section-title h2 {
+  color: #ffffff;
+}
+
+.admin-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #8b5cf6;
+  margin: 0 0 6px;
+}
+
+.admin-live-tag {
+  background: #171b38;
+  color: #c4b5fd;
+  border: 1px solid #4338ca;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.admin-stats-grid .admin-stat {
+  background: #0d172e;
+  border: 1px solid #1e2c4d;
+  border-radius: 20px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.22s ease;
+}
+
+.admin-stats-grid .admin-stat:hover {
+  transform: translateY(-3px);
+  border-color: #8b5cf6;
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+}
+
+.admin-stats-grid .admin-stat b {
+  font: 800 2rem Manrope, sans-serif;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.admin-stats-grid .admin-stat span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* 3. Admin Surface Panels */
+.admin-surface {
+  background: #0b1326;
+  border: 1px solid #1c2a47;
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 30px;
+}
+
+.admin-surface-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.surface-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+}
+
+.surface-icon-violet { background: #1c183d; color: #a78bfa; border: 1px solid #4338ca; }
+.surface-icon-blue { background: #0f233f; color: #60a5fa; border: 1px solid #1d4ed8; }
+.surface-icon-amber { background: #2d1f10; color: #fbbf24; border: 1px solid #b45309; }
+
+.admin-surface-header h2 {
+  font: 800 1.55rem Manrope, sans-serif;
+  color: #ffffff;
+  margin: 0;
+}
+
+.surface-desc {
+  font-size: 0.86rem;
+  color: #8394a8;
+  margin: 0 0 24px;
+}
+
+/* 4. Admin Workman Applications */
+.admin-applications-list {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-applications-list .booking-item {
+  background: #0f1830;
+  border: 1.5px solid #1f2f52;
+  border-radius: 20px;
+  padding: 24px;
+  transition: all 0.22s ease;
+  position: relative;
+}
+
+.admin-applications-list .booking-item:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+.admin-applications-list .booking-item h3 {
+  font: 800 1.3rem Manrope, sans-serif;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.admin-applications-list .booking-item p {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.admin-applications-list .booking-item b {
+  color: #cbd5e1;
+}
+
+.admin-applications-list .card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.admin-applications-list [data-approve] {
+  background: #7c3aed;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+  transition: all 0.2s;
+}
+
+.admin-applications-list [data-approve]:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.admin-applications-list [data-reject] {
+  background: #231627;
+  color: #f87171;
+  border: 1px solid #7f1d1d;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.admin-applications-list [data-reject]:hover {
+  background: #36171b;
+  border-color: #ef4444;
+}
+
+/* 5. Admin Users Table */
+.admin-table-wrap {
+  border: 1px solid #1e2c4a;
+  border-radius: 18px;
+  overflow: auto;
+  background: #091021;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  background: #0d162a;
+  color: #64748b;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 15px 18px;
+  border-bottom: 1px solid #1e2d4a;
+}
+
+.admin-table td {
+  padding: 16px 18px;
+  color: #e2e8f0;
+  border-bottom: 1px solid #142038;
+  font-size: 0.88rem;
+}
+
+.admin-table tr:hover td {
+  background: #0f1a33;
+}
+
+.admin-table [data-delete-user] {
+  background: #23151b;
+  color: #f87171;
+  border: 1px solid #621b24;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.admin-table [data-delete-user]:hover {
+  background: #38151c;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* 6. Admin Bookings List */
+.admin-bookings-list {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-bookings-list .booking-item {
+  background: #0d162d;
+  border: 1px solid #1c2b4a;
+  border-radius: 18px;
+  padding: 20px 22px;
+  transition: all 0.2s;
+}
+
+.admin-bookings-list .booking-item:hover {
+  border-color: #3b82f6;
+}
+
+.admin-bookings-list .booking-item b:first-child {
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.admin-bookings-list .booking-item p {
+  color: #94a3b8;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+/* Admin Responsive */
+@media (max-width: 1050px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .admin-hero-card {
+    grid-template-columns: 1fr;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-dashboard {
+    padding: 20px 16px 50px;
+  }
+  .admin-hero-card {
+    padding: 22px 18px;
+  }
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
