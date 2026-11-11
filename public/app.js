@@ -2389,6 +2389,196 @@ function bind() {
       $("booking-modal").classList.add("hidden");
     }
   });
+
+  // Initialize Floating AI Assistant
+  initAIAssistant();
+}
+
+/* =========================
+   AI ASSISTANT WIDGET
+========================= */
+
+function formatAIMarkdown(text) {
+  if (!text) return "";
+  let html = esc(text);
+  // Bold **text**
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  // Italic *text*
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+  // Bullet points
+  const lines = html.split("\n");
+  let inList = false;
+  const formatted = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("• ") || trimmed.startsWith("- ")) {
+      if (!inList) {
+        formatted.push("<ul>");
+        inList = true;
+      }
+      formatted.push(`<li>${trimmed.slice(2)}</li>`);
+    } else {
+      if (inList) {
+        formatted.push("</ul>");
+        inList = false;
+      }
+      if (trimmed) {
+        formatted.push(`<p>${trimmed}</p>`);
+      }
+    }
+  }
+  if (inList) formatted.push("</ul>");
+  return formatted.join("");
+}
+
+function initAIAssistant() {
+  const fab = $("ai-assistant-fab");
+  const win = $("ai-chat-window");
+  const closeBtn = $("ai-close-btn");
+  const clearBtn = $("ai-clear-btn");
+  const form = $("ai-chat-form");
+  const input = $("ai-chat-input");
+  const messagesContainer = $("ai-chat-messages");
+
+  if (!fab || !win || !form) return;
+
+  fab.addEventListener("click", () => {
+    win.classList.toggle("hidden");
+    if (!win.classList.contains("hidden") && input) {
+      input.focus();
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => win.classList.add("hidden"));
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      messagesContainer.innerHTML = `
+        <div class="ai-msg ai-msg-bot">
+          <div class="ai-bubble">
+            <p>👋 <strong>Chat cleared! How can I help you today?</strong></p>
+          </div>
+        </div>
+        <div class="ai-prompt-chips" id="ai-prompt-chips">
+          <button type="button" class="ai-chip" data-prompt="My circuit breaker MCB keeps tripping">⚡ MCB Tripping</button>
+          <button type="button" class="ai-chip" data-prompt="How much does fixing a leaking pipe or tap cost?">🔧 Leak Repair Cost</button>
+          <button type="button" class="ai-chip" data-prompt="How much for full house deep cleaning?">🧹 Cleaning Price</button>
+          <button type="button" class="ai-chip" data-prompt="My AC is not cooling properly">❄️ AC Not Cooling</button>
+          <button type="button" class="ai-chip" data-prompt="How do I book a workman?">📅 How to Book?</button>
+        </div>
+      `;
+      bindChips();
+    });
+  }
+
+  function bindChips() {
+    messagesContainer.querySelectorAll(".ai-chip").forEach((chip) => {
+      chip.onclick = () => {
+        const text = chip.dataset.prompt;
+        if (text) sendAIMessage(text);
+      };
+    });
+  }
+
+  bindChips();
+
+  async function sendAIMessage(userText) {
+    const text = (userText || "").trim();
+    if (!text) return;
+
+    if (input) input.value = "";
+
+    // Append user message
+    const userMsgEl = document.createElement("div");
+    userMsgEl.className = "ai-msg ai-msg-user";
+    userMsgEl.innerHTML = `<div class="ai-bubble"><p>${esc(text)}</p></div>`;
+    messagesContainer.appendChild(userMsgEl);
+
+    // Typing indicator
+    const typingEl = document.createElement("div");
+    typingEl.className = "ai-typing";
+    typingEl.innerHTML = `<span></span><span></span><span></span>`;
+    messagesContainer.appendChild(typingEl);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+      const data = await api("/api/ai/chat", {
+        method: "POST",
+        body: { message: text }
+      });
+
+      typingEl.remove();
+
+      const botMsgEl = document.createElement("div");
+      botMsgEl.className = "ai-msg ai-msg-bot";
+
+      let actionHtml = "";
+      if (data.action) {
+        actionHtml = `<button type="button" class="ai-action-btn" data-action-type="${esc(data.action.type)}" data-category="${esc(data.action.category || "")}">
+          ${esc(data.action.label || "Take Action")} →
+        </button>`;
+      }
+
+      botMsgEl.innerHTML = `
+        <div class="ai-bubble">
+          ${formatAIMarkdown(data.reply)}
+          ${actionHtml}
+        </div>
+      `;
+      messagesContainer.appendChild(botMsgEl);
+
+      // Handle action button
+      const actBtn = botMsgEl.querySelector(".ai-action-btn");
+      if (actBtn) {
+        actBtn.addEventListener("click", () => {
+          const type = actBtn.dataset.actionType;
+          const cat = actBtn.dataset.category;
+
+          if (type === "filter" && cat) {
+            $("filter-service").value = cat;
+            if (!currentUser) {
+              openAuth("register");
+            } else {
+              activeDashboard = "customer";
+              show("customer-view");
+              loadWorkmen().catch((e) => toast(e.message));
+            }
+            win.classList.add("hidden");
+          } else if (type === "apply_workman") {
+            if (!currentUser) openAuth("register");
+            else openWorkmanApplication();
+            win.classList.add("hidden");
+          } else if (type === "explore") {
+            if (!currentUser) show("home-view");
+            else {
+              activeDashboard = "customer";
+              show("customer-view");
+              loadWorkmen().catch((e) => toast(e.message));
+            }
+            win.classList.add("hidden");
+          }
+        });
+      }
+    } catch (err) {
+      typingEl.remove();
+      const errEl = document.createElement("div");
+      errEl.className = "ai-msg ai-msg-bot";
+      errEl.innerHTML = `<div class="ai-bubble" style="color: #dc2626;"><p>Sorry, I had trouble answering that. Please try again.</p></div>`;
+      messagesContainer.appendChild(errEl);
+    }
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (input && input.value.trim()) {
+      sendAIMessage(input.value.trim());
+    }
+  });
 }
 
 /* =========================

@@ -11,7 +11,13 @@ function requireRole(...roles) {
 }
 function requireCsrf(req, res, next) {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
-  if (req.originalUrl === "/api/auth/logout" || req.path === "/auth/logout" || req.path === "/logout") {
+  if (
+    req.originalUrl === "/api/auth/logout" ||
+    req.path === "/auth/logout" ||
+    req.path === "/logout" ||
+    req.originalUrl.startsWith("/api/ai") ||
+    req.path.startsWith("/ai")
+  ) {
     return next();
   }
   const token = req.get("x-csrf-token");

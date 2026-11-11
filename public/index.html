@@ -1144,6 +1144,70 @@
 </div>
 
 
+<!-- FLOATING AI ASSISTANT WIDGET -->
+<div id="ai-fab-container">
+  <button id="ai-assistant-fab" class="ai-fab" type="button" aria-label="Open LocalWork AI Assistant">
+    <span class="ai-fab-icon">🤖</span>
+    <span class="ai-fab-label">Ask AI</span>
+    <span class="ai-fab-status"></span>
+  </button>
+</div>
+
+<!-- AI CHAT WINDOW -->
+<div id="ai-chat-window" class="ai-chat-card hidden" role="dialog" aria-labelledby="ai-chat-header-title">
+  <div class="ai-chat-header">
+    <div class="ai-header-left">
+      <div class="ai-avatar-circle">🤖</div>
+      <div>
+        <h3 id="ai-chat-header-title">LocalWork AI</h3>
+        <p class="ai-header-subtitle">● Online · 24/7 Smart Trade Helper</p>
+      </div>
+    </div>
+    <div class="ai-header-actions">
+      <button id="ai-clear-btn" class="ai-head-btn" type="button" title="Clear chat">🗑️</button>
+      <button id="ai-close-btn" class="ai-head-btn" type="button" title="Close chat">✕</button>
+    </div>
+  </div>
+
+  <div id="ai-chat-messages" class="ai-chat-body">
+    <!-- Initial welcome message -->
+    <div class="ai-msg ai-msg-bot">
+      <div class="ai-bubble">
+        <p>👋 <strong>Hello! I am your LocalWork AI Assistant.</strong></p>
+        <p>I can help you:</p>
+        <ul>
+          <li>🔍 <strong>Find the right professional</strong> for any repair</li>
+          <li>💰 <strong>Get estimated prices</strong> in ₹ INR</li>
+          <li>⚡ <strong>Emergency safety tips</strong> for power or water issues</li>
+        </ul>
+        <p><em>What home problem or service do you need help with?</em></p>
+      </div>
+    </div>
+
+    <!-- Quick prompt suggestion chips -->
+    <div class="ai-prompt-chips" id="ai-prompt-chips">
+      <button type="button" class="ai-chip" data-prompt="My circuit breaker MCB keeps tripping">⚡ MCB Tripping</button>
+      <button type="button" class="ai-chip" data-prompt="How much does fixing a leaking pipe or tap cost?">🔧 Leak Repair Cost</button>
+      <button type="button" class="ai-chip" data-prompt="How much for full house deep cleaning?">🧹 Cleaning Price</button>
+      <button type="button" class="ai-chip" data-prompt="My AC is not cooling properly">❄️ AC Not Cooling</button>
+      <button type="button" class="ai-chip" data-prompt="How do I book a workman?">📅 How to Book?</button>
+    </div>
+  </div>
+
+  <form id="ai-chat-form" class="ai-chat-footer">
+    <input id="ai-chat-input"
+           type="text"
+           placeholder="Ask a question (e.g. 'My sink is leaking')..."
+           maxlength="400"
+           autocomplete="off"
+           required>
+    <button type="submit" id="ai-chat-send" class="ai-send-btn" aria-label="Send">
+      ➤
+    </button>
+  </form>
+</div>
+
+
 <!-- NOTIFICATION -->
 <div id="toast" class="toast hidden" role="status"></div>
 

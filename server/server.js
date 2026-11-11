@@ -94,6 +94,7 @@ app.use("/api/workmen", require("./routes/workmen"));
 app.use("/api/bookings", require("./routes/bookings"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/profile", require("./routes/profile"));
+app.use("/api/ai", require("./routes/ai"));
 const publicDir = path.join(__dirname, "..", "public");
 
 app.use(
