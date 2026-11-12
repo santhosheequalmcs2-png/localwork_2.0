@@ -192,6 +192,18 @@ async function initializeDatabase() {
     ON bookings(workman_id)
   `);
 
+  // Auto-seed workmen if database has fewer than 25 approved workmen
+  try {
+    const check = await pool.query("SELECT count(*) FROM workman_profiles WHERE application_status = 'Approved'");
+    if (parseInt(check.rows[0].count) < 25) {
+      console.log("Database has fewer than 25 approved workmen. Auto-seeding full workmen catalog...");
+      const { seedAllWorkmenAndJobs } = require("../scripts/seed-all-workmen");
+      await seedAllWorkmenAndJobs();
+    }
+  } catch (seedErr) {
+    console.warn("Auto-seed check notice:", seedErr.message);
+  }
+
 console.log("PostgreSQL database initialized successfully.");
 }
 
