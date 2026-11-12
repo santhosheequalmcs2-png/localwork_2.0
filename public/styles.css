@@ -755,18 +755,18 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 
 /* ==========================================================================
    PHASE 5: WORKMAN DASHBOARD — PROFESSIONAL WORK HUB IDENTITY
-   Theme: Bold, Energetic, Professional
-   Colors: Dark Charcoal (#12151b), Electric Blue (#3b82f6), Amber (#f59e0b)
+   Theme: Professional, Crisp, High-Trust
+   Colors: Warm Off-White (#fbfdf9), Forest Emerald (#246b4d), Fresh Mint (#eaf4e8)
    ========================================================================== */
 
 .workman-dashboard {
-  background: #0f1318;
-  color: #f1f5f9;
-  border-radius: 28px;
-  padding: 36px 36px 70px;
-  margin: 20px 0 60px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-  border: 1px solid #1e2633;
+  background: transparent;
+  color: var(--ink, #172820);
+  border-radius: 0;
+  padding: 10px 0 80px;
+  margin: 0;
+  box-shadow: none;
+  border: none;
 }
 
 /* 1. Hero / Command Center */
@@ -775,12 +775,12 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   grid-template-columns: 1.15fr 0.85fr;
   gap: 36px;
   align-items: center;
-  background: linear-gradient(135deg, #171d26 0%, #1e2532 50%, #171f2b 100%);
-  border: 1px solid #283548;
-  border-radius: 26px;
+  background: linear-gradient(135deg, #fbfdf9 0%, #f1f7ef 50%, #eaf4e8 100%);
+  border: 1px solid #d8e5d6;
+  border-radius: 28px;
   padding: 38px 42px;
   margin-bottom: 30px;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 16px 45px rgba(23, 40, 32, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -792,7 +792,7 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   right: -80px;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(36, 107, 77, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -808,9 +808,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #142038;
-  color: #60a5fa;
-  border: 1px solid #1d4ed8;
+  background: #e1efe5;
+  color: #1a5e3e;
+  border: 1px solid #c7e0cd;
   padding: 6px 14px;
   border-radius: 99px;
   font-size: 0.72rem;
@@ -821,9 +821,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 .workman-avail-badge {
   display: inline-flex;
   align-items: center;
-  background: #0f291e;
-  color: #34d399;
-  border: 1px solid #059669;
+  background: #eef8f1;
+  color: #166534;
+  border: 1px solid #bbf7d0;
   padding: 6px 14px;
   border-radius: 99px;
   font-size: 0.72rem;
@@ -834,12 +834,12 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 .workman-title {
   font: 800 clamp(2rem, 3.4vw, 2.9rem) / 1.15 Manrope, sans-serif;
   letter-spacing: -0.04em;
-  color: #ffffff;
+  color: #172820;
   margin: 0 0 14px;
 }
 
 .workman-subtitle {
-  color: #94a3b8;
+  color: #55685d;
   font-size: 1.02rem;
   line-height: 1.65;
   margin: 0 0 24px;
@@ -853,13 +853,14 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .workman-pill {
-  background: #11161f;
-  border: 1px solid #232d3d;
+  background: #ffffff;
+  border: 1px solid #dbe6d9;
   border-radius: 14px;
   padding: 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  box-shadow: 0 2px 8px rgba(23, 40, 32, 0.03);
 }
 
 .pill-label {
@@ -867,12 +868,12 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #6e7c73;
 }
 
 .workman-pill strong {
   font-size: 0.88rem;
-  color: #f1f5f9;
+  color: #172820;
 }
 
 /* 3D Frame in Workman Hero */
@@ -881,14 +882,15 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .workman-3d-card {
-  background: #11151c;
+  background: #ffffff;
   border: none;
   outline: none;
   border-radius: 24px;
   padding: 16px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 16px 40px rgba(36, 107, 77, 0.08);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .workman-3d-badge {
@@ -896,9 +898,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   align-items: center;
   gap: 7px;
   align-self: flex-start;
-  background: #172236;
+  background: #eef6f0;
   border: none;
-  color: #60a5fa;
+  color: #246b4d;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 4px 10px;
@@ -910,9 +912,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #246b4d;
   display: inline-block;
-  box-shadow: 0 0 8px #3b82f6;
+  box-shadow: 0 0 8px #246b4d;
   animation: workman-glow 2s infinite;
 }
 
@@ -927,7 +929,7 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   border-radius: 16px;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(circle at center, #18202d 0%, #0d1117 100%);
+  background: radial-gradient(circle at center, #fbfdf9 0%, #edf6eb 100%);
   border: none;
   outline: none;
 }
@@ -949,11 +951,11 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   margin-top: 8px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #6e7c73;
 }
 
 .workman-3d-caption small {
-  color: #38bdf8;
+  color: #246b4d;
   font-weight: 600;
 }
 
@@ -966,20 +968,21 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .workman-stat-card {
-  background: #161c26;
-  border: 1px solid #232d3e;
+  background: #ffffff;
+  border: 1px solid #dbe6d9;
   border-radius: 20px;
   padding: 22px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
   transition: all 0.22s ease;
+  box-shadow: 0 3px 12px rgba(23, 40, 32, 0.03);
 }
 
 .workman-stat-card:hover {
   transform: translateY(-3px);
-  border-color: #3b82f6;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-color: #246b4d;
+  box-shadow: 0 12px 28px rgba(36, 107, 77, 0.12);
 }
 
 .stat-icon-wrap {
@@ -991,10 +994,10 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   font-size: 1.45rem;
 }
 
-.stat-total { background: #172640; border: 1px solid #1d4ed8; }
-.stat-pending { background: #3b280c; border: 1px solid #b45309; }
-.stat-active { background: #0c2e3d; border: 1px solid #0284c7; }
-.stat-completed { background: #0f2e22; border: 1px solid #059669; }
+.stat-total { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
+.stat-pending { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; }
+.stat-active { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+.stat-completed { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
 
 .stat-body {
   display: flex;
@@ -1003,7 +1006,7 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 
 .stat-body strong {
   font: 800 1.9rem Manrope, sans-serif;
-  color: #ffffff;
+  color: #172820;
   line-height: 1;
   margin-bottom: 5px;
 }
@@ -1011,15 +1014,16 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 .stat-body span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #55685d;
 }
 
 /* 3. Jobs & Booking Requests Panel */
 .workman-jobs-section {
-  background: #141922;
-  border: 1px solid #232c3b;
+  background: #ffffff;
+  border: 1px solid #dbe6d9;
   border-radius: 24px;
   padding: 32px;
+  box-shadow: 0 8px 24px rgba(23, 40, 32, 0.04);
 }
 
 .workman-section-header {
@@ -1035,20 +1039,20 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.14em;
-  color: #38bdf8;
+  color: #246b4d;
   margin: 0 0 6px;
 }
 
 .workman-section-header h2 {
   font: 800 1.55rem Manrope, sans-serif;
-  color: #ffffff;
+  color: #172820;
   margin: 0;
 }
 
 .btn-workman-secondary {
-  background: #1b2330;
-  color: #93c5fd;
-  border: 1px solid #2d3b50;
+  background: #eef6f0;
+  color: #1e5a3f;
+  border: 1px solid #cde3d3;
   padding: 11px 18px;
   border-radius: 12px;
   font-weight: 700;
@@ -1060,9 +1064,9 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .btn-workman-secondary:hover {
-  background: #232e40;
-  border-color: #3b82f6;
-  color: #ffffff;
+  background: #e1efe5;
+  border-color: #246b4d;
+  color: #13422d;
 }
 
 .workman-booking-list {
@@ -1071,18 +1075,19 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .workman-job-card {
-  background: #19202c;
-  border: 1.5px solid #263244;
+  background: #fafcf9;
+  border: 1.5px solid #dce8db;
   border-radius: 20px;
   padding: 24px;
   transition: all 0.22s ease;
   position: relative;
+  box-shadow: 0 3px 10px rgba(23, 40, 32, 0.03);
 }
 
 .workman-job-card:hover {
-  border-color: #3b82f6;
+  border-color: #246b4d;
   transform: translateY(-3px);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 30px rgba(36, 107, 77, 0.12);
 }
 
 .job-card-header {
@@ -1095,13 +1100,13 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 
 .job-customer-name {
   font: 800 1.25rem Manrope, sans-serif;
-  color: #ffffff;
+  color: #172820;
   margin: 0 0 4px;
 }
 
 .job-date {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #55685d;
   font-weight: 600;
 }
 
@@ -1114,11 +1119,11 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   letter-spacing: 0.06em;
 }
 
-.status-pending { background: #3c2a0c; color: #fbbf24; border: 1px solid #b45309; }
-.status-accepted { background: #132a48; color: #60a5fa; border: 1px solid #1d4ed8; }
-.status-completed { background: #0e3020; color: #4ade80; border: 1px solid #059669; }
-.status-declined { background: #3a1518; color: #f87171; border: 1px solid #991b1b; }
-.status-cancelled { background: #262c36; color: #94a3b8; border: 1px solid #3e4756; }
+.status-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.status-accepted { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.status-completed { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.status-declined { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.status-cancelled { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
 .job-card-details {
   display: grid;
@@ -1131,11 +1136,11 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   align-items: center;
   gap: 10px;
   font-size: 0.88rem;
-  color: #cbd5e1;
+  color: #37473e;
 }
 
 .job-phone-link {
-  color: #60a5fa;
+  color: #246b4d;
   text-decoration: none;
   font-weight: 600;
 }
@@ -1145,12 +1150,12 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .job-notes-box {
-  background: #131821;
-  border-left: 3px solid #f59e0b;
+  background: #f7f9f6;
+  border-left: 3px solid #246b4d;
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.84rem;
-  color: #e2e8f0;
+  color: #2d3d34;
   margin-top: 6px;
 }
 
@@ -1161,26 +1166,26 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .btn-workman-accept {
-  background: #2563eb;
+  background: #246b4d;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 0.85rem;
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 18px rgba(36, 107, 77, 0.25);
   transition: all 0.2s;
 }
 
 .btn-workman-accept:hover {
-  background: #1d4ed8;
+  background: #174f37;
   transform: translateY(-1px);
 }
 
 .btn-workman-decline {
-  background: #1f2735;
-  color: #cbd5e1;
-  border: 1px solid #334155;
+  background: #ffffff;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
   padding: 10px 18px;
   border-radius: 12px;
   font-weight: 700;
@@ -1189,34 +1194,33 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .btn-workman-decline:hover {
-  background: #2d181b;
-  color: #f87171;
+  background: #fee2e2;
   border-color: #ef4444;
 }
 
 .btn-workman-complete {
-  background: #f59e0b;
-  color: #0f172a;
+  background: #ea580c;
+  color: #ffffff;
   border: none;
   padding: 10px 22px;
   border-radius: 12px;
   font-weight: 800;
   font-size: 0.85rem;
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.25);
   transition: all 0.2s;
 }
 
 .btn-workman-complete:hover {
-  background: #d97706;
+  background: #c2410c;
   transform: translateY(-1px);
 }
 
 .workman-empty-jobs {
   text-align: center;
   padding: 48px 24px;
-  background: #10141a;
+  background: #fafcf9;
   border-radius: 18px;
-  border: 1px dashed #242f40;
+  border: 1.5px dashed #cde3d3;
 }
 
 .empty-icon {
@@ -1225,13 +1229,13 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
 }
 
 .workman-empty-jobs h3 {
-  color: #ffffff;
+  color: #172820;
   margin: 0 0 8px;
   font: 800 1.25rem Manrope, sans-serif;
 }
 
 .workman-empty-jobs p {
-  color: #64748b;
+  color: #55685d;
   font-size: 0.9rem;
   max-width: 480px;
   margin: 0 auto;
@@ -2221,6 +2225,224 @@ html.dark .panel-header-icon {
 html.dark .empty {
   background: #15261f;
   color: #94a3b8;
+}
+
+/* ==========================================================================
+   WORKMAN DASHBOARD IN DARK MODE
+   Theme: Sleek Dark Cockpit, Electric Blue & Amber Accents
+   ========================================================================== */
+
+html.dark .workman-dashboard {
+  background: transparent;
+  color: #f1f5f9;
+}
+
+html.dark .workman-hero-card {
+  background: linear-gradient(135deg, #171d26 0%, #1e2532 50%, #171f2b 100%);
+  border-color: #283548;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .workman-hero-card::after {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+}
+
+html.dark .workman-pro-badge {
+  background: #142038;
+  color: #60a5fa;
+  border-color: #1d4ed8;
+}
+
+html.dark .workman-avail-badge {
+  background: #0f291e;
+  color: #34d399;
+  border-color: #059669;
+}
+
+html.dark .workman-title {
+  color: #ffffff;
+}
+
+html.dark .workman-subtitle {
+  color: #94a3b8;
+}
+
+html.dark .workman-pill {
+  background: #11161f;
+  border-color: #232d3d;
+  box-shadow: none;
+}
+
+html.dark .pill-label {
+  color: #64748b;
+}
+
+html.dark .workman-pill strong {
+  color: #f1f5f9;
+}
+
+html.dark .workman-3d-card {
+  background: #11151c;
+  border: none;
+  outline: none;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .workman-3d-badge {
+  background: #172236;
+  color: #60a5fa;
+  border: none;
+}
+
+html.dark .workman-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 8px #3b82f6;
+}
+
+html.dark .workman-three-canvas {
+  background: radial-gradient(circle at center, #18202d 0%, #0d1117 100%);
+  border: none;
+  outline: none;
+}
+
+html.dark .workman-3d-caption {
+  color: #94a3b8;
+}
+
+html.dark .workman-3d-caption small {
+  color: #38bdf8;
+}
+
+html.dark .workman-stat-card {
+  background: #161c26;
+  border-color: #232d3e;
+  box-shadow: none;
+}
+
+html.dark .workman-stat-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .stat-total { background: #172640; border-color: #1d4ed8; color: #93c5fd; }
+html.dark .stat-pending { background: #3b280c; border-color: #b45309; color: #fde68a; }
+html.dark .stat-active { background: #0c2e3d; border-color: #0284c7; color: #7dd3fc; }
+html.dark .stat-completed { background: #0f2e22; border-color: #059669; color: #86efac; }
+
+html.dark .stat-body strong {
+  color: #ffffff;
+}
+
+html.dark .stat-body span {
+  color: #94a3b8;
+}
+
+html.dark .workman-jobs-section {
+  background: #141922;
+  border-color: #232c3b;
+  box-shadow: none;
+}
+
+html.dark .workman-eyebrow {
+  color: #38bdf8;
+}
+
+html.dark .workman-section-header h2 {
+  color: #ffffff;
+}
+
+html.dark .btn-workman-secondary {
+  background: #1b2330;
+  color: #93c5fd;
+  border-color: #2d3b50;
+}
+
+html.dark .btn-workman-secondary:hover {
+  background: #232e40;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+html.dark .workman-job-card {
+  background: #19202c;
+  border-color: #263244;
+  box-shadow: none;
+}
+
+html.dark .workman-job-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .job-customer-name {
+  color: #ffffff;
+}
+
+html.dark .job-date {
+  color: #94a3b8;
+}
+
+html.dark .job-detail-row {
+  color: #cbd5e1;
+}
+
+html.dark .job-phone-link {
+  color: #60a5fa;
+}
+
+html.dark .job-notes-box {
+  background: #131821;
+  border-left-color: #f59e0b;
+  color: #e2e8f0;
+}
+
+html.dark .status-pending { background: #3c2a0c; color: #fbbf24; border-color: #b45309; }
+html.dark .status-accepted { background: #132a48; color: #60a5fa; border-color: #1d4ed8; }
+html.dark .status-completed { background: #0e3020; color: #4ade80; border-color: #059669; }
+html.dark .status-declined { background: #3a1518; color: #f87171; border-color: #991b1b; }
+html.dark .status-cancelled { background: #262c36; color: #94a3b8; border-color: #3e4756; }
+
+html.dark .btn-workman-accept {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+html.dark .btn-workman-accept:hover {
+  background: #1d4ed8;
+}
+
+html.dark .btn-workman-decline {
+  background: #1f2735;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+html.dark .btn-workman-decline:hover {
+  background: #2d181b;
+  color: #f87171;
+  border-color: #ef4444;
+}
+
+html.dark .btn-workman-complete {
+  background: #f59e0b;
+  color: #0f172a;
+}
+
+html.dark .btn-workman-complete:hover {
+  background: #d97706;
+}
+
+html.dark .workman-empty-jobs {
+  background: #10141a;
+  border-color: #242f40;
+}
+
+html.dark .workman-empty-jobs h3 {
+  color: #ffffff;
+}
+
+html.dark .workman-empty-jobs p {
+  color: #64748b;
 }
 
 /* Admin Dashboard in Dark Mode */
