@@ -31,7 +31,7 @@ router.get("/config", (req, res) => {
     process.env.google_client_id ||
     process.env.GOOGLE_ID ||
     env.googleClientId ||
-    ""
+    "651491331627-83ge6qmsuvn3s405pihkme7k45gepl8h.apps.googleusercontent.com"
   ).trim();
 
   res.json({

@@ -33,6 +33,6 @@ module.exports = {
     corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean),
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "LocalWork <onboarding@resend.dev>",
-  googleClientId: (process.env.GOOGLE_CLIENT_ID || "").trim(),
+  googleClientId: (process.env.GOOGLE_CLIENT_ID || "651491331627-83ge6qmsuvn3s405pihkme7k45gepl8h.apps.googleusercontent.com").trim(),
   appBaseUrl: (process.env.APP_BASE_URL || (nodeEnv === "production" || process.env.RENDER ? "https://localwork-2-0.onrender.com" : "http://localhost:3000")).replace(/\/+$/, "")
 };
