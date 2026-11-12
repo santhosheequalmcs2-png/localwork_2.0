@@ -1407,7 +1407,8 @@ function setupThree() {
       100,
     );
 
-    camera.position.set(0, 0, 8);
+    camera.position.set(3.4, 2.8, 5.6);
+    camera.lookAt(0, 0.25, 0);
 
     renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -1415,87 +1416,183 @@ function setupThree() {
     });
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
     renderer.setSize(host.clientWidth, host.clientHeight);
-
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 2.1));
+    scene.add(new THREE.AmbientLight(0xfff8ee, 1.9));
 
     const key = new THREE.DirectionalLight(0xffffff, 2.5);
-    key.position.set(4, 5, 6);
+    key.position.set(5, 7, 5);
     scene.add(key);
+
+    const fill = new THREE.DirectionalLight(0xdcfce7, 1.1);
+    fill.position.set(-4, -2, -3);
+    scene.add(fill);
 
     const group = new THREE.Group();
     scene.add(group);
 
     const matGreen = new THREE.MeshStandardMaterial({
-      color: 0x246b4d,
-      roughness: 0.3,
+      color: 0x1d6f4c,
+      roughness: 0.35,
       metalness: 0.12,
     });
 
     const matLime = new THREE.MeshStandardMaterial({
-      color: 0xc8e67b,
+      color: 0xb5dc65,
       roughness: 0.35,
       metalness: 0.1,
     });
 
     const matCream = new THREE.MeshStandardMaterial({
-      color: 0xf8f4df,
+      color: 0xfdfbf7,
       roughness: 0.45,
     });
 
-    const box = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.25, 1.1), matGreen);
+    const matWindow = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.55,
+      roughness: 0.15,
+    });
 
-    box.position.set(0, -0.1, 0);
+    const matOrange = new THREE.MeshStandardMaterial({
+      color: 0xea580c,
+      roughness: 0.5,
+      metalness: 0.08,
+    });
+
+    // 1. Lawn Pedestal
+    const lawn = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.3, 2.4, 0.16, 32),
+      new THREE.MeshStandardMaterial({ color: 0xd9e8c6, roughness: 0.7 })
+    );
+    lawn.position.set(0, -0.68, 0);
+    group.add(lawn);
+
+    // 2. House Body
+    const box = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.25, 1.35), matGreen);
+    box.position.set(0, -0.05, 0);
     group.add(box);
 
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.35, 0.9, 4), matLime);
-
+    // 3. Pyramid Gable Roof
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.42, 0.95, 4), matLime);
     roof.rotation.y = Math.PI / 4;
-    roof.position.set(0, 1.02, 0);
+    roof.position.set(0, 1.05, 0);
     group.add(roof);
 
+    // 4. Front Door & Knob
     const door = new THREE.Mesh(
       new THREE.BoxGeometry(0.38, 0.72, 0.06),
       matCream,
     );
-
-    door.position.set(0.3, -0.34, 0.58);
+    door.position.set(0.25, -0.32, 0.7);
     group.add(door);
 
-    const torus = new THREE.Mesh(
-      new THREE.TorusGeometry(2.15, 0.025, 8, 100),
-      new THREE.MeshBasicMaterial({
-        color: 0x8bad5a,
-        transparent: true,
-        opacity: 0.7,
-      }),
+    const knob = new THREE.Mesh(
+      new THREE.SphereGeometry(0.03, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 })
     );
+    knob.position.set(0.38, -0.32, 0.74);
+    group.add(knob);
 
-    torus.rotation.x = 0.8;
-    group.add(torus);
+    // 5. Windows
+    const winFront = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.04), matWindow);
+    winFront.position.set(-0.45, 0.15, 0.7);
+    group.add(winFront);
 
+    const winSide = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.36, 0.36), matWindow);
+    winSide.position.set(0.87, 0.15, 0);
+    group.add(winSide);
+
+    // 6. Chimney & Smoke
+    const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.55, 0.24), matOrange);
+    chimney.position.set(0.48, 1.15, -0.25);
+    group.add(chimney);
+
+    const smokeMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.9,
+    });
+    const smokePuffs = [];
+    for (let i = 0; i < 3; i++) {
+      const puff = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07 + i * 0.02, 8, 8),
+        smokeMat
+      );
+      puff.position.set(0.48, 1.45 + i * 0.2, -0.25);
+      group.add(puff);
+      smokePuffs.push(puff);
+    }
+
+    // 7. Orbiting Tool Icons / Gems
     const toolGroup = new THREE.Group();
     scene.add(toolGroup);
 
     const toolMat = new THREE.MeshStandardMaterial({
-      color: 0xd69b43,
-      metalness: 0.65,
-      roughness: 0.25,
+      color: 0xf59e0b,
+      metalness: 0.75,
+      roughness: 0.2,
     });
 
-    for (let i = 0; i < 3; i++) {
+    const blueMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      metalness: 0.3,
+      roughness: 0.2,
+    });
+
+    for (let i = 0; i < 4; i++) {
+      const angle = (i * Math.PI) / 2;
       const cube = new THREE.Mesh(
-        new THREE.BoxGeometry(0.32, 0.32, 0.32),
-        i === 1 ? matLime : toolMat,
+        i % 2 === 0
+          ? new THREE.BoxGeometry(0.24, 0.24, 0.24)
+          : new THREE.OctahedronGeometry(0.14, 0),
+        i === 1 ? blueMat : toolMat,
       );
-
-      cube.position.set((i - 1) * 2.15, Math.sin(i * 2) * 0.65, 0.2);
-
+      cube.position.set(Math.cos(angle) * 2.3, 0.3, Math.sin(angle) * 2.3);
       toolGroup.add(cube);
     }
+
+    // Interactive Drag to Rotate on Home Page
+    let isDragging = false;
+    let prevMouseX = 0;
+    let targetRotationY = 0;
+
+    host.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      prevMouseX = e.clientX;
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevMouseX;
+      prevMouseX = e.clientX;
+      targetRotationY += deltaX * 0.01;
+    });
+
+    host.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        prevMouseX = e.touches[0].clientX;
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchend", () => {
+      isDragging = false;
+    });
+
+    window.addEventListener("touchmove", (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - prevMouseX;
+      prevMouseX = e.touches[0].clientX;
+      targetRotationY += deltaX * 0.012;
+    }, { passive: true });
 
     function resize() {
       const w = host.clientWidth;
@@ -1515,16 +1612,27 @@ function setupThree() {
     function animate() {
       const t = clock.getElapsedTime();
 
-      group.rotation.y = Math.sin(t * 0.45) * 0.22;
-      group.position.y = Math.sin(t * 0.8) * 0.12;
+      // Smooth 3D rotation with mouse drag damping
+      if (!isDragging) {
+        targetRotationY += 0.005;
+      }
+      group.rotation.y += (targetRotationY - group.rotation.y) * 0.08;
+      group.position.y = Math.sin(t * 0.8) * 0.06;
 
+      // Orbiting tool elements
       toolGroup.rotation.y = t * 0.35;
-
       toolGroup.children.forEach((o, i) => {
-        o.position.y = Math.sin(t * 1.3 + i * 2) * 0.7;
+        o.position.y = 0.3 + Math.sin(t * 1.5 + i * 1.5) * 0.2;
+        o.rotation.x = t * 1.2;
+        o.rotation.z = t * 0.8;
       });
 
-      torus.rotation.z = t * 0.15;
+      // Animated smoke puffs
+      smokePuffs.forEach((puff, idx) => {
+        puff.position.y = 1.45 + ((t * 0.35 + idx * 0.3) % 0.7);
+        const progress = ((t * 0.35 + idx * 0.3) % 0.7) / 0.7;
+        puff.scale.setScalar(0.9 + progress * 0.7);
+      });
 
       renderer.render(scene, camera);
 

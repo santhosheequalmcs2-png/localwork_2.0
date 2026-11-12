@@ -20,7 +20,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://accounts.google.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
       imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https://accounts.google.com"],
       connectSrc: ["'self'", "https://accounts.google.com", "https://oauth2.googleapis.com"],
