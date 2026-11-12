@@ -825,9 +825,11 @@
             <span class="badge-icon">⚡</span>
             <span>VERIFIED PROFESSIONAL</span>
           </span>
-          <span id="workman-trade-availability" class="workman-avail-badge">
-            Available
-          </span>
+          <button id="workman-avail-toggle-btn" class="workman-avail-toggle-btn status-online" type="button" title="Click to toggle availability">
+            <span class="avail-dot"></span>
+            <span id="workman-trade-availability">Available</span>
+            <span class="avail-switch-label">⇄ Switch</span>
+          </button>
         </div>
 
         <h1 id="workman-greeting" class="workman-title">
@@ -1161,6 +1163,43 @@
         <li>Add <code>GOOGLE_CLIENT_ID</code> in Render Environment Variables.</li>
       </ol>
     </div>
+  </div>
+</div>
+
+<!-- REVIEW & STAR RATING MODAL -->
+<div id="review-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+  <div class="modal-box" style="max-width: 500px;">
+    <button class="close" id="review-modal-close" aria-label="Close">×</button>
+    <p class="eyebrow">CUSTOMER FEEDBACK</p>
+    <h2 id="review-modal-title">Rate Your Workman</h2>
+    <p id="review-workman-name-display" class="muted">Share your honest rating and experience with the community.</p>
+
+    <div id="review-error" class="error hidden"></div>
+
+    <form id="review-form">
+      <input type="hidden" id="review-booking-id">
+
+      <div class="star-rating-block">
+        <label style="margin-bottom: 8px;">Select Star Rating:</label>
+        <div class="star-rating-stars" id="star-rating-stars">
+          <button type="button" class="star-btn active" data-rating="1" aria-label="1 star">★</button>
+          <button type="button" class="star-btn active" data-rating="2" aria-label="2 stars">★</button>
+          <button type="button" class="star-btn active" data-rating="3" aria-label="3 stars">★</button>
+          <button type="button" class="star-btn active" data-rating="4" aria-label="4 stars">★</button>
+          <button type="button" class="star-btn active" data-rating="5" aria-label="5 stars">★</button>
+        </div>
+        <div class="rating-label" id="rating-label">5 Stars — Excellent Service</div>
+      </div>
+
+      <label style="margin-top: 16px;">
+        Written Review & Comments:
+        <textarea id="review-comment" rows="3" placeholder="How was the workmanship, timeliness, and communication?" required></textarea>
+      </label>
+
+      <button type="submit" id="review-submit-btn" class="btn btn-primary full" style="margin-top: 18px;">
+        Submit Rating & Review
+      </button>
+    </form>
   </div>
 </div>
 

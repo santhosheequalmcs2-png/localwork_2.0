@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "node --watch server/server.js",
-    "check": "node --check server/server.js && node --check server/database.js && node --check server/routes/auth.js && node --check server/routes/workmen.js && node --check server/routes/bookings.js && node --check server/routes/admin.js && node --check server/routes/ai.js && node --check public/app.js"
+    "check": "node --check server/server.js && node --check server/database.js && node --check server/routes/auth.js && node --check server/routes/workmen.js && node --check server/routes/bookings.js && node --check server/routes/admin.js && node --check server/routes/ai.js && node --check server/routes/reviews.js && node --check public/app.js"
   },
  "engines": {
   "node": "22.x"

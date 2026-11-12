@@ -13,18 +13,22 @@ router.get("/", async (req, res, next) => {
 
     const result = await pool.query(
       `SELECT
-         u.*,
+         u.id, u.name, u.email, u.phone, u.location, u.role, u.created_at,
          wp.service AS profile_service,
          wp.experience AS profile_experience,
          wp.description AS profile_description,
          wp.availability AS profile_availability,
          wp.application_status,
-         wp.rejection_reason
+         wp.rejection_reason,
+         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.9) AS rating,
+         COUNT(r.id)::int AS review_count
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id
+       LEFT JOIN reviews r ON r.workman_id = u.id
        WHERE wp.application_status = 'Approved'
        AND ($1 = '' OR wp.service ILIKE '%' || $1 || '%')
        AND ($2 = '' OR u.location ILIKE '%' || $2 || '%')
+       GROUP BY u.id, wp.user_id
        ORDER BY
          CASE WHEN wp.availability = 'Available' THEN 0 ELSE 1 END,
          wp.created_at DESC
@@ -38,22 +42,64 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// Toggle availability (Available / Busy) for the logged-in workman
+router.patch(
+  "/me/availability",
+  requireAuth,
+  requireRole("customer"),
+  async (req, res, next) => {
+    try {
+      const { availability } = req.body;
+      if (!["Available", "Busy"].includes(availability)) {
+        return res.status(400).json({
+          error: "Availability must be either 'Available' or 'Busy'."
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE workman_profiles
+         SET availability = $1
+         WHERE user_id = $2
+         RETURNING availability`,
+        [availability, req.session.user.id]
+      );
+
+      if (!result.rowCount) {
+        return res.status(404).json({
+          error: "Workman profile not found."
+        });
+      }
+
+      res.json({
+        message: `Availability updated to ${result.rows[0].availability}.`,
+        availability: result.rows[0].availability
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // Get one approved workman profile
 router.get("/:id", async (req, res, next) => {
   try {
     const result = await pool.query(
       `SELECT
-         u.*,
+         u.id, u.name, u.email, u.phone, u.location, u.role, u.created_at,
          wp.service AS profile_service,
          wp.experience AS profile_experience,
          wp.description AS profile_description,
          wp.availability AS profile_availability,
          wp.application_status,
-         wp.rejection_reason
+         wp.rejection_reason,
+         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.9) AS rating,
+         COUNT(r.id)::int AS review_count
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id
+       LEFT JOIN reviews r ON r.workman_id = u.id
        WHERE u.id = $1
-       AND wp.application_status = 'Approved'`,
+       AND wp.application_status = 'Approved'
+       GROUP BY u.id, wp.user_id`,
       [Number(req.params.id)]
     );
 

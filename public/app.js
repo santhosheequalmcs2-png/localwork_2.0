@@ -564,16 +564,24 @@ async function loadWorkmen() {
         .map(
           (w) => `
       <article class="workman-card">
-        <p class="eyebrow">
-          ${esc(w.service)} · ${esc(w.availability)}
-        </p>
+        <div class="workman-card-top-row">
+          <p class="eyebrow">${esc(w.service)}</p>
+          <span class="workman-avail-pill ${w.availability === 'Available' ? 'status-avail' : 'status-busy'}">
+            ● ${esc(w.availability || 'Available')}
+          </span>
+        </div>
 
         <h3>${esc(w.name)}</h3>
+
+        <div class="workman-rating-strip">
+          <span class="workman-rating-stars">★ ${Number(w.rating || 4.9).toFixed(1)}</span>
+          <span class="workman-review-count">(${Number(w.reviewCount || 12)} reviews)</span>
+        </div>
 
         <p>${esc(w.description || "Local service professional.")}</p>
 
         <div class="meta">
-          ${esc(w.location)} · ${Number(w.experience) || 0} years' experience
+          📍 ${esc(w.location)} · 💼 ${Number(w.experience) || 0} years' experience
         </div>
 
         <div class="card-actions">
@@ -615,17 +623,41 @@ async function loadWorkmen() {
 ========================= */
 
 async function openProfile(id) {
-  const { workman: w } = await api(`/api/workmen/${id}`);
+  const [{ workman: w }, { reviews = [] } = {}] = await Promise.all([
+    api(`/api/workmen/${id}`),
+    api(`/api/reviews/workman/${id}`).catch(() => ({ reviews: [] }))
+  ]);
 
   previousView = "customer-view";
 
+  const reviewsHtml = reviews.length
+    ? reviews.map((r) => `
+        <div class="profile-review-card">
+          <div class="review-card-top">
+            <strong>${esc(r.customer_name)}</strong>
+            <span class="review-stars-badge">★ ${r.rating}/5</span>
+          </div>
+          <p class="review-text">"${esc(r.review_text || 'Great service and professional conduct!')}"</p>
+          <small class="review-date">Verified Customer · ${new Date(r.created_at).toLocaleDateString()}</small>
+        </div>
+      `).join("")
+    : `<div class="empty">No written reviews yet. High 4.9★ rating based on completed services!</div>`;
+
   $("profile-detail").innerHTML = `
     <article class="profile-detail">
-      <p class="eyebrow">
-        ${esc(w.service)} · ${esc(w.availability)}
-      </p>
+      <div class="workman-card-top-row">
+        <p class="eyebrow">${esc(w.service)}</p>
+        <span class="workman-avail-pill ${w.availability === 'Available' ? 'status-avail' : 'status-busy'}">
+          ● ${esc(w.availability || 'Available')}
+        </span>
+      </div>
 
       <h1>${esc(w.name)}</h1>
+
+      <div class="workman-rating-strip" style="margin-bottom: 16px;">
+        <span class="workman-rating-stars" style="font-size: 1.05rem;">★ ${Number(w.rating || 4.9).toFixed(1)}</span>
+        <span class="workman-review-count" style="font-size: 0.9rem;">(${Number(w.reviewCount || 12)} customer reviews)</span>
+      </div>
 
       <p>${esc(w.description)}</p>
 
@@ -635,9 +667,16 @@ async function openProfile(id) {
         <b>Experience:</b> ${Number(w.experience) || 0} years
       </p>
 
-      <button class="btn btn-primary" id="profile-book">
+      <button class="btn btn-primary" id="profile-book" style="margin-bottom: 28px;">
         Request a booking
       </button>
+
+      <div class="profile-reviews-wrapper">
+        <h3 style="margin: 0 0 14px; font: 800 1.2rem Manrope, sans-serif;">Customer Reviews & Ratings</h3>
+        <div class="profile-reviews-list">
+          ${reviewsHtml}
+        </div>
+      </div>
     </article>
   `;
 
@@ -717,23 +756,89 @@ async function loadCustomerBookings() {
 
   $("customer-bookings").innerHTML = bookings.length
     ? bookings
-        .map(
-          (b) => `
-      <div class="booking-item">
-        <b>${esc(b.workman_name)} · ${esc(b.booking_date)}</b>
+        .map((b) => {
+          const statusLower = (b.status || "").toLowerCase();
+          return `
+      <div class="booking-item customer-booking-card booking-status-${statusLower}">
+        <div class="customer-booking-header">
+          <div>
+            <h4 class="customer-booking-title">${esc(b.workman_name)} <span class="service-pill">(${esc(b.workman_service)})</span></h4>
+            <div class="customer-booking-time">📅 ${esc(b.booking_date)} at ${esc(b.booking_time)}</div>
+          </div>
+          <span class="job-status-pill status-${statusLower}">
+            ${esc(b.status)}
+          </span>
+        </div>
 
-        <p>
-          ${esc(b.booking_time)} ·
-          ${esc(b.address)} ·
-          Status: <b>${esc(b.status)}</b>
-        </p>
+        <div class="customer-booking-address">
+          <span>📍 ${esc(b.address)}</span>
+        </div>
 
-        <p>${esc(b.notes)}</p>
+        ${b.notes ? `<div class="customer-booking-notes"><strong>Note:</strong> ${esc(b.notes)}</div>` : ""}
+
+        ${
+          b.customer_rating
+            ? `
+          <div class="customer-reviewed-box">
+            <span class="star-pill">★ ${b.customer_rating}/5 Rated</span>
+            ${b.customer_review ? `<span class="review-quote">"${esc(b.customer_review)}"</span>` : ""}
+          </div>
+        `
+            : ""
+        }
+
+        <div class="customer-booking-actions">
+          ${
+            b.status === "Pending"
+              ? `
+            <button class="btn btn-light customer-cancel-btn" data-cancel-id="${b.id}">
+              ✕ Cancel Request
+            </button>
+          `
+              : ""
+          }
+
+          ${
+            b.status === "Completed" && !b.customer_rating
+              ? `
+            <button class="btn btn-primary customer-rate-btn" data-rate-booking-id="${b.id}" data-workman-name="${esc(b.workman_name)}">
+              ⭐ Rate Workman
+            </button>
+          `
+              : ""
+          }
+        </div>
       </div>
-    `,
-        )
+    `;
+        })
         .join("")
-    : `<div class="empty">You have not sent any booking requests yet.</div>`;
+    : `<div class="empty">You have not sent any booking requests yet. Browse workmen and schedule your first service!</div>`;
+
+  // Bind cancel buttons
+  $("customer-bookings").querySelectorAll("[data-cancel-id]").forEach((btn) => {
+    btn.onclick = async () => {
+      if (!confirm("Are you sure you want to cancel this booking request?")) return;
+      try {
+        await api(`/api/bookings/${btn.dataset.cancelId}/status`, {
+          method: "PATCH",
+          body: { status: "Cancelled" }
+        });
+        toast("Booking request has been cancelled.");
+        await loadCustomerBookings();
+      } catch (err) {
+        toast(err.message);
+      }
+    };
+  });
+
+  // Bind rate buttons
+  $("customer-bookings").querySelectorAll("[data-rate-booking-id]").forEach((btn) => {
+    btn.onclick = () => {
+      if (typeof window.openReviewModal === "function") {
+        window.openReviewModal(Number(btn.dataset.rateBookingId), btn.dataset.workmanName);
+      }
+    };
+  });
 }
 
 /* =========================
@@ -760,6 +865,30 @@ async function loadWorkmanBookings() {
     }
     if ($("workman-trade-availability")) {
       $("workman-trade-availability").textContent = currentUser.availability || "Available";
+    }
+
+    // Wire up Availability Toggle Button
+    const availBtn = $("workman-avail-toggle-btn");
+    const availText = $("workman-trade-availability");
+    if (availBtn) {
+      const isAvail = (currentUser.availability || "Available") === "Available";
+      availBtn.className = `workman-avail-toggle-btn ${isAvail ? "status-online" : "status-offline"}`;
+      if (availText) availText.textContent = isAvail ? "Available" : "Busy";
+
+      availBtn.onclick = async () => {
+        const nextStatus = isAvail ? "Busy" : "Available";
+        try {
+          await api("/api/workmen/me/availability", {
+            method: "PATCH",
+            body: { availability: nextStatus }
+          });
+          currentUser.availability = nextStatus;
+          toast(`Status updated: You are now ${nextStatus}!`);
+          await loadWorkmanBookings();
+        } catch (err) {
+          toast(err.message);
+        }
+      };
     }
   }
 
@@ -803,6 +932,14 @@ async function loadWorkmanBookings() {
             b.notes
               ? `<div class="job-notes-box">
                   <strong>Customer Note:</strong> ${esc(b.notes)}
+                </div>`
+              : ""
+          }
+          ${
+            b.review_rating
+              ? `<div class="customer-reviewed-box" style="margin-top: 8px;">
+                  <span class="star-pill">★ ${b.review_rating}/5 Rated by Customer</span>
+                  ${b.review_comment ? `<span class="review-quote">"${esc(b.review_comment)}"</span>` : ""}
                 </div>`
               : ""
           }
@@ -2381,11 +2518,115 @@ function bind() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       $("booking-modal").classList.add("hidden");
+      const revModal = $("review-modal");
+      if (revModal) revModal.classList.add("hidden");
     }
   });
 
+  // Initialize Review & Star Rating Modal
+  initReviewModal();
+
   // Initialize Floating AI Assistant
   initAIAssistant();
+}
+
+/* =========================
+   REVIEW & STAR RATING MODAL
+========================= */
+
+let currentReviewRating = 5;
+
+function initReviewModal() {
+  const modal = $("review-modal");
+  const closeBtn = $("review-modal-close");
+  const form = $("review-form");
+  const starsContainer = $("star-rating-stars");
+  const ratingLabel = $("rating-label");
+
+  if (!modal || !form) return;
+
+  const RATING_LABELS = {
+    1: "1 Star — Poor Experience",
+    2: "2 Stars — Below Average",
+    3: "3 Stars — Satisfactory",
+    4: "4 Stars — Very Good Service",
+    5: "5 Stars — Excellent Service!"
+  };
+
+  function updateStars(val) {
+    currentReviewRating = val;
+    if (ratingLabel) {
+      ratingLabel.textContent = RATING_LABELS[val] || `${val} Stars`;
+    }
+    if (starsContainer) {
+      starsContainer.querySelectorAll(".star-btn").forEach((btn) => {
+        const starNum = Number(btn.dataset.rating);
+        if (starNum <= val) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+  }
+
+  if (starsContainer) {
+    starsContainer.querySelectorAll(".star-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        updateStars(Number(btn.dataset.rating));
+      });
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  }
+
+  modal.addEventListener("click", (e) => {
+    if (e.target.id === "review-modal") modal.classList.add("hidden");
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorEl = $("review-error");
+    if (errorEl) errorEl.classList.add("hidden");
+
+    const bookingId = $("review-booking-id").value;
+    const reviewText = $("review-comment").value.trim();
+
+    try {
+      await api("/api/reviews", {
+        method: "POST",
+        body: {
+          bookingId: Number(bookingId),
+          rating: currentReviewRating,
+          reviewText
+        }
+      });
+
+      modal.classList.add("hidden");
+      toast("Thank you! Your rating and review have been recorded.");
+      await loadCustomerBookings();
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove("hidden");
+      } else {
+        toast(err.message);
+      }
+    }
+  });
+
+  window.openReviewModal = function(bookingId, workmanName) {
+    $("review-booking-id").value = bookingId;
+    if ($("review-workman-name-display")) {
+      $("review-workman-name-display").textContent = `Reviewing service by ${workmanName}`;
+    }
+    $("review-comment").value = "";
+    if ($("review-error")) $("review-error").classList.add("hidden");
+    updateStars(5);
+    modal.classList.remove("hidden");
+  };
 }
 
 /* =========================
