@@ -3169,6 +3169,12 @@ function formatAIMarkdown(text) {
     '<div class="ai-urgency-banner normal"><span class="ai-urgency-icon">ℹ️</span><span><strong>Standard Maintenance</strong></span></div>'
   );
 
+  // Highlight Safety Precaution Banners
+  html = html.replace(
+    /<strong>(?:Immediate Safety Precaution|Safety Precaution|Safety Warning):<\/strong>\s*([^\n<]+)/gi,
+    '<div class="ai-safety-callout">⚠️ <strong>Safety Precaution:</strong> $1</div>'
+  );
+
   // Bullet points and Paragraphs
   const lines = html.split("\n");
   let inList = false;
@@ -3188,7 +3194,7 @@ function formatAIMarkdown(text) {
         inList = false;
       }
       if (trimmed) {
-        if (trimmed.startsWith("<h4") || trimmed.startsWith("<div class=\"ai-urgency-banner")) {
+        if (trimmed.startsWith("<h4") || trimmed.startsWith("<div class=\"ai-urgency-banner") || trimmed.startsWith("<div class=\"ai-safety-callout")) {
           formatted.push(trimmed);
         } else {
           formatted.push(`<p>${trimmed}</p>`);
@@ -3392,6 +3398,72 @@ function initAIAssistant() {
 
   bindChips();
 
+  // Bind Quick Topics Bar buttons
+  const quickTopics = $("ai-quick-topics");
+  if (quickTopics) {
+    quickTopics.querySelectorAll(".ai-topic-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const prompt = btn.dataset.prompt;
+        if (prompt) sendAIMessage(prompt);
+      });
+    });
+  }
+
+  // Voice Speech Recognition Setup (Web Speech API)
+  const voiceBtn = $("ai-voice-btn");
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (voiceBtn) {
+    if (!SpeechRec) {
+      voiceBtn.style.display = "none";
+    } else {
+      const recognition = new SpeechRec();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-IN";
+
+      let isRecording = false;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        voiceBtn.classList.add("listening");
+        voiceBtn.title = "Listening... Speak your issue now";
+        if (input) input.placeholder = "Listening... Speak now...";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results?.[0]?.[0]?.transcript;
+        if (input && transcript) {
+          input.value = transcript;
+          sendAIMessage(transcript);
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.warn("Speech recognition warning:", e.error);
+      };
+
+      recognition.onend = () => {
+        isRecording = false;
+        voiceBtn.classList.remove("listening");
+        voiceBtn.title = "Speak to AI (Voice Input)";
+        if (input) input.placeholder = "Ask a question (e.g. 'My sink is leaking')...";
+      };
+
+      voiceBtn.addEventListener("click", () => {
+        if (isRecording) {
+          recognition.stop();
+        } else {
+          try {
+            recognition.start();
+          } catch (err) {
+            console.warn("Recognition start warning:", err);
+          }
+        }
+      });
+    }
+  }
+
   async function sendAIMessage(userText) {
     const text = (userText || "").trim();
     if (!text) return;
@@ -3476,14 +3548,32 @@ function initAIAssistant() {
         </button>`;
       }
 
+      // Copy Answer Button
+      const copyBtnHtml = `<button type="button" class="ai-copy-btn" title="Copy answer to clipboard">📋 Copy</button>`;
+
       botMsgEl.innerHTML = `
         <div class="ai-bubble">
           ${formatAIMarkdown(data.reply)}
           ${workmenHtml}
           ${actionHtml}
+          ${copyBtnHtml}
         </div>
       `;
       messagesContainer.appendChild(botMsgEl);
+
+      // Handle copy button click
+      const copyBtn = botMsgEl.querySelector(".ai-copy-btn");
+      if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+          if (navigator.clipboard && data.reply) {
+            navigator.clipboard.writeText(data.reply).then(() => {
+              toast("Copied AI answer to clipboard!");
+              copyBtn.innerHTML = `✓ Copied!`;
+              setTimeout(() => { copyBtn.innerHTML = `📋 Copy`; }, 2000);
+            }).catch(() => {});
+          }
+        });
+      }
 
       // Handle workman book clicks directly from chat
       botMsgEl.querySelectorAll(".ai-workman-book-btn").forEach((btn) => {

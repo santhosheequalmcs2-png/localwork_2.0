@@ -1283,6 +1283,13 @@
     </div>
   </div>
 
+  <div class="ai-quick-topics" id="ai-quick-topics">
+    <button type="button" class="ai-topic-btn" data-prompt="🚨 Emergency! I have an urgent issue!">🚨 Emergency</button>
+    <button type="button" class="ai-topic-btn" data-prompt="💰 What are the typical rates and pricing for home services?">💰 Pricing Guide</button>
+    <button type="button" class="ai-topic-btn" data-prompt="🔍 Help me diagnose a home repair problem">🔍 Diagnosis</button>
+    <button type="button" class="ai-topic-btn" data-prompt="👨‍🔧 Find available verified workmen near me">👨‍🔧 Find Workman</button>
+  </div>
+
   <div id="ai-chat-messages" class="ai-chat-body">
     <!-- Initial welcome message -->
     <div class="ai-msg ai-msg-bot">
@@ -1309,6 +1316,9 @@
   </div>
 
   <form id="ai-chat-form" class="ai-chat-footer">
+    <button type="button" id="ai-voice-btn" class="ai-voice-btn" title="Speak to AI (Voice Input)" aria-label="Voice Input">
+      🎙️
+    </button>
     <input id="ai-chat-input"
            type="text"
            placeholder="Ask a question (e.g. 'My sink is leaking')..."

@@ -15,126 +15,208 @@ const aiLimiter = rateLimit({
   }
 });
 
-// Known Chennai / Tamil Nadu localities for location-aware routing
-const CHENNAI_AREAS = [
+// Known Tamil Nadu localities & cities (Coimbatore, Chennai, and major hubs)
+const AREAS_AND_CITIES = [
+  // Coimbatore & Kongu Region
+  "Coimbatore", "Saravanampatti", "Gandhipuram", "RS Puram", "R.S. Puram", "Peelamedu",
+  "Saibaba Colony", "Singanallur", "Ukkadam", "Kuniyamuthur", "Vadavalli", "Kovaipudur",
+  "Ganapathy", "Thudiyalur", "Sulur", "Pollachi", "Mettupalayam", "Kinathukadavu",
+  "Tiruppur", "Erode", "Salem", "Namakkal",
+  // Chennai & Suburbs
   "Anna Nagar", "Velachery", "T. Nagar", "T Nagar", "Adyar", "Tambaram", "Guindy",
   "Mylapore", "Porur", "Chromepet", "Koyambedu", "Thiruvanmiyur", "Besant Nagar",
   "Nungambakkam", "Alwarpet", "Saidapet", "Perambur", "Ambattur", "Madipakkam",
   "Sholinganallur", "OMR", "ECR", "Kilpauk", "Egmore", "Royapettah", "Triplicane",
   "Kodambakkam", "Vadapalani", "KK Nagar", "Ashok Nagar", "Pallavaram", "Medavakkam",
-  "Thoraipakkam", "Navalur", "Siruseri", "Perungudi", "Alandur", "Avadi", "Poonamallee"
+  "Thoraipakkam", "Navalur", "Siruseri", "Perungudi", "Alandur", "Avadi", "Poonamallee",
+  // Other Tamil Nadu Hubs
+  "Madurai", "Trichy", "Tiruchirappalli", "Vellore", "Tirunelveli", "Thoothukudi",
+  "Nagercoil", "Kanchipuram", "Tiruvallur", "Chengalpattu", "Hosur", "Thanjavur", "Dindigul"
 ];
 
-// 15 Trade categories supported on LocalWork
+// 15 Trade categories supported on LocalWork with English, Tamil, and Tanglish keywords
 const TRADES = [
   {
     category: "Electrician",
     icon: "⚡",
-    keywords: ["electric", "wiring", "switch", "tripping", "mcb", "fuse", "fan", "light", "spark", "power", "shock", "inverter", "socket", "short circuit", "voltage", "geyser heating", "earthing", "breaker", "elcb", "db box"],
+    keywords: [
+      "electric", "wiring", "switch", "tripping", "mcb", "fuse", "fan", "light", "spark", "power", "shock",
+      "inverter", "socket", "short circuit", "voltage", "geyser heating", "earthing", "breaker", "elcb",
+      "db box", "current", "current pochu", "current illa", "fan suthala", "fan slow", "fan odala", "bulb",
+      "tube light", "plug", "line test", "generator", "phase", "single phase", "three phase", "wire burn",
+      "voltage low", "voltage high", "power cut", "ups", "battery inverter", "ceiling fan"
+    ],
+    unitCost: { item: "Point wiring / Fan installation", rate: 300, unit: "per point" },
     avgCost: "₹250 – ₹600 for standard fixes; ₹1,200 – ₹3,500 for inverter / rewiring",
     tips: "Always switch off the main MCB breaker before touching or inspecting any sparking outlet or loose wire!"
   },
   {
     category: "Plumber",
     icon: "🔧",
-    keywords: ["plumb", "leak", "tap", "pipe", "sink", "drain", "clog", "tank", "toilet", "water", "flush", "geyser", "sewage", "basin", "faucet", "cistern", "motor", "pressure", "overhang"],
+    keywords: [
+      "plumb", "leak", "tap", "pipe", "sink", "drain", "clog", "tank", "toilet", "water", "flush", "geyser",
+      "sewage", "basin", "faucet", "cistern", "motor", "pressure", "overhang", "thanni", "thanni leak",
+      "pipe vedichuruchu", "tap sotha", "water leak", "commode", "over head tank", "submersible", "sump motor",
+      "drainage", "water flow", "borewell", "water filter", "wash basin block", "flush tank", "pipeline"
+    ],
+    unitCost: { item: "Tap replacement / Leak fix", rate: 250, unit: "per fixture" },
     avgCost: "₹200 – ₹500 for tap / leak repair; ₹800 – ₹2,000 for drain unclogging or pipe line replacement",
     tips: "If a pipe bursts or water overflows, immediately close your home's main water inlet valve near the water meter or overhead tank."
   },
   {
     category: "Carpenter",
     icon: "🪚",
-    keywords: ["carpent", "wood", "furniture", "door", "cupboard", "wardrobe", "hinge", "lock", "table", "chair", "bed", "drawer", "plywood", "latch", "sliding", "swelling", "handle"],
+    keywords: [
+      "carpent", "wood", "furniture", "door", "cupboard", "wardrobe", "hinge", "lock", "table", "chair",
+      "bed", "drawer", "plywood", "latch", "sliding", "swelling", "handle", "maram", "door lock", "saavi",
+      "lock broken", "wood work", "modular kitchen", "loft", "mesh door", "mosquito net door", "sofa frame",
+      "dining table", "tv unit", "wooden polish", "teak", "door close aagala", "door lock jammed", "cabinet"
+    ],
+    unitCost: { item: "Door lock / Hinge fitting", rate: 350, unit: "per fitting" },
     avgCost: "₹300 – ₹800 for door / lock fixes; ₹1,500+ for custom furniture or modular fittings",
     tips: "For sticking wooden doors during monsoon, check if the top hinge screws are loose before shaving off wood edges."
   },
   {
     category: "Painter",
     icon: "🎨",
-    keywords: ["paint", "wall", "color", "putty", "primer", "stain", "whitewash", "coating", "damp wall", "peeling", "efflorescence", "interior", "exterior", "seepage paint"],
+    keywords: [
+      "paint", "wall", "color", "putty", "primer", "stain", "whitewash", "coating", "damp wall", "peeling",
+      "efflorescence", "interior", "exterior", "seepage paint", "vella adikanum", "colour", "distemper",
+      "emulsion", "texture paint", "waterproofing paint", "ceiling paint", "enamel", "gate paint", "wall crack"
+    ],
+    unitCost: { item: "Interior painting (2 coats + putty)", rate: 18, unit: "per sq. ft." },
     avgCost: "₹12 – ₹25 per sq. ft. for interior emulsion; ₹15 – ₹35 per sq. ft. for exterior weather-guard",
     tips: "Always fix source water seepage and apply waterproof primer before painting to prevent blistering and flaking."
   },
   {
     category: "Mechanic",
     icon: "🛠️",
-    keywords: ["mechanic", "car", "bike", "scooter", "engine", "brake", "battery", "jumpstart", "clutch", "puncture", "oil change", "vehicle", "breakdown", "radiator", "starter"],
+    keywords: [
+      "mechanic", "car", "bike", "scooter", "engine", "brake", "battery", "jumpstart", "clutch", "puncture",
+      "oil change", "vehicle", "breakdown", "radiator", "starter", "two wheeler", "four wheeler", "bike start aagala",
+      "car start", "tyre", "brake pad", "chain lube", "accelerator", "spark plug", "gear", "coolant", "horn"
+    ],
+    unitCost: { item: "General bike service & oil change", rate: 450, unit: "per visit" },
     avgCost: "₹350 – ₹800 for basic tune-up / jumpstart; parts charged as per MRP",
     tips: "If your engine overheats, pull over safely, turn off ignition, and NEVER open the radiator cap while the engine is hot."
   },
   {
     category: "Cleaning",
     icon: "🧹",
-    keywords: ["clean", "deep clean", "bathroom clean", "kitchen clean", "dust", "saniti", "housekeeping", "sofa clean", "chimney", "mattress", "scrub", "floor wash"],
+    keywords: [
+      "clean", "deep clean", "bathroom clean", "kitchen clean", "dust", "saniti", "housekeeping", "sofa clean",
+      "chimney", "mattress", "scrub", "floor wash", "veedu clean", "bathroom stain", "acid wash", "water scale",
+      "tiles stain", "carpet clean", "water tank clean", "overhead tank cleaning", "sump cleaning", "window clean"
+    ],
+    unitCost: { item: "Bathroom deep descaling", rate: 599, unit: "per bathroom" },
     avgCost: "₹999 – ₹1,800 for 1BHK; ₹2,200 – ₹4,500 for full 3BHK deep sanitisation",
     tips: "Professional deep cleaning removes invisible hard-water scale and grease trap bacteria that regular mopping misses."
   },
   {
     category: "Construction",
     icon: "🧱",
-    keywords: ["construct", "mason", "brick", "cement", "wall repair", "slab", "plaster", "renovation", "civil", "remodel", "demolition", "pillar"],
+    keywords: [
+      "construct", "mason", "brick", "cement", "wall repair", "slab", "plaster", "renovation", "civil",
+      "remodel", "demolition", "pillar", "kottanar", "sand", "gravel", "concrete", "lintel", "crack repair",
+      "beam", "foundation", "compound wall", "parapet", "staircase"
+    ],
+    unitCost: { item: "Wall plastering & masonry fix", rate: 65, unit: "per sq. ft." },
     avgCost: "₹45 – ₹80 per sq. ft. for plastering; daily mason rates ₹800 – ₹1,200 / day",
     tips: "Always hire certified structural civil masons before modifying walls to preserve load-bearing support."
   },
   {
     category: "AC Repair",
     icon: "❄️",
-    keywords: ["ac", "air condition", "cooling", "compressor", "gas refill", "gas charging", "split ac", "filter", "water leakage ac", "ac dripping", "not cooling", "fan motor ac"],
+    keywords: [
+      "ac", "air condition", "cooling", "compressor", "gas refill", "gas charging", "split ac", "filter",
+      "water leakage ac", "ac dripping", "not cooling", "fan motor ac", "ac cool aagala", "ac kaathu varala",
+      "window ac", "inverter ac", "copper pipe", "remote not working", "ac servicing", "jet wash"
+    ],
+    unitCost: { item: "Split AC Foam Jet Deep Clean", rate: 499, unit: "per unit" },
     avgCost: "₹499 for general foam jet service; ₹1,800 – ₹2,800 for nitrogen test & gas charging",
     tips: "Clean split AC mesh filters every 2 weeks during peak summer to maintain airflow, boost cooling, and cut power bills."
   },
   {
     category: "Appliance Repair",
     icon: "📺",
-    keywords: ["appliance", "fridge", "refrigerator", "washing machine", "microwave", "oven", "tv", "induction", "defrost", "mixer", "grinder"],
+    keywords: [
+      "appliance", "fridge", "refrigerator", "washing machine", "microwave", "oven", "tv", "induction",
+      "defrost", "mixer", "grinder", "ro", "water purifier", "geyser", "water heater", "chimney",
+      "mixie", "washing machine spin", "washing machine drain", "fridge cooling illa", "ro filter", "tds"
+    ],
+    unitCost: { item: "Appliance inspection & diagnose", rate: 299, unit: "per appliance" },
     avgCost: "₹300 – ₹700 inspection fee; motor / PCB repairs based on component replacement",
     tips: "Always unplug appliances from wall power outlets before inspecting plugs, cables, or filters."
   },
   {
     category: "Gardening",
     icon: "🌿",
-    keywords: ["garden", "lawn", "plants", "grass", "trimming", "landscaping", "organic", "pruning", "potting", "terrace garden", "fertilizer"],
+    keywords: [
+      "garden", "lawn", "plants", "grass", "trimming", "landscaping", "organic", "pruning", "potting",
+      "terrace garden", "fertilizer", "thottam", "sedikku", "tree cutting", "weed", "soil", "compost"
+    ],
+    unitCost: { item: "Lawn trimming & plant pruning", rate: 499, unit: "per visit" },
     avgCost: "₹500 – ₹1,200 per maintenance visit; terrace garden setups starting from ₹3,000",
     tips: "Water potted plants early morning or after sunset to minimize moisture evaporation and root stress."
   },
   {
     category: "Pest Control",
     icon: "🐜",
-    keywords: ["pest", "termite", "cockroach", "bed bug", "mosquito", "rodent", "rat", "insects", "borer", "ant infestation"],
+    keywords: [
+      "pest", "termite", "cockroach", "bed bug", "mosquito", "rodent", "rat", "insects", "borer",
+      "ant infestation", "karapan poochi", "karan", "karan poochi", "wood borer", "fogging", "pest spray"
+    ],
+    unitCost: { item: "Kitchen cockroach herbal gel service", rate: 899, unit: "per apartment" },
     avgCost: "₹800 – ₹1,500 for cockroach gel; ₹2,500 – ₹5,000 for anti-termite warranty treatment",
     tips: "Opt for government-approved odorless herbal pest control if you have pets or elderly family members at home."
   },
   {
     category: "Welding",
     icon: "⚙️",
-    keywords: ["weld", "grill", "gate", "iron", "steel", "railing", "metal", "balcony", "fabrication", "safety grill"],
+    keywords: [
+      "weld", "grill", "gate", "iron", "steel", "railing", "metal", "balcony", "fabrication", "safety grill",
+      "iron gate", "iron door", "arc welding", "gas welding", "stainless steel", "gate hinge broken", "shed"
+    ],
+    unitCost: { item: "Hinge welding / Minor grill repair", rate: 450, unit: "per spot" },
     avgCost: "₹400 – ₹900 for minor grill fixes; custom stainless steel works by weight / design",
     tips: "Apply anti-rust red oxide primer before painting any welded outdoor iron gate or balcony grill."
   },
   {
     category: "Masonry & Tiling",
     icon: "🏗️",
-    keywords: ["tile", "tiling", "granite", "marble", "countertop", "grouting", "cracked tile", "flooring", "epoxy"],
+    keywords: [
+      "tile", "tiling", "granite", "marble", "countertop", "grouting", "cracked tile", "flooring", "epoxy",
+      "bathroom tile", "floor tile", "wall tile", "tile replacement", "tile fixing", "skirting", "paver block"
+    ],
+    unitCost: { item: "Floor tile laying & leveling", rate: 35, unit: "per sq. ft." },
     avgCost: "₹25 – ₹45 per sq. ft. for floor tiling installation",
     tips: "Epoxy grouting in bathrooms permanently prevents water seepage between floor tiles."
   },
   {
     category: "Waterproofing",
     icon: "💧",
-    keywords: ["waterproof", "damp", "seepage", "roof leak", "terrace leak", "ceiling damp", "crack", "membrane", "rain leak"],
+    keywords: [
+      "waterproof", "damp", "seepage", "roof leak", "terrace leak", "ceiling damp", "crack", "membrane",
+      "rain leak", "waterproofing coating", "dr fixit", "tar felt", "bathroom seepage", "wall moisture"
+    ],
+    unitCost: { item: "Terrace elastomeric coating (2 coats)", rate: 45, unit: "per sq. ft." },
     avgCost: "₹35 – ₹65 per sq. ft. for elastomeric membrane terrace coating",
     tips: "Seal roof cracks before monsoon begins; apply two coats of waterproofing primer reinforced with glass fiber mesh."
   },
   {
     category: "Other",
     icon: "🧰",
-    keywords: ["cctv", "handyman", "drill", "mirror", "curtain", "mounting", "lock change", "doorbell", "camera", "rod", "shelf"],
+    keywords: [
+      "cctv", "handyman", "drill", "mirror", "curtain", "mounting", "lock change", "doorbell", "camera",
+      "rod", "shelf", "tv mount", "photo frame", "curtain rod", "odd job", "general helper", "fitting"
+    ],
+    unitCost: { item: "Drilling & wall fixture mounting", rate: 199, unit: "up to 3 items" },
     avgCost: "₹200 – ₹450 for mounting / drilling; CCTV cameras from ₹1,200 / channel",
     tips: "Our verified multi-trade handymen can bundle multiple odd jobs around the house into one single visit!"
   }
 ];
 
-// In-Depth Diagnostic Knowledge Matrix (50+ Real-World Home Repair Scenarios)
+// In-Depth Diagnostic Knowledge Matrix (35+ Real-World Home Repair Scenarios)
 const DIAGNOSTIC_SCENARIOS = [
   // --- ELECTRICAL ---
   {
@@ -160,299 +242,318 @@ const DIAGNOSTIC_SCENARIOS = [
     category: "Electrician",
     urgency: "🚨 Emergency",
     urgencyClass: "emergency",
-    title: "Sparking Switch, Socket or Burning Plastic Smell",
-    rootCause: "Sparking and burning odors are caused by **loose terminal screws** or degraded brass contact clips creating high-resistance electrical arcing. The localized temperature can exceed 300°C, melting the PVC faceplate and creating a direct fire hazard.",
-    safetyPrecaution: "IMMEDIATELY turn off your home's main MCB switchboard. Do NOT touch the switch or pull the plug with bare hands. Do NOT use water under any circumstance.",
-    estimatedCost: "₹200 – ₹400 (socket replacement + wire termination)",
-    estimatedTime: "20 – 40 mins",
+    title: "Sparking Switch or Burning Smell from Wall Outlet",
+    rootCause: "Sparking is caused by **loose terminal screws**, worn-out internal brass clips creating an electrical arc, or excessive load causing contacts to melt and char the socket housing.",
+    safetyPrecaution: "Do NOT plug or unplug anything. Flip off that switch and immediately shut off the breaker for that room on your main Distribution Board. Avoid touching the socket with bare hands.",
+    estimatedCost: "₹200 – ₹350 (replace damaged socket & re-terminate wires)",
+    estimatedTime: "20 – 35 mins",
     suggestions: [
-      "🚨 What to do if there is visible smoke?",
-      "💰 Modular switch board replacement cost",
-      "👨‍🔧 Call Emergency Electrician"
+      "⚡ How to test if socket is safe?",
+      "💰 Modular switchboard replacement cost",
+      "👨‍🔧 Book an Emergency Electrician"
     ]
   },
   {
     id: "fan_slow_humming",
-    match: ["fan slow", "fan hum", "ceiling fan slow", "fan noise", "fan capacitor", "fan speed"],
+    match: ["fan slow", "fan hum", "fan noise", "fan suthala", "fan not spinning", "ceiling fan slow"],
     category: "Electrician",
     urgency: "ℹ️ Standard Maintenance",
     urgencyClass: "normal",
-    title: "Ceiling Fan Rotating Slowly or Humming",
-    rootCause: "Over 85% of slow ceiling fans suffer from a **degraded start/run capacitor** (typically 2.25µF or 2.5µF). Over 2–3 years of heat, capacitance drops below 1.5µF, causing sluggish speed and humming torque loss. Alternatively, dry ball bearings cause mechanical drag.",
-    safetyPrecaution: "Turn off the fan regulator switch. If the fan center hub feels burning hot to the touch, do not keep it running—this will burn the copper motor windings.",
-    estimatedCost: "₹150 – ₹300 (capacitor replacement); ₹400 – ₹700 (bearing grease / rewinding)",
-    estimatedTime: "25 – 45 mins",
+    title: "Ceiling Fan Spinning Very Slowly or Humming Loudly",
+    rootCause: "In 90% of cases, the **fan run capacitor** (typically 2.25µF to 3.15µF) has degraded and lost capacitance, failing to create the required starting torque. Dry ball bearings can also cause mechanical drag and a humming sound.",
+    safetyPrecaution: "Keep the fan switch off. Never use a stick or hand to spin-start a stalled fan, as the motor winding can overheat and catch fire.",
+    estimatedCost: "₹150 – ₹300 (capacitor replacement + lubrication)",
+    estimatedTime: "15 – 25 mins",
     suggestions: [
-      "🌀 Can I change the fan capacitor myself?",
-      "💰 What is the cost of ceiling fan rewinding?",
-      "👨‍🔧 Book an Electrician"
+      "⚡ Which capacitor rating is best for my fan?",
+      "💰 Ceiling fan rewiring vs new fan cost",
+      "👨‍🔧 Schedule fan service"
     ]
   },
   {
     id: "inverter_beeping",
-    match: ["inverter", "ups", "inverter beep", "battery water", "inverter overload"],
+    match: ["inverter beep", "ups beep", "inverter overload", "inverter trip", "inverter sound"],
     category: "Electrician",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Inverter / Home UPS Continuous Beeping or Not Charging",
-    rootCause: "Continuous beeping indicates (1) **Low battery voltage** (distilled water dried up or sulfated lead plates); (2) **Overload alarm** (household load exceeds inverter VA rating); or (3) **Blown MOSFET / motherboard charging fuse** on the inverter inverter board.",
-    safetyPrecaution: "Switch the inverter back to 'Bypass Mode' using the rear rocker switch. Inspect lead-acid battery water levels (floats should be in green). Never ignite matches near charging batteries.",
-    estimatedCost: "₹300 – ₹600 (battery service / terminal de-oxidation); ₹800 – ₹1,800 (PCB repair)",
-    estimatedTime: "45 – 90 mins",
+    title: "Home Inverter Beeping Continuously / Showing Overload",
+    rootCause: "Continuous beeping indicates: (1) **Overload Alert** (connected load exceeds inverter VA capacity); (2) **Low Battery Voltage** (battery distilled water dried up or cell dead); or (3) **Faulty Charging Relay**.",
+    safetyPrecaution: "Switch off heavy loads (fridge, washing machine) connected to the inverter line. Inspect the battery water level float indicators. Add only battery-grade distilled water if low.",
+    estimatedCost: "₹300 – ₹600 (service & battery terminal de-sulfation); battery replacement based on size",
+    estimatedTime: "30 – 45 mins",
     suggestions: [
-      "🔋 How often to top up inverter battery water?",
-      "💰 Cost for new tubular battery vs repair?",
-      "👨‍🔧 Book an Inverter Electrician"
+      "⚡ How to check tubular battery distilled water?",
+      "💰 Cost to replace inverter battery",
+      "👨‍🔧 Book an Inverter Specialist"
     ]
   },
 
   // --- AC REPAIR ---
   {
     id: "ac_not_cooling",
-    match: ["ac not cooling", "warm air ac", "cooling low", "ac gas", "gas refill", "compressor not", "blow warm air"],
+    match: ["ac not cooling", "ac cool aagala", "ac blow hot", "air conditioner cooling", "ac gas leak"],
     category: "AC Repair",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "AC Blowing Warm Air / Inadequate Cooling",
-    rootCause: "Likely causes: (1) **Refrigerant Gas Leak** (R32 or R410A leaked via vibrating copper flare joints); (2) **Faulty Compressor Capacitor** (35µF to 50µF capacitor failed, preventing outdoor compressor from kicking on); or (3) **Severely clogged cooling fins and air filters** choking airflow.",
-    safetyPrecaution: "Set AC to 24°C in 'Cool' mode. Check if the outdoor fan is spinning. If outdoor compressor doesn't hum or only blows ambient air, TURN IT OFF. Running a gas-starved compressor can overheat and permanently burn the compressor motor.",
-    estimatedCost: "₹499 (foam jet deep wash); ₹450 – ₹850 (capacitor replacement); ₹1,800 – ₹2,800 (nitrogen leak test + gas refill)",
+    title: "Split AC Running but Blowing Normal / Warm Air",
+    rootCause: "Top causes: (1) **Refrigerant Gas Leakage** (R32 / R410a leak in copper flare joints or cooling coil); (2) **Clogged Air Filter & Evaporator Fins** (blocking airflow); or (3) **Defective Compressor Capacitor** (outdoor fan runs but compressor fails to start).",
+    safetyPrecaution: "Turn off the AC if the copper pipes at the outdoor unit show white ice frosting. Running a gas-starved compressor will burn its motor windings.",
+    estimatedCost: "₹499 (foam jet wash); ₹1,800 – ₹2,800 (nitrogen leak test + gas charging)",
     estimatedTime: "45 – 90 mins",
     suggestions: [
-      "❄️ How to know if AC gas is leaking?",
-      "💰 Split AC gas charging price in Chennai",
-      "👨‍🔧 Book a verified AC Technician"
+      "❄️ How to know if AC gas is over?",
+      "💰 Gas charging cost for 1.5 Ton Split AC",
+      "👨‍🔧 Book an AC Technician now"
     ]
   },
   {
     id: "ac_water_leaking",
-    match: ["ac water leak", "ac dripping", "indoor unit leak", "water coming from ac", "ac overflow"],
+    match: ["ac water leak", "ac water drip", "ac drip inside", "ac thanni kottuthu", "ac leaking water"],
     category: "AC Repair",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Split AC Indoor Unit Leaking Water Inside Room",
-    rootCause: "In 90% of cases, the **condensate drain pipe is blocked** by jelly-like dust, algae, and mold accumulation inside the internal drain pan. Another cause is coil freezing due to low gas, which suddenly melts and overflows the collection tray.",
-    safetyPrecaution: "Place a bucket underneath to protect flooring and furniture. Ensure leaking water does not drip onto the electrical power socket mounted beneath the indoor unit.",
-    estimatedCost: "₹400 – ₹700 (drain pipe pressure flush & tray sanitisation)",
+    title: "Water Dripping from Split AC Indoor Unit Inside Room",
+    rootCause: "The **condensate drain pipe** is choked with algae, dust slime, or mold, causing the indoor drain tray to overflow. It can also happen if the indoor unit is mounted unlevel or insulation on copper pipes has decayed.",
+    safetyPrecaution: "Place a bucket underneath to protect floor furniture and switch off the AC to prevent water from reaching internal electronics and wall sockets.",
+    estimatedCost: "₹350 – ₹600 (high-pressure drain flush & tray descaling)",
     estimatedTime: "30 – 45 mins",
     suggestions: [
-      "💧 Can I blow air into the drain pipe to clear it?",
-      "💰 Complete AC foam jet service charges",
-      "👨‍🔧 Book AC Repair now"
-    ]
-  },
-  {
-    id: "ac_foul_smell",
-    match: ["ac smell", "ac odor", "ac stink", "musty smell ac", "bad smell ac"],
-    category: "AC Repair",
-    urgency: "ℹ️ Standard Maintenance",
-    urgencyClass: "normal",
-    title: "Musty / Foul Smell from AC Indoor Vents",
-    rootCause: "Moisture trapped in the indoor evaporator coil breeds bacterial biofilm and mildew. Dust and cooking oils accumulate on the blower wheel, creating a damp fungal smell whenever the compressor cycles off.",
-    safetyPrecaution: "Switch AC to 'Fan mode' for 20 minutes before shutting it down to dry residual condensation on the coil.",
-    estimatedCost: "₹499 – ₹799 (anti-bacterial foam jet service)",
-    estimatedTime: "45 mins",
-    suggestions: [
-      "🌿 What chemicals are used for AC cleaning?",
-      "👨‍🔧 Book AC Foam Jet Service"
+      "❄️ Can I clear AC drain pipe with vacuum?",
+      "💰 AC foam jet deep cleaning price",
+      "👨‍🔧 Book AC drain repair"
     ]
   },
 
   // --- PLUMBING ---
   {
     id: "pipe_burst_leak",
-    match: ["pipe burst", "burst pipe", "pipe leak", "heavy leak", "flooding", "water leak pipe", "water gushing"],
+    match: ["pipe burst", "pipe leak", "water gushing", "thanni leak", "pipe crack", "pipe broken"],
     category: "Plumber",
     urgency: "🚨 Emergency",
     urgencyClass: "emergency",
-    title: "Major Water Pipe Leak or Burst Line",
-    rootCause: "High municipal pumping pressure, thermal expansion cracking CPVC/PVC solvent joints, or corrosion of older Galvanized Iron (GI) threaded fittings. Vibrations from water hammer can also fracture elbow joints.",
-    safetyPrecaution: "IMMEDIATELY turn off the main water valve at your overhead tank or municipal water meter! Mop up standing water near electrical floor sockets or extension cords.",
-    estimatedCost: "₹250 – ₹600 (pipe coupling & solvent weld); ₹800 – ₹1,800 (concealed line replacement)",
-    estimatedTime: "30 – 90 mins",
+    title: "Burst Water Pipe or Heavy Water Line Leakage",
+    rootCause: "CPVC/UPVC joints fail due to water hammer pressure surges, degraded solvent cement, age brittleness, or physical wall drilling damage.",
+    safetyPrecaution: "Immediately shut off your home's main water supply gate valve (located near the overhead tank on the terrace or near the sump motor).",
+    estimatedCost: "₹350 – ₹800 (section cutout, new coupling & joint replacement)",
+    estimatedTime: "30 – 60 mins",
     suggestions: [
-      "🚰 Where is the main water shut-off valve?",
-      "💰 Concealed bathroom pipe repair cost",
+      "🔧 Where is my main water gate valve located?",
+      "💰 Cost to replace concealed CPVC pipe",
       "👨‍🔧 Call Emergency Plumber"
     ]
   },
   {
     id: "tap_dripping",
-    match: ["tap drip", "faucet leak", "tap leaking", "water dripping tap", "sink tap leak"],
+    match: ["tap drip", "tap leak", "faucet drip", "leaking tap", "tap sotha", "tap loose"],
     category: "Plumber",
     urgency: "ℹ️ Standard Maintenance",
     urgencyClass: "normal",
-    title: "Continuously Dripping Tap or Faucet",
-    rootCause: "Worn rubber washer seal or cracked ceramic disc cartridge inside modern quarter-turn brass taps. Hard water calcium scaling also prevents the internal spindle from sealing tight, wasting up to 20 liters of water daily.",
-    safetyPrecaution: "Locate and close the small angle stop-cock valve under the washbasin to isolate the tap until the plumber arrives.",
-    estimatedCost: "₹150 – ₹350 (washer / cartridge replacement)",
-    estimatedTime: "20 – 30 mins",
+    title: "Continuous Dripping from Kitchen / Bathroom Tap",
+    rootCause: "The internal **ceramic disc cartridge** or rubber washer inside the tap spindle has worn down from hard-water mineral deposits.",
+    safetyPrecaution: "Do not over-tighten the tap handle with pliers, as this can snap the brass thread inside the wall elbow.",
+    estimatedCost: "₹150 – ₹300 (cartridge / washer replacement); tap replacement ₹250 labor",
+    estimatedTime: "15 – 30 mins",
     suggestions: [
-      "🔧 What is a quarter-turn tap cartridge?",
-      "💰 Minimum visiting charge for plumber",
-      "👨‍🔧 Book a Plumber"
+      "🔧 How to fix dripping tap DIY?",
+      "💰 Quarter-turn ceramic cartridge price",
+      "👨‍🔧 Book Plumber"
     ]
   },
   {
     id: "drain_clog",
-    match: ["drain block", "sink block", "drain clog", "clogged sink", "water not draining", "basin block", "toilet clog", "sewage block"],
+    match: ["drain clog", "sink block", "toilet block", "drain slow", "water not draining", "basin block"],
     category: "Plumber",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Clogged Kitchen Sink, Basin, or Bathroom Floor Drain",
-    rootCause: "In kitchens: cooking grease, oil, and food debris coagulating inside the P-trap bottleneck. In bathrooms: hair tangles bound together with soap-scum and hard-water deposits forming a stubborn mechanical plug.",
-    safetyPrecaution: "Do NOT mix caustic soda drain cleaners with chlorine bleach—this creates toxic, suffocating gas! Avoid plunging violently if corrosive chemicals have already been poured into the drain.",
-    estimatedCost: "₹300 – ₹600 (manual snake drain unclogging / trap overhaul)",
-    estimatedTime: "30 – 60 mins",
-    suggestions: [
-      "🧪 Can baking soda & vinegar dissolve kitchen grease?",
-      "💰 Cost to replace kitchen sink P-trap",
-      "👨‍🔧 Book Plumber to unclog drain"
-    ]
-  },
-  {
-    id: "toilet_flush_running",
-    match: ["flush tank", "cistern", "toilet running", "flush leak", "toilet flush continuous", "commode water leak"],
-    category: "Plumber",
-    urgency: "ℹ️ Standard Maintenance",
-    urgencyClass: "normal",
-    title: "Toilet Flush Tank / Cistern Running Continuously",
-    rootCause: "A hardened silicone flapper valve allowing water to trickle into the commode pan, or a faulty float valve arm that fails to shut off water when the tank reaches full capacity.",
-    safetyPrecaution: "Turn off the quarter-turn angle valve beside the commode to save overhead tank water until repaired.",
-    estimatedCost: "₹200 – ₹450 (flapper / siphon flush kit replacement)",
+    title: "Kitchen Sink or Bathroom Floor Drain Water Backing Up",
+    rootCause: "Accumulation of food grease, soap scum, and hair in the P-trap or main drain line.",
+    safetyPrecaution: "Avoid pouring excessive concentrated acid into CPVC pipes—it generates high heat that can melt pipe joints and generate toxic fumes.",
+    estimatedCost: "₹300 – ₹700 (mechanical snake drain auger clearance)",
     estimatedTime: "25 – 45 mins",
     suggestions: [
-      "🚽 How to adjust toilet cistern float valve?",
-      "👨‍🔧 Book a Plumber"
+      "🔧 Baking soda & vinegar drain clearing method",
+      "💰 Heavy duty drain machine auger price",
+      "👨‍🔧 Book Drain Cleaning"
     ]
   },
-
-  // --- WATER HEATER / GEYSER ---
   {
     id: "geyser_not_heating",
-    match: ["geyser", "water heater", "geyser not heating", "geyser trip", "water heater cold", "geyser coil"],
+    match: ["geyser not heating", "water heater not hot", "geyser cold", "geyser shock", "geyser trip"],
     category: "Plumber",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
     title: "Geyser Water Not Heating or Tripping Circuit Breaker",
-    rootCause: "Hard-water calcium coating the tubular heating element causes localized overheating and burns out the resistance coil. When the outer copper sheath cracks, water enters the element, creating a direct earth fault that trips the MCB/ELCB.",
-    safetyPrecaution: "Turn OFF the geyser 16A wall switch immediately. Never switch on a geyser when the storage tank is empty, as dry-firing will destroy the element within 30 seconds.",
-    estimatedCost: "₹450 – ₹950 (heating coil replacement + anode rod); ₹250 – ₹400 (thermostat / thermal cutout)",
+    rootCause: "Hard-water scale calcification coats the heating element, burning it out. A faulty thermostat can also cut power prematurely.",
+    safetyPrecaution: "If the geyser trips the MCB when turned on, NEVER touch the water tap while it is plugged in. Turn off the wall switch immediately.",
+    estimatedCost: "₹350 – ₹650 (element replacement + tank descaling); heating coil ₹600 – ₹1,200",
+    estimatedTime: "40 – 60 mins",
+    suggestions: [
+      "🔧 How to descale geyser heating element?",
+      "💰 Instant geyser repair charges",
+      "👨‍🔧 Book Geyser Service"
+    ]
+  },
+
+  // --- APPLIANCE REPAIR ---
+  {
+    id: "washing_machine_spin",
+    match: ["washing machine spin", "washing machine drum", "machine not spinning", "clothes soaking wet", "machine vibrating"],
+    category: "Appliance Repair",
+    urgency: "⚠️ High Priority",
+    urgencyClass: "high",
+    title: "Washing Machine Drum Not Spinning / Severe Shaking",
+    rootCause: "Common causes: (1) **Worn Drive Belt** or motor coupling; (2) **Broken Suspension Springs** causing violent drum wobbling; or (3) **Faulty Lid Switch / Door Lock Sensor** preventing the spin cycle.",
+    safetyPrecaution: "Do not overload the machine. If the machine walks across the floor or makes loud screeching noises, stop the cycle immediately to prevent motor burnout.",
+    estimatedCost: "₹350 – ₹750 labor; belt / suspension parts at component cost",
+    estimatedTime: "45 – 75 mins",
+    suggestions: [
+      "📺 Front load vs Top load spin issues",
+      "💰 Washing machine belt replacement cost",
+      "👨‍🔧 Book Appliance Technician"
+    ]
+  },
+  {
+    id: "fridge_not_cooling",
+    match: ["fridge not cooling", "refrigerator warm", "freezer cold but fridge warm", "fridge cooling illa", "refrigerator frost"],
+    category: "Appliance Repair",
+    urgency: "⚠️ High Priority",
+    urgencyClass: "high",
+    title: "Refrigerator Freezer Working but Lower Fridge Compartment Warm",
+    rootCause: "In Frost-Free refrigerators, this is typically caused by a **failed defrost heater or bi-metal sensor**, causing heavy ice to choke the air damper duct that sends cold air to the lower section.",
+    safetyPrecaution: "Perform a manual 12-hour defrost by turning off power and leaving doors open. If cooling returns temporarily and dies again after 4 days, the defrost circuit needs replacement.",
+    estimatedCost: "₹400 – ₹850 (defrost timer / bi-metal thermostat replacement)",
     estimatedTime: "45 – 60 mins",
     suggestions: [
-      "⚡ Why does geyser cause shock or MCB trip?",
-      "💰 Cost of geyser heating element in India",
-      "👨‍🔧 Book a Geyser Technician"
+      "📺 Refrigerator gas charging cost",
+      "💰 Bi-metal sensor replacement price",
+      "👨‍🔧 Book Refrigerator Repair"
+    ]
+  },
+  {
+    id: "ro_purifier_bad_taste",
+    match: ["ro filter", "purifier taste", "water purifier smell", "ro water slow", "ro membrane", "tds high"],
+    category: "Appliance Repair",
+    urgency: "ℹ️ Standard Maintenance",
+    urgencyClass: "normal",
+    title: "RO Water Purifier Tastes Bad or Flow Rate Very Slow",
+    rootCause: "Sediment and carbon pre-filters are choked with silt and chlorine, or the **semi-permeable RO membrane** has scaled up, causing high TDS and foul taste.",
+    safetyPrecaution: "Stop drinking the water if TDS exceeds 250 ppm or has an off-odor. Replace sediment filters every 6 to 9 months to protect the costly RO membrane.",
+    estimatedCost: "₹350 labor; filter cartridge set ₹1,200 – ₹2,500",
+    estimatedTime: "30 – 45 mins",
+    suggestions: [
+      "📺 What is the ideal drinking water TDS?",
+      "💰 RO complete filter kit replacement price",
+      "👨‍🔧 Book Water Purifier Service"
     ]
   },
 
   // --- CARPENTRY ---
   {
     id: "door_swelling",
-    match: ["door jam", "door stuck", "door swelling", "door tight", "monsoon door", "wooden door", "door scraping"],
+    match: ["door swelling", "door stuck", "door tight", "door frame rub", "monsoon door"],
     category: "Carpenter",
     urgency: "ℹ️ Standard Maintenance",
     urgencyClass: "normal",
-    title: "Wooden Door Sticking or Swelling During Rainy Season",
-    rootCause: "Solid timber doors absorb atmospheric moisture during humid and monsoon weather, expanding by 2 to 5mm. Also, heavy doors often pull the top hinge screws loose over time, causing the door to sag diagonally against the bottom frame.",
-    safetyPrecaution: "Check if the top hinge screws are loose and replace them with longer 2.5-inch screws before shaving wood off—otherwise, the door will have large gaps when dry weather returns.",
-    estimatedCost: "₹250 – ₹500 (hinge alignment & hand plane trimming)",
-    estimatedTime: "30 – 50 mins",
+    title: "Wooden Door Sticking or Scraping Floor / Frame",
+    rootCause: "High atmospheric humidity causes porous wood fibers to absorb moisture and expand. Worn hinge pins can also cause the door to sag.",
+    safetyPrecaution: "Check hinge screws first—tightening top screws often lifts the door without needing wood shaving.",
+    estimatedCost: "₹250 – ₹500 (plane edges, re-align hinges & adjust latch)",
+    estimatedTime: "30 – 45 mins",
     suggestions: [
-      "🪚 Should I plane the door or wait for summer?",
-      "💰 Cost to replace rusty door hinges",
+      "🪚 How to seal wooden door edges against humidity?",
+      "💰 Heavy duty brass hinge replacement price",
       "👨‍🔧 Book a Carpenter"
     ]
   },
   {
     id: "drawer_lock_stuck",
-    match: ["drawer stuck", "runner broken", "lock stuck", "door lock jammed", "cupboard latch", "wardrobe sliding"],
+    match: ["drawer lock", "lock stuck", "key jammed", "door lock repair", "cupboard lock"],
     category: "Carpenter",
-    urgency: "ℹ️ Standard Maintenance",
-    urgencyClass: "normal",
-    title: "Jammed Door Lock, Cupboard Latch, or Broken Drawer Runner",
-    rootCause: "Telescopic drawer channels lose their steel ball bearings under weight. Door locks jam when dust, humidity, or broken internal brass pin springs freeze the cylinder mechanism.",
-    safetyPrecaution: "Never force the key with pliers, as a snapped brass key inside the cylinder will require complete lock replacement.",
-    estimatedCost: "₹250 – ₹550 (lock lubrication / channel replacement)",
-    estimatedTime: "30 – 45 mins",
+    urgency: "⚠️ High Priority",
+    urgencyClass: "high",
+    title: "Cupboard / Drawer Lock Jammed or Key Won't Turn",
+    rootCause: "Internal brass pin tumblers have seized due to dust, lack of graphite lubrication, or bent key teeth.",
+    safetyPrecaution: "Avoid forcing the key with pliers—it will snap inside the cylinder. Do not spray sticky cooking oil.",
+    estimatedCost: "₹200 – ₹450 (lock overhaul or cylinder replacement)",
+    estimatedTime: "20 – 35 mins",
     suggestions: [
-      "🔑 How to open jammed Godrej door lock?",
-      "💰 Heavy-duty soft-close drawer runner cost",
-      "👨‍🔧 Book a Carpenter"
+      "🪚 How to extract a broken key from a lock?",
+      "💰 Godrej / Europa lock replacement cost",
+      "👨‍🔧 Book Locksmith Carpenter"
     ]
   },
 
-  // --- PAINTING ---
+  // --- WATERPROOFING & PAINTING ---
   {
-    id: "wall_dampness",
-    match: ["wall damp", "seepage", "peeling paint", "efflorescence", "bubble paint", "damp patch", "wet wall"],
-    category: "Painter",
+    id: "terrace_roof_seepage",
+    match: ["roof leak", "terrace leak", "ceiling damp", "water seepage ceiling", "terrace crack"],
+    category: "Waterproofing",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Wall Dampness, Peeling Paint & White Salt Efflorescence",
-    rootCause: "Capillary moisture rising from bathroom tile grout failure, concealed plumbing pipe hairline cracks, or exterior rainwater entering through structural micro-cracks. Painting directly over dampness is useless—it will bubble and peel off within 3 weeks.",
-    safetyPrecaution: "Locate and rectify the plumbing/structural source first. Allow the plaster to dry completely before applying waterproofing barrier coatings.",
-    estimatedCost: "₹35 – ₹60 per sq. ft. (scrape, chemical waterproof primer, acrylic putty, 2 coats paint)",
+    title: "Rainwater Dripping from Ceiling / Terrace Slab Cracks",
+    rootCause: "Thermal expansion creates micro-cracks in the terrace weathering course or parapet wall joints. Trapped water penetrates porous RCC concrete.",
+    safetyPrecaution: "Check for pooling water near terrace rainwater downpipes and clear debris. Avoid heavy walking on damp gypsum false ceilings.",
+    estimatedCost: "₹35 – ₹65 per sq. ft. (crack grooving, polyurethane sealant & elastomeric membrane coats)",
     estimatedTime: "2 – 3 days",
     suggestions: [
-      "💧 What is the difference between waterproofing and damp-proofing?",
-      "💰 Full room anti-dampness painting cost",
-      "👨‍🔧 Book a Waterproofing & Painting Specialist"
+      "💧 Fiber-mesh terrace waterproofing price",
+      "💰 Cost for 1,000 sq ft terrace waterproofing",
+      "👨‍🔧 Book Waterproofing Expert"
     ]
   },
   {
-    id: "painting_rates",
-    match: ["paint rate", "paint cost", "house painting", "painting cost", "1bhk paint", "2bhk paint", "3bhk paint", "sq ft paint"],
+    id: "wall_dampness",
+    match: ["wall damp", "paint peeling", "seepage wall", "efflorescence", "salt wall", "white powder wall"],
     category: "Painter",
     urgency: "ℹ️ Standard Maintenance",
     urgencyClass: "normal",
-    title: "House Painting Cost Calculator & Material Guide",
-    rootCause: "Standard Chennai painting estimates based on carpet & wall surface area (materials + labor included):\n• **1 BHK (approx 800 sq ft wall area):** ₹7,000 – ₹13,000 (Tractor Emulsion) / ₹11,000 – ₹18,000 (Royale Luxury)\n• **2 BHK (approx 1,500 sq ft wall area):** ₹14,000 – ₹24,000 (Tractor Emulsion) / ₹22,000 – ₹35,000 (Royale)\n• **3 BHK (approx 2,400 sq ft wall area):** ₹22,000 – ₹38,000 (Tractor Emulsion) / ₹35,000 – ₹55,000 (Royale)",
-    safetyPrecaution: "Request two coats of putty and primer on freshly plastered walls to achieve a smooth mirror finish.",
-    estimatedCost: "₹12 – ₹28 per sq. ft. inclusive of Asian Paints / Berger materials",
-    estimatedTime: "2 – 5 days",
+    title: "Paint Peeling, Blistering, and White Powder on Wall",
+    rootCause: "Rising dampness or adjoining bathroom tile joint seepage carries mineral salts through masonry. As moisture evaporates, salt crystallization pushes paint off.",
+    safetyPrecaution: "Do not paint directly over damp walls—it will blister within 3 weeks. The moisture source must be sealed with a waterproofing barrier first.",
+    estimatedCost: "₹18 – ₹35 per sq. ft. (anti-damp chemical coating + waterproof primer + 2 coats premium emulsion)",
+    estimatedTime: "1 – 2 days",
     suggestions: [
-      "🎨 Which is better: Asian Paints Royale vs Tractor Emulsion?",
-      "💰 Exterior weather-proof painting cost",
-      "👨‍🔧 Book a verified Painter"
+      "🎨 Dr. Fixit Dampguard application method",
+      "💰 2BHK wall painting full quote",
+      "👨‍🔧 Book a Painter"
     ]
   },
 
-  // --- MECHANIC ---
+  // --- PEST CONTROL ---
   {
-    id: "car_battery_dead",
-    match: ["car wont start", "bike wont start", "battery dead", "clicking sound start", "jumpstart", "puncture", "engine breakdown"],
-    category: "Mechanic",
+    id: "termite_wood_damage",
+    match: ["termite", "karan", "wood borer", "mud tube", "wood hollow", "termite mud"],
+    category: "Pest Control",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Vehicle Not Starting (Rapid Clicking Sound / Dead Battery)",
-    rootCause: "A rapid clicking sound when turning the key indicates that the starter motor solenoid is engaging, but the **12V vehicle battery voltage has collapsed below 10.5V** under load. Alternatively, sulfur corrosion on battery terminal clamps causes high electrical resistance.",
-    safetyPrecaution: "Turn off headlamps, AC, and audio system before attempting ignition. Do not crank continuously for more than 5 seconds at a time to prevent starter motor burnout.",
-    estimatedCost: "₹250 – ₹450 (doorstep jumpstart & alternator test); ₹350 – ₹800 (tune-up / minor breakdown)",
-    estimatedTime: "30 – 45 mins",
+    title: "Termite Mud Tubes on Door Frames, Skirting, or Cupboards",
+    rootCause: "Subterranean termites build mud foraging tunnels from ground soil to access cellulose in wooden door frames and furniture.",
+    safetyPrecaution: "Do not spray aerosol insect repellent on mud tubes—it repels them into deeper structural timber. Keep affected areas dry.",
+    estimatedCost: "₹2,500 – ₹5,000 (pressure chemical drilling & wood injection with warranty)",
+    estimatedTime: "2 – 4 hours",
     suggestions: [
-      "🚗 How to jumpstart a car safely with booster cables?",
-      "💰 Average life of Amaron / Exide car battery?",
-      "👨‍🔧 Call Doorstep Mechanic"
+      "🐜 Odorless herbal anti-termite treatment",
+      "💰 Termite treatment cost per sq ft",
+      "👨‍🔧 Book Pest Control Expert"
     ]
   },
 
-  // --- APPLIANCE REPAIR ---
+  // --- WELDING & FABRICATION ---
   {
-    id: "fridge_not_cooling",
-    match: ["fridge not cooling", "refrigerator warm", "fridge light on", "refrigerator ice", "fridge compressor"],
-    category: "Appliance Repair",
+    id: "balcony_safety_grill",
+    match: ["grill", "gate broken", "balcony safety", "welding", "iron gate", "hinge weld"],
+    category: "Welding",
     urgency: "⚠️ High Priority",
     urgencyClass: "high",
-    title: "Refrigerator Not Cooling but Interior Light is On",
-    rootCause: "Common causes: (1) **Defrost timer/bi-metal sensor failure** in frost-free fridges, causing thick ice to choke air circulation vents; (2) **Compressor starter relay (PTC) burned out**; or (3) **Condenser fan motor seized**.",
-    safetyPrecaution: "Unplug the refrigerator from the wall socket for 10 minutes. If the compressor clicks every 2 minutes without humming, the starter relay is likely burnt.",
-    estimatedCost: "₹350 – ₹750 (starter relay / defrost sensor replacement); ₹1,500 – ₹2,500 (refrigerant charging)",
-    estimatedTime: "45 – 90 mins",
+    title: "Broken Gate Hinge or Balcony Safety Grill Installation",
+    rootCause: "Outdoor iron gates and window grills rust at anchor joints due to rainwater exposure, causing hinge sagging and broken weld spots.",
+    safetyPrecaution: "If a balcony railing is loose, restrict access immediately. Secure loose sections with heavy-duty wire until welded.",
+    estimatedCost: "₹450 – ₹900 (spot welding & hinge reinforcement); custom safety grills ₹140 – ₹220 / sq. ft.",
+    estimatedTime: "1 – 3 hours",
     suggestions: [
-      "🧊 How to manually defrost an iced refrigerator?",
-      "💰 Washing machine repair charges",
-      "👨‍🔧 Book an Appliance Repair Technician"
+      "⚙️ MS vs Stainless Steel safety grill price",
+      "💰 Spot welding repair minimum charge",
+      "👨‍🔧 Book Certified Welder"
     ]
   }
 ];
@@ -464,9 +565,9 @@ function extractContext(query, history = []) {
     ...history.map(h => (typeof h === "string" ? h : h.text || h.content || h.message || ""))
   ].join(" ").toLowerCase();
 
-  // 1. Detect area
+  // 1. Detect area (Coimbatore, Chennai, and other TN hubs)
   let detectedArea = null;
-  for (const area of CHENNAI_AREAS) {
+  for (const area of AREAS_AND_CITIES) {
     if (combined.includes(area.toLowerCase())) {
       detectedArea = area;
       break;
@@ -479,7 +580,6 @@ function extractContext(query, history = []) {
 
   for (const trade of TRADES) {
     let score = 0;
-    // Current query has 3x weight over history
     for (const kw of trade.keywords) {
       if (query.toLowerCase().includes(kw)) score += 3;
       else if (combined.includes(kw)) score += 1;
@@ -560,6 +660,43 @@ async function getRecommendedWorkmen(category, area = null) {
   }
 }
 
+// Dynamic mathematical cost estimator (e.g. "1200 sq ft painting", "3 fans")
+function calculateDynamicQuote(query, trade) {
+  if (!trade || !trade.unitCost) return null;
+
+  // Match numbers followed by sq ft / fans / doors / units / points
+  const sqftMatch = query.match(/(\d+)\s*(?:sq\s*ft|sqft|square\s*feet|feet)/i);
+  const qtyMatch = query.match(/(\d+)\s*(?:unit|units|point|points|fan|fans|door|doors|tap|taps|ac|nos|pieces)/i);
+
+  let quantity = 0;
+  let unitName = "";
+
+  if (sqftMatch) {
+    quantity = parseInt(sqftMatch[1], 10);
+    unitName = "sq. ft.";
+  } else if (qtyMatch) {
+    quantity = parseInt(qtyMatch[1], 10);
+    unitName = "units";
+  }
+
+  if (quantity > 0 && quantity < 100000) {
+    const total = quantity * trade.unitCost.rate;
+    const minEst = Math.round(total * 0.9);
+    const maxEst = Math.round(total * 1.15);
+
+    return {
+      quantity,
+      unitName,
+      rate: trade.unitCost.rate,
+      serviceName: trade.unitCost.item,
+      totalMin: minEst.toLocaleString("en-IN"),
+      totalMax: maxEst.toLocaleString("en-IN")
+    };
+  }
+
+  return null;
+}
+
 // Advanced Rule-Based & Diagnostic LocalWork Intelligence Engine
 async function getExpertLocalWorkResponse(userQuery, history = []) {
   const query = userQuery.toLowerCase().trim();
@@ -585,8 +722,9 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
       const areaNote = area ? ` in & around **${area}**` : "";
       reply += `**Verified ${diagnostic.category}s Available Now${areaNote}:**\n`;
       reply += workmen.map((w, idx) => `• **${w.name}** (${w.location}) — ${w.experience} yrs exp · *${w.availability}*`).join("\n");
+      reply += `\n\n*Click "Book" directly on any card below to schedule a visit.*`;
     } else {
-      reply += `You can book a verified **${diagnostic.category}** directly on LocalWork with door-to-door tracking.`;
+      reply += `You can book a verified **${diagnostic.category}** directly on LocalWork with doorstep service and guaranteed satisfaction.`;
     }
 
     return {
@@ -611,16 +749,26 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
     };
   }
 
-  // Case B: Pricing & Rate Inquiries
-  if (query.includes("price") || query.includes("cost") || query.includes("rate") || query.includes("charge") || query.includes("how much")) {
+  // Case B: Dynamic Pricing & Cost Calculation Inquiries
+  if (query.includes("price") || query.includes("cost") || query.includes("rate") || query.includes("charge") || query.includes("how much") || query.includes("estimate") || query.includes("quote")) {
     if (trade) {
+      const dynamicCalc = calculateDynamicQuote(query, trade);
       const workmen = await getRecommendedWorkmen(trade.category, area);
+
       let reply = `### Transparent Rates for ${trade.icon} ${trade.category}\n\n`;
-      reply += `• **Typical Cost Range:** ${trade.avgCost}\n`;
-      reply += `• **Expert Safety Tip:** ${trade.tips}\n\n`;
+
+      if (dynamicCalc) {
+        reply += `**Estimated Quote for ${dynamicCalc.quantity} ${dynamicCalc.unitName} (${dynamicCalc.serviceName}):**\n`;
+        reply += `• **Base Rate:** ₹${dynamicCalc.rate} ${trade.unitCost.unit}\n`;
+        reply += `• **Estimated Total:** **₹${dynamicCalc.totalMin} – ₹${dynamicCalc.totalMax}** (Labor & standard materials)\n\n`;
+      } else {
+        reply += `• **Typical Cost Range:** ${trade.avgCost}\n`;
+        reply += `• **Expert Safety Tip:** ${trade.tips}\n\n`;
+      }
 
       if (workmen.length > 0) {
-        reply += `**Top Rated ${trade.category}s Available:**\n`;
+        const areaNote = area ? ` in ${area}` : "";
+        reply += `**Top Rated ${trade.category}s Available${areaNote}:**\n`;
         reply += workmen.map(w => `• **${w.name}** (${w.location}) — ${w.experience} yrs exp · *${w.availability}*`).join("\n");
       }
 
@@ -632,7 +780,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
         workmen,
         suggestions: [
           `⚡ How do I book a ${trade.category}?`,
-          `📍 Find ${trade.category}s in ${area || "Chennai"}`,
+          `📍 Find ${trade.category}s in ${area || "Coimbatore / Chennai"}`,
           `🔧 What tools does the workman bring?`
         ],
         action: {
@@ -644,13 +792,14 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
     }
 
     return {
-      reply: `### Transparent LocalWork Pricing Guide (Chennai)\n\n` +
+      reply: `### Transparent LocalWork Pricing Guide (Tamil Nadu)\n\n` +
         `• **⚡ Electrical & 🔧 Plumbing:** ₹200 – ₹600 for standard fixes; parts at MRP.\n` +
         `• **🪚 Carpentry:** ₹300 – ₹800 for door/lock fixes; custom woodwork ₹1,500+.\n` +
         `• **❄️ AC Repair:** ₹499 foam jet service; ₹1,800 – ₹2,800 gas leak repair & refill.\n` +
         `• **🎨 Painting:** ₹12 – ₹25 per sq. ft. interior; ₹15 – ₹35 exterior.\n` +
-        `• **🧹 Deep Cleaning:** ₹999 – ₹1,800 (1BHK); ₹2,200 – ₹4,500 (3BHK).\n\n` +
-        `*Tell me your specific problem (e.g. "my sink is leaking" or "need fan installed") for an exact itemized estimate!*`,
+        `• **🧹 Deep Cleaning:** ₹999 – ₹1,800 (1BHK); ₹2,200 – ₹4,500 (3BHK).\n` +
+        `• **💧 Waterproofing:** ₹35 – ₹65 per sq. ft. elastomeric roof membrane.\n\n` +
+        `*Specify your job (e.g. "paint 1000 sq ft" or "fix 2 fans") for a dynamic itemized breakdown!*`,
       urgency: "normal",
       suggestions: [
         "⚡ MCB tripping cost",
@@ -666,7 +815,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
   if (query.includes("how to book") || query.includes("how does it work") || query.includes("how do i book") || query.includes("booking process")) {
     return {
       reply: `### How LocalWork Works in 3 Easy Steps\n\n` +
-        `1. **Browse Verified Talent:** Choose your trade (Electrician, Plumber, AC Repair, etc.) and filter by your Chennai neighborhood.\n` +
+        `1. **Browse Verified Talent:** Choose your trade (Electrician, Plumber, AC Repair, Welding, etc.) and filter by your locality.\n` +
         `2. **Schedule in 30 Seconds:** Click **"Book"** on your preferred workman's card, pick your date and convenient time slot, and describe the task.\n` +
         `3. **Doorstep Service:** The workman receives your request instantly, confirms the visit, and arrives on time with all required tools!`,
       urgency: "normal",
@@ -693,7 +842,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
   ) {
     return {
       reply: `### Join LocalWork as an Approved Service Professional\n\n` +
-        `Are you a skilled technician or tradesperson in Chennai? Earn steady income with zero upfront platform fees:\n\n` +
+        `Are you a skilled technician or tradesperson in Coimbatore, Chennai, or Tamil Nadu? Earn steady income with zero upfront platform fees:\n\n` +
         `1. Log in or create your LocalWork account.\n` +
         `2. Click **"Become a Workman"** in the sidebar navigation.\n` +
         `3. Select your primary trade, enter your experience (in years), and write a summary of your skills.\n` +
@@ -709,17 +858,17 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
   }
 
   // Case E: Emergency queries
-  if (query.includes("emergency") || query.includes("urgent") || query.includes("fire") || query.includes("shock") || query.includes("gas leak")) {
+  if (query.includes("emergency") || query.includes("urgent") || query.includes("fire") || query.includes("shock") || query.includes("gas leak") || query.includes("pipe burst") || query.includes("flooding")) {
     if (trade) {
       const workmen = await getRecommendedWorkmen(trade.category, area);
-      const areaPrefix = area ? ` in & around **${area}**` : " in Chennai";
+      const areaPrefix = area ? ` in & around **${area}**` : " in your area";
 
       return {
         reply: `### 🚨 Urgent Emergency ${trade.category} Assistance${areaPrefix}\n\n` +
           `**Safety Warning:** ${trade.tips}\n\n` +
           `We have prioritized verified **${trade.category}s** available for immediate dispatch.\n\n` +
           (workmen.length > 0
-            ? `**Emergency ${trade.category}s On-Call Now:**\n` + workmen.map((w, idx) => `• **${w.name}** (${w.location}) — ${w.experience} yrs exp · *${w.availability}*`).join("\n") + `\n\n*Click "Book" directly on any card below for rapid response!*`
+            ? `**Emergency ${trade.category}s On-Call Now:**\n` + workmen.map(w => `• **${w.name}** (${w.location}) — ${w.experience} yrs exp · *${w.availability}*`).join("\n") + `\n\n*Click "Book" directly on any card below for rapid response!*`
             : `Search our emergency network to confirm the nearest technician.`),
         urgency: "emergency",
         category: trade.category,
@@ -757,7 +906,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
   // Case F: Trade Mentioned (General)
   if (trade) {
     const workmen = await getRecommendedWorkmen(trade.category, area);
-    const areaPrefix = area ? ` near **${area}**` : " in Chennai";
+    const areaPrefix = area ? ` near **${area}**` : " in your area";
 
     let reply = `### ${trade.icon} Verified ${trade.category} Services${areaPrefix}\n\n`;
     reply += `For this job, you need an approved **${trade.category}**.\n\n`;
@@ -769,7 +918,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
       reply += workmen.map((w, idx) => `${idx + 1}. **${w.name}** in *${w.location}* (${w.experience} yrs exp) — *${w.availability}*`).join("\n") +
         `\n\n*Click "Book" directly on any card below to schedule a visit!*`;
     } else {
-      reply += `You can browse all verified ${trade.category}s across Chennai directly on our marketplace.`;
+      reply += `You can browse all verified ${trade.category}s directly on our marketplace.`;
     }
 
     return {
@@ -780,8 +929,8 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
       workmen,
       suggestions: [
         `💰 How much does ${trade.category} work cost?`,
-        `📍 Find ${trade.category}s in Anna Nagar`,
-        `📍 Find ${trade.category}s in Velachery`,
+        `📍 Find ${trade.category}s in Coimbatore`,
+        `📍 Find ${trade.category}s in Chennai`,
         `📅 How to book a ${trade.category}?`
       ],
       action: {
@@ -793,12 +942,12 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
   }
 
   // Case G: Friendly Greetings
-  if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("good morning") || query.includes("good evening") || query.includes("who are you")) {
+  if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("good morning") || query.includes("good evening") || query.includes("who are you") || query.includes("vanakkam")) {
     return {
-      reply: `### 👋 Hello! I am your LocalWork AI Assistant\n\n` +
-        `I am your dedicated technical diagnostic companion for home repairs and local trade services across Chennai.\n\n` +
+      reply: `### 👋 Vanakkam & Hello! I am your LocalWork AI Assistant\n\n` +
+        `I am your dedicated technical diagnostic companion for home repairs, maintenance, and local trade services across Tamil Nadu.\n\n` +
         `**Here is how I can assist you:**\n` +
-        `• 🔍 **Diagnose Home Problems:** Ask about tripping circuit breakers, leaking pipes, AC cooling issues, or damp walls.\n` +
+        `• 🔍 **Diagnose Home Problems:** Ask about tripping circuit breakers, leaking pipes, AC cooling issues, washing machines, or damp walls.\n` +
         `• 💰 **Get Instant Price Estimates:** Clear labor and material ranges in ₹ INR.\n` +
         `• 👨‍🔧 **Connect with Verified Workmen:** Direct access to approved electricians, plumbers, carpenters, painters, and AC technicians in your area.\n` +
         `• 🚨 **Safety Guidance:** Step-by-step precautions before professional help arrives.\n\n` +
@@ -822,7 +971,7 @@ async function getExpertLocalWorkResponse(userQuery, history = []) {
       `• *"My circuit breaker keeps tripping — what is the cause?"*\n` +
       `• *"Split AC is dripping water inside the room"* \n` +
       `• *"How much does 2BHK wall painting cost?"*\n` +
-      `• *"Find an approved plumber in Velachery or Anna Nagar"*\n\n` +
+      `• *"Find an approved plumber or electrician near me"*\n\n` +
       `*What trade or repair would you like help with?*`,
     urgency: "normal",
     suggestions: [
@@ -856,8 +1005,14 @@ router.post("/chat", aiLimiter, async (req, res) => {
         const context = extractContext(sanitizedMessage, safeHistory);
         const liveWorkmen = context.trade ? await getRecommendedWorkmen(context.trade.category, context.area) : [];
 
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-        const systemPrompt = `You are LocalWork AI, an intelligent, empathetic, and expert technical diagnostic assistant for LocalWork (a premier local trade and home repair marketplace in Chennai, India).
+        // Try Gemini 1.5 Flash first, then 2.0 Flash or 1.5 Pro
+        const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"];
+        let replyText = null;
+
+        for (const model of models) {
+          try {
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+            const systemPrompt = `You are LocalWork AI, an intelligent, empathetic, and expert technical diagnostic assistant for LocalWork (a premier local trade and home repair marketplace in Tamil Nadu, India including Coimbatore, Chennai, and other cities).
 Format your answers in clean Markdown with:
 1. Technical diagnosis & root cause (why it happens).
 2. Urgency rating (🚨 Emergency, ⚠️ High Priority, or ℹ️ Standard Maintenance).
@@ -866,53 +1021,59 @@ Format your answers in clean Markdown with:
 5. Polite recommendation to book an approved LocalWork professional.
 Keep answers concise, direct, and actionable. Avoid unnecessary fluff.`;
 
-        // Format conversational contents for Gemini API
-        const contents = [];
-        for (const item of safeHistory) {
-          const role = item.role === "user" ? "user" : "model";
-          const text = item.text || item.content || item.message || "";
-          if (text) {
-            contents.push({ role, parts: [{ text }] });
+            // Format conversational contents for Gemini API
+            const contents = [];
+            for (const item of safeHistory) {
+              const role = item.role === "user" ? "user" : "model";
+              const text = item.text || item.content || item.message || "";
+              if (text) {
+                contents.push({ role, parts: [{ text }] });
+              }
+            }
+            contents.push({
+              role: "user",
+              parts: [{
+                text: `${systemPrompt}\n\nUser Question: ${sanitizedMessage}`
+              }]
+            });
+
+            const geminiRes = await fetch(geminiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents,
+                generationConfig: {
+                  temperature: 0.6,
+                  maxOutputTokens: 400
+                }
+              }),
+              signal: AbortSignal.timeout(6000)
+            });
+
+            if (geminiRes.ok) {
+              const geminiData = await geminiRes.json();
+              replyText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (replyText) break;
+            }
+          } catch (modelErr) {
+            // Try next model if timed out or failed
           }
         }
-        contents.push({
-          role: "user",
-          parts: [{
-            text: `${systemPrompt}\n\nUser Question: ${sanitizedMessage}`
-          }]
-        });
 
-        const geminiRes = await fetch(geminiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents,
-            generationConfig: {
-              temperature: 0.6,
-              maxOutputTokens: 400
-            }
-          }),
-          signal: AbortSignal.timeout(7500)
-        });
-
-        if (geminiRes.ok) {
-          const geminiData = await geminiRes.json();
-          const replyText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (replyText) {
-            const ruleFallback = await getExpertLocalWorkResponse(sanitizedMessage, safeHistory);
-            return res.json({
-              reply: replyText.trim(),
-              urgency: ruleFallback.urgency,
-              category: ruleFallback.category,
-              location: ruleFallback.location,
-              workmen: liveWorkmen.length > 0 ? liveWorkmen : ruleFallback.workmen,
-              suggestions: ruleFallback.suggestions,
-              action: ruleFallback.action
-            });
-          }
+        if (replyText) {
+          const ruleFallback = await getExpertLocalWorkResponse(sanitizedMessage, safeHistory);
+          return res.json({
+            reply: replyText.trim(),
+            urgency: ruleFallback.urgency,
+            category: ruleFallback.category,
+            location: ruleFallback.location,
+            workmen: liveWorkmen.length > 0 ? liveWorkmen : ruleFallback.workmen,
+            suggestions: ruleFallback.suggestions,
+            action: ruleFallback.action
+          });
         }
       } catch (geminiErr) {
-        console.warn("Gemini API call timed out or failed, utilizing LocalWork diagnostic engine:", geminiErr.message);
+        console.warn("Gemini API call warning, utilizing LocalWork diagnostic engine:", geminiErr.message);
       }
     }
 
