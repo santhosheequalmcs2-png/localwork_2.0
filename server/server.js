@@ -33,8 +33,9 @@ app.use(helmet({
       upgradeInsecureRequests: env.isProduction ? [] : null
     }
   },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   crossOriginEmbedderPolicy: false,
-  referrerPolicy: { policy: "no-referrer" }
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 }));
 
 if (env.corsOrigins.length) {
