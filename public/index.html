@@ -1203,6 +1203,47 @@
   </div>
 </div>
 
+<!-- IN-APP DIRECT BOOKING CHAT MODAL -->
+<div id="chat-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
+  <div class="modal-box chat-modal-box">
+    <button class="close" id="chat-modal-close" aria-label="Close Chat">&times;</button>
+    <div class="chat-header-row">
+      <div class="chat-header-avatar" id="chat-partner-avatar">💬</div>
+      <div class="chat-header-text">
+        <h3 id="chat-modal-title">Service Chat</h3>
+        <p id="chat-partner-status" class="chat-partner-status">● Live Service Discussion</p>
+      </div>
+      <span id="chat-booking-status-badge" class="job-status-pill status-accepted">Accepted</span>
+    </div>
+
+    <div class="chat-meta-bar" id="chat-meta-bar">
+      <span id="chat-meta-service">🛠️ Service</span>
+      <span id="chat-meta-datetime">📅 Date & Time</span>
+      <span id="chat-meta-location">📍 Location</span>
+    </div>
+
+    <div class="chat-messages-container" id="chat-messages-container">
+      <div class="chat-loading-placeholder">Loading conversation...</div>
+    </div>
+
+    <form id="chat-form" class="chat-input-bar">
+      <input type="hidden" id="chat-booking-id" value="">
+      <input
+        type="text"
+        id="chat-message-input"
+        class="chat-input-field"
+        placeholder="Type a message (e.g. 'I am at your gate', 'What is the issue?')..."
+        maxlength="1000"
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="chat-send-btn" class="btn btn-primary chat-submit-btn" aria-label="Send message">
+        <span>Send</span> ➤
+      </button>
+    </form>
+  </div>
+</div>
+
 
 <!-- FLOATING AI ASSISTANT WIDGET -->
 <div id="ai-fab-container">

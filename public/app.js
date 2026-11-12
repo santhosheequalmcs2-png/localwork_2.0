@@ -800,6 +800,16 @@ async function loadCustomerBookings() {
         }
 
         <div class="customer-booking-actions">
+          <button class="btn btn-light customer-chat-btn"
+            data-chat-id="${b.id}"
+            data-partner-name="${esc(b.workman_name)}"
+            data-service="${esc(b.workman_service)}"
+            data-datetime="${esc(b.booking_date)} at ${esc(b.booking_time)}"
+            data-location="${esc(b.address)}"
+            data-status="${esc(b.status)}">
+            💬 Chat ${Number(b.message_count) > 0 ? `<span class="chat-count-pill">${b.message_count}</span>` : ""}
+          </button>
+
           ${
             b.status === "Pending"
               ? `
@@ -848,6 +858,20 @@ async function loadCustomerBookings() {
     btn.onclick = () => {
       if (typeof window.openReviewModal === "function") {
         window.openReviewModal(Number(btn.dataset.rateBookingId), btn.dataset.workmanName);
+      }
+    };
+  });
+
+  // Bind chat buttons
+  $("customer-bookings").querySelectorAll(".customer-chat-btn").forEach((btn) => {
+    btn.onclick = () => {
+      if (typeof window.openBookingChat === "function") {
+        window.openBookingChat(Number(btn.dataset.chatId), btn.dataset.partnerName, {
+          service: btn.dataset.service,
+          datetime: btn.dataset.datetime,
+          location: btn.dataset.location,
+          status: btn.dataset.status
+        });
       }
     };
   });
@@ -958,6 +982,17 @@ async function loadWorkmanBookings() {
         </div>
 
         <div class="job-card-actions">
+          <button
+            class="btn btn-light workman-chat-btn"
+            data-chat-id="${b.id}"
+            data-partner-name="${esc(b.customer_name)}"
+            data-service="${esc(currentUser?.service || 'Service')}"
+            data-datetime="${esc(b.booking_date)} at ${esc(b.booking_time)}"
+            data-location="${esc(b.address)}"
+            data-status="${esc(b.status)}">
+            💬 Chat with Customer ${Number(b.message_count) > 0 ? `<span class="chat-count-pill">${b.message_count}</span>` : ""}
+          </button>
+
           ${
             b.status === "Pending"
               ? `
@@ -1015,6 +1050,20 @@ async function loadWorkmanBookings() {
         }
       });
     });
+
+  // Bind workman chat buttons
+  $("workman-bookings").querySelectorAll(".workman-chat-btn").forEach((btn) => {
+    btn.onclick = () => {
+      if (typeof window.openBookingChat === "function") {
+        window.openBookingChat(Number(btn.dataset.chatId), btn.dataset.partnerName, {
+          service: btn.dataset.service,
+          datetime: btn.dataset.datetime,
+          location: btn.dataset.location,
+          status: btn.dataset.status
+        });
+      }
+    };
+  });
 }
 
 /* =========================
@@ -2532,11 +2581,15 @@ function bind() {
       $("booking-modal").classList.add("hidden");
       const revModal = $("review-modal");
       if (revModal) revModal.classList.add("hidden");
+      if (typeof window.closeBookingChat === "function") window.closeBookingChat();
     }
   });
 
   // Initialize Review & Star Rating Modal
   initReviewModal();
+
+  // Initialize Booking Direct Chat Modal
+  initBookingChat();
 
   // Initialize Floating AI Assistant
   initAIAssistant();
@@ -2639,6 +2692,155 @@ function initReviewModal() {
     updateStars(5);
     modal.classList.remove("hidden");
   };
+}
+
+/* ========================================================
+   BOOKING DIRECT CHAT MODAL
+   ======================================================== */
+
+let activeChatBookingId = null;
+let chatPollInterval = null;
+
+function initBookingChat() {
+  const modal = $("chat-modal");
+  const closeBtn = $("chat-modal-close");
+  const form = $("chat-form");
+  const input = $("chat-message-input");
+  const messagesContainer = $("chat-messages-container");
+
+  if (!modal || !form || !input) return;
+
+  function closeBookingChat() {
+    activeChatBookingId = null;
+    if (chatPollInterval) {
+      clearInterval(chatPollInterval);
+      chatPollInterval = null;
+    }
+    modal.classList.add("hidden");
+  }
+
+  window.closeBookingChat = closeBookingChat;
+
+  if (closeBtn) closeBtn.onclick = closeBookingChat;
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeBookingChat();
+  });
+
+  async function loadChatMessages(bookingId, shouldScroll = false) {
+    if (!bookingId || activeChatBookingId !== bookingId) return;
+
+    try {
+      const data = await api(`/api/bookings/${bookingId}/messages`);
+      const msgs = data.messages || [];
+
+      if (activeChatBookingId !== bookingId) return;
+
+      if (!msgs.length) {
+        messagesContainer.innerHTML = `
+          <div class="chat-empty-box">
+            <div class="empty-icon">💬</div>
+            <h4>Direct Service Chat</h4>
+            <p>No messages yet. Send a note to confirm arrival time, gate directions, or clarify job requirements!</p>
+          </div>
+        `;
+        return;
+      }
+
+      const isScrolledToBottom =
+        messagesContainer.scrollHeight - messagesContainer.clientHeight <=
+        messagesContainer.scrollTop + 60;
+
+      messagesContainer.innerHTML = msgs
+        .map((m) => {
+          const isMe = currentUser && m.sender_id === currentUser.id;
+          const roleBadge = m.sender_role === "admin" ? " [Admin]" : "";
+          const timeStr = new Date(m.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+          return `
+            <div class="chat-bubble-wrap ${isMe ? "chat-msg-me" : "chat-msg-partner"}">
+              <span class="chat-sender-label">${isMe ? "You" : esc(m.sender_name + roleBadge)}</span>
+              <div class="chat-bubble">${esc(m.message_text)}</div>
+              <span class="chat-time-stamp">${timeStr}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      if (shouldScroll || isScrolledToBottom) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    } catch (err) {
+      console.warn("Failed to load chat messages:", err.message);
+    }
+  }
+
+  window.openBookingChat = function(bookingId, partnerName, meta = {}) {
+    activeChatBookingId = bookingId;
+    $("chat-booking-id").value = bookingId;
+
+    if ($("chat-modal-title")) {
+      $("chat-modal-title").textContent = partnerName ? `Chat with ${partnerName}` : "Service Chat";
+    }
+
+    if ($("chat-meta-service")) {
+      $("chat-meta-service").textContent = meta.service ? `🛠️ ${meta.service}` : "🛠️ Local Service";
+    }
+
+    if ($("chat-meta-datetime")) {
+      $("chat-meta-datetime").textContent = meta.datetime ? `📅 ${meta.datetime}` : "";
+    }
+
+    if ($("chat-meta-location")) {
+      $("chat-meta-location").textContent = meta.location ? `📍 ${meta.location}` : "";
+    }
+
+    if ($("chat-booking-status-badge")) {
+      const statusText = meta.status || "Active";
+      $("chat-booking-status-badge").textContent = statusText;
+      $("chat-booking-status-badge").className = `job-status-pill status-${statusText.toLowerCase()}`;
+    }
+
+    messagesContainer.innerHTML = `<div class="chat-loading-placeholder">Loading conversation...</div>`;
+    modal.classList.remove("hidden");
+    input.value = "";
+    input.focus();
+
+    loadChatMessages(bookingId, true);
+
+    if (chatPollInterval) clearInterval(chatPollInterval);
+    chatPollInterval = setInterval(() => {
+      if (activeChatBookingId && !modal.classList.contains("hidden")) {
+        loadChatMessages(activeChatBookingId, false);
+      }
+    }, 3000);
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text || !activeChatBookingId) return;
+
+    const sendBtn = $("chat-send-btn");
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+      await api(`/api/bookings/${activeChatBookingId}/messages`, {
+        method: "POST",
+        body: { messageText: text }
+      });
+      input.value = "";
+      await loadChatMessages(activeChatBookingId, true);
+    } catch (err) {
+      toast(err.message || "Failed to send message.");
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      input.focus();
+    }
+  });
 }
 
 /* =========================
