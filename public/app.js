@@ -580,8 +580,8 @@ async function loadWorkmen() {
         <h3>${esc(w.name)}</h3>
 
         <div class="workman-rating-strip">
-          <span class="workman-rating-stars">★ ${Number(w.rating || 4.9).toFixed(1)}</span>
-          <span class="workman-review-count">(${Number(w.reviewCount || 12)} reviews)</span>
+          <span class="workman-rating-stars">★ ${Number(w.rating || 4.8).toFixed(1)}</span>
+          <span class="workman-review-count">(${Number(w.reviewCount || 0)} ${Number(w.reviewCount) === 1 ? 'review' : 'reviews'})</span>
         </div>
 
         <p>${esc(w.description || "Local service professional.")}</p>
@@ -647,7 +647,7 @@ async function openProfile(id) {
           <small class="review-date">Verified Customer · ${new Date(r.created_at).toLocaleDateString()}</small>
         </div>
       `).join("")
-    : `<div class="empty">No written reviews yet. High 4.9★ rating based on completed services!</div>`;
+    : `<div class="empty">No written reviews yet. Be the first customer to book and rate ${esc(w.name)}!</div>`;
 
   $("profile-detail").innerHTML = `
     <article class="profile-detail">
@@ -661,8 +661,8 @@ async function openProfile(id) {
       <h1>${esc(w.name)}</h1>
 
       <div class="workman-rating-strip" style="margin-bottom: 16px;">
-        <span class="workman-rating-stars" style="font-size: 1.05rem;">★ ${Number(w.rating || 4.9).toFixed(1)}</span>
-        <span class="workman-review-count" style="font-size: 0.9rem;">(${Number(w.reviewCount || 12)} customer reviews)</span>
+        <span class="workman-rating-stars" style="font-size: 1.05rem;">★ ${Number(w.rating || 4.8).toFixed(1)}</span>
+        <span class="workman-review-count" style="font-size: 0.9rem;">(${Number(w.reviewCount || 0)} customer ${Number(w.reviewCount) === 1 ? 'review' : 'reviews'})</span>
       </div>
 
       <p>${esc(w.description)}</p>

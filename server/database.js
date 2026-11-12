@@ -47,7 +47,7 @@ const publicUser = row => row && ({
   availability: row.profile_availability ?? row.availability ?? null,
   applicationStatus: row.application_status ?? "Not Applied",
   rejectionReason: row.rejection_reason ?? null,
-  rating: row.rating !== undefined && row.rating !== null ? parseFloat(Number(row.rating).toFixed(1)) : 4.9,
+  rating: row.rating !== undefined && row.rating !== null ? parseFloat(Number(row.rating).toFixed(1)) : 4.8,
   reviewCount: row.review_count !== undefined && row.review_count !== null ? Number(row.review_count) : 0,
   createdAt: row.created_at
 });

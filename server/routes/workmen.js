@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
          wp.availability AS profile_availability,
          wp.application_status,
          wp.rejection_reason,
-         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.9) AS rating,
+         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.8) AS rating,
          COUNT(r.id)::int AS review_count
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id
@@ -92,7 +92,7 @@ router.get("/:id", async (req, res, next) => {
          wp.availability AS profile_availability,
          wp.application_status,
          wp.rejection_reason,
-         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.9) AS rating,
+         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 4.8) AS rating,
          COUNT(r.id)::int AS review_count
        FROM users u
        INNER JOIN workman_profiles wp ON wp.user_id = u.id

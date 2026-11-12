@@ -561,30 +561,10 @@ async function seedAllWorkmenAndJobs() {
     }
   }
 
-  // Seed sample customer reviews for Completed bookings
+  // Seed varied customer reviews for all approved workmen
   try {
-    const completedBookings = await pool.query(
-      `SELECT id, customer_id, workman_id FROM bookings WHERE status = 'Completed'`
-    );
-
-    const sampleReviews = [
-      { rating: 5, text: "Outstanding service! Arrived on time with all required tools and resolved our issue in 40 minutes clean." },
-      { rating: 5, text: "Very polite, highly skilled, and transparent pricing. Explained the root cause clearly. Highly recommended!" },
-      { rating: 4, text: "Great work done on our home. Thorough inspection and excellent communication throughout." }
-    ];
-
-    for (let i = 0; i < completedBookings.rows.length; i++) {
-      const cb = completedBookings.rows[i];
-      const rev = sampleReviews[i % sampleReviews.length];
-      const existingRev = await pool.query("SELECT id FROM reviews WHERE booking_id = $1", [cb.id]);
-      if (existingRev.rows.length === 0) {
-        await pool.query(
-          `INSERT INTO reviews (booking_id, customer_id, workman_id, rating, review_text)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [cb.id, cb.customer_id, cb.workman_id, rev.rating, rev.text]
-        );
-      }
-    }
+    const { seedVariedReviews } = require("./seed-varied-reviews");
+    await seedVariedReviews();
   } catch (revSeedErr) {
     console.warn("Reviews seeding notice:", revSeedErr.message);
   }
