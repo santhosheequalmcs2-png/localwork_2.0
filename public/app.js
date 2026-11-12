@@ -2815,10 +2815,79 @@ function initAIAssistant() {
 }
 
 /* =========================
+   THEME (LIGHT / DARK MODE)
+========================= */
+
+function initTheme() {
+  const topbarBtn = $("theme-toggle-btn");
+  const sidebarBtn = $("sidebar-theme-toggle");
+
+  function getPreferredTheme() {
+    const saved = localStorage.getItem("localwork_theme");
+    if (saved === "dark" || saved === "light") return saved;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+
+  function applyTheme(theme) {
+    const isDark = theme === "dark";
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+
+    // Update topbar button icon and title
+    if (topbarBtn) {
+      const icon = topbarBtn.querySelector(".theme-toggle-icon");
+      if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+      topbarBtn.title = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+      topbarBtn.setAttribute("aria-label", isDark ? "Switch to Light Mode" : "Switch to Dark Mode");
+    }
+
+    // Update sidebar button icon and label
+    if (sidebarBtn) {
+      const sIcon = sidebarBtn.querySelector(".theme-sidebar-icon");
+      const sLabel = sidebarBtn.querySelector(".theme-sidebar-label");
+      if (sIcon) sIcon.textContent = isDark ? "☀️" : "🌙";
+      if (sLabel) sLabel.textContent = isDark ? "Light Mode" : "Dark Mode";
+      sidebarBtn.title = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+    }
+
+    try {
+      localStorage.setItem("localwork_theme", theme);
+    } catch (e) {}
+  }
+
+  function toggleTheme() {
+    const isCurrentlyDark = document.documentElement.classList.contains("dark");
+    applyTheme(isCurrentlyDark ? "light" : "dark");
+  }
+
+  // Initial sync
+  applyTheme(getPreferredTheme());
+
+  if (topbarBtn) topbarBtn.addEventListener("click", toggleTheme);
+  if (sidebarBtn) sidebarBtn.addEventListener("click", toggleTheme);
+
+  // Sync with OS theme changes if user hasn't explicitly set a preference
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      const saved = localStorage.getItem("localwork_theme");
+      if (!saved) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+}
+
+/* =========================
    START APPLICATION
 ========================= */
 
 async function start() {
+  initTheme();
   renderCategories();
   bind();
   try { setupThree(); } catch (e) { console.warn("Three hero:", e); }

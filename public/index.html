@@ -14,6 +14,18 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/styles.css">
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem("localwork_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -28,6 +40,9 @@
     <a href="#how">How it works</a>
     <button id="login-nav" class="btn btn-quiet">Log in</button>
     <button id="logout-nav" class="btn btn-quiet hidden">Log out</button>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span class="theme-toggle-icon">🌙</span>
+    </button>
   </nav>
 </header>
 
@@ -78,6 +93,11 @@
 
   <!-- Account navigation -->
   <div class="sidebar-bottom">
+
+    <button class="sidebar-link theme-sidebar-btn" id="sidebar-theme-toggle" type="button" title="Toggle dark mode">
+      <span class="theme-sidebar-icon">🌙</span>
+      <span class="theme-sidebar-label">Dark Mode</span>
+    </button>
 
     <button class="sidebar-link" data-nav-action="profile">
       👤 My Profile
