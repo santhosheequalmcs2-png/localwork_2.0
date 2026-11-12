@@ -25,8 +25,17 @@ router.get("/csrf", (req, res) => {
 
 // Public authentication configuration (e.g. Google Client ID)
 router.get("/config", (req, res) => {
+  const clientId = (
+    process.env.GOOGLE_CLIENT_ID ||
+    process.env.GOOGLE_CLIENTID ||
+    process.env.google_client_id ||
+    process.env.GOOGLE_ID ||
+    env.googleClientId ||
+    ""
+  ).trim();
+
   res.json({
-    googleClientId: env.googleClientId || ""
+    googleClientId: clientId
   });
 });
 
@@ -61,8 +70,16 @@ router.post("/google", async (req, res, next) => {
         return res.status(400).json({ error: "Google email is unverified or missing." });
       }
 
+      const activeClientId = (
+        process.env.GOOGLE_CLIENT_ID ||
+        process.env.GOOGLE_CLIENTID ||
+        process.env.google_client_id ||
+        env.googleClientId ||
+        ""
+      ).trim();
+
       // Verify Google Client ID if configured
-      if (env.googleClientId && payload.aud !== env.googleClientId) {
+      if (activeClientId && payload.aud !== activeClientId) {
         return res.status(401).json({ error: "Google client ID mismatch." });
       }
 
