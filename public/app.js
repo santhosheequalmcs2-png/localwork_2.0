@@ -2395,11 +2395,31 @@ function bind() {
 function formatAIMarkdown(text) {
   if (!text) return "";
   let html = esc(text);
+
+  // Markdown Headers: ### Heading -> <h4 class="ai-bubble-heading">Heading</h4>
+  html = html.replace(/^### (.*$)/gim, '<h4 class="ai-bubble-heading">$1</h4>');
+
   // Bold **text**
   html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
   // Italic *text*
   html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-  // Bullet points
+
+  // Format Urgency Banners
+  html = html.replace(
+    /<strong>Urgency Level:<\/strong>\s*(?:🚨|&#128680;)?\s*Emergency[^\n<]*/gi,
+    '<div class="ai-urgency-banner emergency"><span class="ai-urgency-icon">🚨</span><span><strong>Emergency</strong> — Immediate Action Required</span></div>'
+  );
+  html = html.replace(
+    /<strong>Urgency Level:<\/strong>\s*(?:⚠️|&#9888;)?\s*High Priority[^\n<]*/gi,
+    '<div class="ai-urgency-banner high"><span class="ai-urgency-icon">⚠️</span><span><strong>High Priority</strong> — Timely Repair Needed</span></div>'
+  );
+  html = html.replace(
+    /<strong>Urgency Level:<\/strong>\s*(?:ℹ️|&#8505;)?\s*Standard[^\n<]*/gi,
+    '<div class="ai-urgency-banner normal"><span class="ai-urgency-icon">ℹ️</span><span><strong>Standard Maintenance</strong></span></div>'
+  );
+
+  // Bullet points and Paragraphs
   const lines = html.split("\n");
   let inList = false;
   const formatted = [];
@@ -2418,7 +2438,11 @@ function formatAIMarkdown(text) {
         inList = false;
       }
       if (trimmed) {
-        formatted.push(`<p>${trimmed}</p>`);
+        if (trimmed.startsWith("<h4") || trimmed.startsWith("<div class=\"ai-urgency-banner")) {
+          formatted.push(trimmed);
+        } else {
+          formatted.push(`<p>${trimmed}</p>`);
+        }
       }
     }
   }
@@ -2437,6 +2461,9 @@ function initAIAssistant() {
   const messagesContainer = $("ai-chat-messages");
 
   if (!fab || !win || !form) return;
+
+  // Conversational Multi-Turn Memory
+  let aiChatHistory = [];
 
   // ============================================
   // DRAGGABLE / MOVABLE FAB BUTTON LOGIC
@@ -2563,7 +2590,6 @@ function initAIAssistant() {
   }
 
   fab.addEventListener("click", (e) => {
-    // If user dragged the button, do not toggle the chat window
     if (hasMoved) {
       e.preventDefault();
       e.stopPropagation();
@@ -2585,17 +2611,19 @@ function initAIAssistant() {
 
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      aiChatHistory = [];
       messagesContainer.innerHTML = `
         <div class="ai-msg ai-msg-bot">
           <div class="ai-bubble">
             <p>👋 <strong>Chat cleared! How can I help you today?</strong></p>
+            <p>I can diagnose home repair issues, provide Chennai price estimates, and connect you with verified tradespeople.</p>
           </div>
         </div>
         <div class="ai-prompt-chips" id="ai-prompt-chips">
           <button type="button" class="ai-chip" data-prompt="My circuit breaker MCB keeps tripping">⚡ MCB Tripping</button>
           <button type="button" class="ai-chip" data-prompt="How much does fixing a leaking pipe or tap cost?">🔧 Leak Repair Cost</button>
-          <button type="button" class="ai-chip" data-prompt="How much for full house deep cleaning?">🧹 Cleaning Price</button>
           <button type="button" class="ai-chip" data-prompt="My AC is not cooling properly">❄️ AC Not Cooling</button>
+          <button type="button" class="ai-chip" data-prompt="How much for 2BHK house painting in Chennai?">🎨 Painting Estimate</button>
           <button type="button" class="ai-chip" data-prompt="How do I book a workman?">📅 How to Book?</button>
         </div>
       `;
@@ -2620,11 +2648,17 @@ function initAIAssistant() {
 
     if (input) input.value = "";
 
-    // Append user message
+    // Track in conversation history
+    aiChatHistory.push({ role: "user", text });
+
+    // Append user message to UI
     const userMsgEl = document.createElement("div");
     userMsgEl.className = "ai-msg ai-msg-user";
     userMsgEl.innerHTML = `<div class="ai-bubble"><p>${esc(text)}</p></div>`;
     messagesContainer.appendChild(userMsgEl);
+
+    // Remove any previous temporary reply suggestion chips
+    messagesContainer.querySelectorAll(".ai-reply-chips").forEach((el) => el.remove());
 
     // Typing indicator
     const typingEl = document.createElement("div");
@@ -2636,14 +2670,55 @@ function initAIAssistant() {
     try {
       const data = await api("/api/ai/chat", {
         method: "POST",
-        body: { message: text }
+        body: {
+          message: text,
+          history: aiChatHistory.slice(-8)
+        }
       });
 
       typingEl.remove();
 
+      // Record bot reply in conversation history
+      if (data && data.reply) {
+        aiChatHistory.push({ role: "bot", text: data.reply });
+      }
+
       const botMsgEl = document.createElement("div");
       botMsgEl.className = "ai-msg ai-msg-bot";
 
+      // Build Workman Cards if returned
+      let workmenHtml = "";
+      if (Array.isArray(data.workmen) && data.workmen.length > 0) {
+        workmenHtml = `
+          <div class="ai-workmen-container">
+            <div class="ai-workmen-heading">Verified Local Tradespeople:</div>
+            <div class="ai-workmen-list">
+              ${data.workmen.map((w) => `
+                <div class="ai-workman-card">
+                  <div class="ai-workman-info">
+                    <div class="ai-workman-top">
+                      <span class="ai-workman-name">${esc(w.name)}</span>
+                      <span class="ai-workman-badge ${w.availability === 'Available' ? 'status-avail' : 'status-busy'}">
+                        ● ${esc(w.availability || 'Available')}
+                      </span>
+                    </div>
+                    <div class="ai-workman-meta">
+                      <span>📍 ${esc(w.location || 'Chennai')}</span>
+                      <span>•</span>
+                      <span>💼 ${esc(w.experience || 0)} yrs exp</span>
+                    </div>
+                  </div>
+                  <button type="button" class="ai-workman-book-btn" data-id="${w.id}">
+                    📅 Book
+                  </button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      // Build Action Button if provided
       let actionHtml = "";
       if (data.action) {
         actionHtml = `<button type="button" class="ai-action-btn" data-action-type="${esc(data.action.type)}" data-category="${esc(data.action.category || "")}">
@@ -2654,12 +2729,24 @@ function initAIAssistant() {
       botMsgEl.innerHTML = `
         <div class="ai-bubble">
           ${formatAIMarkdown(data.reply)}
+          ${workmenHtml}
           ${actionHtml}
         </div>
       `;
       messagesContainer.appendChild(botMsgEl);
 
-      // Handle action button
+      // Handle workman book clicks directly from chat
+      botMsgEl.querySelectorAll(".ai-workman-book-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const workmanId = Number(btn.dataset.id);
+          if (workmanId) {
+            win.classList.add("hidden");
+            openBooking(workmanId);
+          }
+        });
+      });
+
+      // Handle category / explore action buttons
       const actBtn = botMsgEl.querySelector(".ai-action-btn");
       if (actBtn) {
         actBtn.addEventListener("click", () => {
@@ -2689,6 +2776,23 @@ function initAIAssistant() {
             }
             win.classList.add("hidden");
           }
+        });
+      }
+
+      // Dynamic Contextual Suggestion Chips
+      if (Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+        const chipsEl = document.createElement("div");
+        chipsEl.className = "ai-prompt-chips ai-reply-chips";
+        chipsEl.innerHTML = data.suggestions.map((s) => `
+          <button type="button" class="ai-chip" data-prompt="${esc(s)}">${esc(s)}</button>
+        `).join("");
+        messagesContainer.appendChild(chipsEl);
+
+        chipsEl.querySelectorAll(".ai-chip").forEach((chip) => {
+          chip.onclick = () => {
+            const promptText = chip.dataset.prompt;
+            if (promptText) sendAIMessage(promptText);
+          };
         });
       }
     } catch (err) {

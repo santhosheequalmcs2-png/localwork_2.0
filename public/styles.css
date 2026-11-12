@@ -1530,6 +1530,152 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   margin-bottom: 4px;
 }
 
+/* AI Bubble Headings */
+.ai-bubble-heading {
+  margin: 0 0 8px 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1b4332;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+}
+
+/* AI Urgency Banners */
+.ai-urgency-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 6px 0 10px 0;
+}
+
+.ai-urgency-banner.emergency {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.ai-urgency-banner.high {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.ai-urgency-banner.normal {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.ai-urgency-icon {
+  font-size: 1.1rem;
+}
+
+/* AI Live Workmen Recommendation Cards */
+.ai-workmen-container {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.ai-workmen-heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.ai-workmen-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-workman-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  transition: all 0.15s ease;
+}
+
+.ai-workman-card:hover {
+  background: #ffffff;
+  border-color: #2d6a4f;
+  box-shadow: 0 2px 6px rgba(45, 106, 79, 0.12);
+}
+
+.ai-workman-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ai-workman-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-workman-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-workman-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.ai-workman-badge.status-avail {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ai-workman-badge.status-busy {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.ai-workman-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+.ai-workman-book-btn {
+  background: #1b4332;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  margin-left: 8px;
+}
+
+.ai-workman-book-btn:hover {
+  background: #2d6a4f;
+  transform: translateY(-1px);
+}
+
 .ai-msg-user .ai-bubble {
   background: #1b4332;
   color: #ffffff;
@@ -1567,6 +1713,11 @@ body:has(#dashboard-sidebar:not(.hidden)) .wrap {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
+}
+
+.ai-reply-chips {
+  margin-top: 6px;
+  margin-bottom: 2px;
 }
 
 .ai-chip {
