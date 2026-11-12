@@ -104,7 +104,7 @@ router.post("/google", async (req, res, next) => {
 
       const insertResult = await pool.query(
         `INSERT INTO users (name, email, phone, location, role, password_hash)
-         VALUES ($1, $2, 'Google Account', 'Local Area', 'customer', $3)
+         VALUES ($1, $2, '', '', 'customer', $3)
          RETURNING *`,
         [name, email, passwordHash]
       );

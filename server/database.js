@@ -34,23 +34,31 @@ const db = {
   close: () => pool.end()
 };
 
-const publicUser = row => row && ({
-  id: row.id,
-  name: row.name,
-  email: row.email,
-  phone: row.phone,
-  location: row.location,
-  role: row.role,
-  service: row.profile_service ?? row.service ?? null,
-  experience: row.profile_experience ?? row.experience ?? null,
-  description: row.profile_description ?? row.description ?? null,
-  availability: row.profile_availability ?? row.availability ?? null,
-  applicationStatus: row.application_status ?? "Not Applied",
-  rejectionReason: row.rejection_reason ?? null,
-  rating: row.rating !== undefined && row.rating !== null ? parseFloat(Number(row.rating).toFixed(1)) : 4.8,
-  reviewCount: row.review_count !== undefined && row.review_count !== null ? Number(row.review_count) : 0,
-  createdAt: row.created_at
-});
+const publicUser = row => {
+  if (!row) return null;
+  const rawPhone = row.phone || "";
+  const cleanPhone = (rawPhone === "Google Account" || rawPhone.toLowerCase().includes("google")) ? "" : rawPhone;
+  const rawLoc = row.location || "";
+  const cleanLoc = (rawLoc === "Local Area") ? "" : rawLoc;
+
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: cleanPhone,
+    location: cleanLoc,
+    role: row.role,
+    service: row.profile_service ?? row.service ?? null,
+    experience: row.profile_experience ?? row.experience ?? null,
+    description: row.profile_description ?? row.description ?? null,
+    availability: row.profile_availability ?? row.availability ?? null,
+    applicationStatus: row.application_status ?? "Not Applied",
+    rejectionReason: row.rejection_reason ?? null,
+    rating: row.rating !== undefined && row.rating !== null ? parseFloat(Number(row.rating).toFixed(1)) : 4.8,
+    reviewCount: row.review_count !== undefined && row.review_count !== null ? Number(row.review_count) : 0,
+    createdAt: row.created_at
+  };
+};
 
 async function initializeDatabase() {
 

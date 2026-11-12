@@ -23,6 +23,28 @@ const esc = (value) =>
       })[c],
   );
 
+const getCleanPhone = (phone) => {
+  if (!phone) return "";
+  const trimmed = String(phone).trim();
+  if (
+    trimmed === "Google Account" ||
+    trimmed === "Not public" ||
+    trimmed.toLowerCase().includes("google")
+  ) {
+    return "";
+  }
+  return trimmed;
+};
+
+const getCleanLocation = (location) => {
+  if (!location) return "";
+  const trimmed = String(location).trim();
+  if (trimmed === "Local Area" || trimmed.toLowerCase() === "local area") {
+    return "";
+  }
+  return trimmed;
+};
+
 const categories = [
   ["⚡", "Electrician"],
   ["🔧", "Plumber"],
@@ -707,8 +729,8 @@ function openBooking(id) {
   selectedWorkman = id;
 
   $("booking-name").value = currentUser.name || "";
-  $("booking-phone").value = currentUser.phone || "";
-  $("booking-address").value = currentUser.location || "";
+  $("booking-phone").value = getCleanPhone(currentUser.phone);
+  $("booking-address").value = getCleanLocation(currentUser.location);
 
   $("booking-date").min = new Date().toISOString().slice(0, 10);
   $("booking-date").value = "";
@@ -894,7 +916,7 @@ async function loadWorkmanBookings() {
       $("workman-trade-name").textContent = currentUser.service || "Tradesperson";
     }
     if ($("workman-trade-location")) {
-      $("workman-trade-location").textContent = currentUser.location || "Nearby";
+      $("workman-trade-location").textContent = getCleanLocation(currentUser.location) || "Nearby";
     }
     if ($("workman-trade-experience")) {
       $("workman-trade-experience").textContent = `${Number(currentUser.experience) || 0} Years`;
@@ -1072,8 +1094,8 @@ async function loadWorkmanBookings() {
 
 function fillProfile() {
   $("profile-name").value = currentUser.name || "";
-  $("profile-phone").value = currentUser.phone || "";
-  $("profile-location").value = currentUser.location || "";
+  $("profile-phone").value = getCleanPhone(currentUser.phone);
+  $("profile-location").value = getCleanLocation(currentUser.location);
 
   $("profile-service").value = currentUser.service || "Other";
 
@@ -2485,8 +2507,8 @@ async function loadAccountProfile() {
 
     $("account-name").value = currentUser.name || "";
     $("account-email").value = currentUser.email || "";
-    $("account-phone").value = currentUser.phone || "";
-    $("account-location").value = currentUser.location || "";
+    $("account-phone").value = getCleanPhone(currentUser.phone);
+    $("account-location").value = getCleanLocation(currentUser.location);
     $("account-role").value =
       currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
 
