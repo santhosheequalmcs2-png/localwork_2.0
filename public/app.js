@@ -1543,7 +1543,10 @@ function setupThree() {
 
 /* ==========================================================================
    CUSTOMER DASHBOARD 3D ANIMATION
-   Cozy, welcoming 3D Home & Service Hub (Cream, Emerald Green, Warm Orange)
+   Interactive 3D Home Repair & Service Hub
+   Features: Multi-Trade Tools (Electric Bulb, Plumber Wrench, Painter Roller,
+             AC Cooling Turbine, Garden Pot, and Service Station)
+   Theme: Emerald Green, Warm Amber Gold, Polished Chrome, Fresh Mint
    ========================================================================== */
 
 let customerThreeAnimate = null;
@@ -1560,8 +1563,8 @@ function setupCustomerThree() {
     const h = host.clientHeight || 250;
 
     const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
-    camera.position.set(3.8, 3.1, 5.6);
-    camera.lookAt(0, 0.4, 0);
+    camera.position.set(3.4, 2.9, 5.2);
+    camera.lookAt(0, 0.25, 0);
 
     renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -1572,202 +1575,351 @@ function setupCustomerThree() {
     renderer.setSize(w, h);
     host.appendChild(renderer.domElement);
 
-    // Warm, welcoming lighting
-    const ambientLight = new THREE.AmbientLight(0xfff8ee, 2.0);
+    // Warm, welcoming multi-directional studio lighting
+    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.8);
     scene.add(ambientLight);
 
     const sunLight = new THREE.DirectionalLight(0xffedd5, 2.2);
     sunLight.position.set(5, 7, 4);
     scene.add(sunLight);
 
-    const fillLight = new THREE.DirectionalLight(0xdcfce7, 0.9);
-    fillLight.position.set(-4, -2, -3);
-    scene.add(fillLight);
+    const emeraldFill = new THREE.DirectionalLight(0xdcfce7, 1.2);
+    emeraldFill.position.set(-4, -2, -3);
+    scene.add(emeraldFill);
 
-    // House Root Group
-    const houseGroup = new THREE.Group();
-    scene.add(houseGroup);
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    topLight.position.set(0, 6, 2);
+    scene.add(topLight);
 
-    // Materials
-    const matCream = new THREE.MeshStandardMaterial({
-      color: 0xfdfbf7,
-      roughness: 0.45,
-      metalness: 0.05,
+    // Root Group
+    const serviceRoot = new THREE.Group();
+    scene.add(serviceRoot);
+
+    // Materials Palette
+    const matEmerald = new THREE.MeshStandardMaterial({
+      color: 0x1d754b,
+      metalness: 0.25,
+      roughness: 0.35,
     });
 
-    const matRoof = new THREE.MeshStandardMaterial({
-      color: 0x247a52,
-      roughness: 0.3,
-      metalness: 0.12,
-    });
-
-    const matOrange = new THREE.MeshStandardMaterial({
-      color: 0xea580c,
+    const matDarkEmerald = new THREE.MeshStandardMaterial({
+      color: 0x103d27,
+      metalness: 0.3,
       roughness: 0.4,
-      metalness: 0.08,
     });
 
-    const matWindow = new THREE.MeshStandardMaterial({
-      color: 0xfef08a,
-      emissive: 0xf59e0b,
-      emissiveIntensity: 0.5,
+    const matGold = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      metalness: 0.85,
       roughness: 0.2,
     });
 
-    const matLawn = new THREE.MeshStandardMaterial({
-      color: 0xe5efe3,
-      roughness: 0.7,
+    const matChrome = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      metalness: 0.95,
+      roughness: 0.12,
     });
 
-    const matTreeLeaves = new THREE.MeshStandardMaterial({
-      color: 0x1e6b47,
-      roughness: 0.4,
+    const matBlueGrip = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      metalness: 0.2,
+      roughness: 0.45,
     });
 
-    const matWood = new THREE.MeshStandardMaterial({
-      color: 0x854d0e,
-      roughness: 0.7,
-    });
-
-    // 1. Garden Pedestal Base (Lawn)
-    const lawn = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.35, 2.45, 0.2, 32),
-      matLawn,
-    );
-    lawn.position.set(0, -0.7, 0);
-    houseGroup.add(lawn);
-
-    // Cobblestone walkway
-    const walkway = new THREE.Mesh(
-      new THREE.BoxGeometry(0.55, 0.02, 1.2),
-      new THREE.MeshStandardMaterial({ color: 0xd3e0d2, roughness: 0.8 }),
-    );
-    walkway.position.set(0.2, -0.59, 1.1);
-    houseGroup.add(walkway);
-
-    // 2. House Body (Warm Cream)
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(1.65, 1.2, 1.45),
-      matCream,
-    );
-    body.position.set(0, 0, 0);
-    houseGroup.add(body);
-
-    // 3. Gable Roof (Emerald Green)
-    const roof = new THREE.Mesh(
-      new THREE.ConeGeometry(1.5, 0.88, 4),
-      matRoof,
-    );
-    roof.position.set(0, 1.04, 0);
-    roof.rotation.y = Math.PI / 4;
-    houseGroup.add(roof);
-
-    // 4. Front Door (Warm Orange)
-    const door = new THREE.Mesh(
-      new THREE.BoxGeometry(0.38, 0.68, 0.06),
-      matOrange,
-    );
-    door.position.set(0.2, -0.26, 0.74);
-    houseGroup.add(door);
-
-    // Golden Door Knob
-    const knob = new THREE.Mesh(
-      new THREE.SphereGeometry(0.03, 8, 8),
-      new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 }),
-    );
-    knob.position.set(0.33, -0.26, 0.78);
-    houseGroup.add(knob);
-
-    // 5. Windows (Glowing Warm Amber)
-    const winFront = new THREE.Mesh(
-      new THREE.BoxGeometry(0.34, 0.34, 0.04),
-      matWindow,
-    );
-    winFront.position.set(-0.46, 0.16, 0.74);
-    houseGroup.add(winFront);
-
-    const winSide = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 0.34, 0.34),
-      matWindow,
-    );
-    winSide.position.set(0.84, 0.16, 0);
-    houseGroup.add(winSide);
-
-    // 6. Chimney (Warm Orange)
-    const chimney = new THREE.Mesh(
-      new THREE.BoxGeometry(0.25, 0.58, 0.25),
-      matOrange,
-    );
-    chimney.position.set(0.5, 1.18, -0.2);
-    houseGroup.add(chimney);
-
-    // 7. Chimney Smoke Puffs (translucent rising bubbles)
-    const smokeGroup = new THREE.Group();
-    houseGroup.add(smokeGroup);
-    const smokeMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+    const matBulbGlass = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.65,
+      roughness: 0.15,
       transparent: true,
-      opacity: 0.45,
-      roughness: 0.9,
+      opacity: 0.9,
     });
-    const smokePuffs = [];
-    for (let i = 0; i < 3; i++) {
-      const puff = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08 + i * 0.02, 8, 8),
-        smokeMat,
+
+    const matWaterDrop = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      roughness: 0.1,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    const matPaintRoller = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      roughness: 0.65,
+      metalness: 0.1,
+    });
+
+    const matTerracotta = new THREE.MeshStandardMaterial({
+      color: 0xea580c,
+      roughness: 0.75,
+      metalness: 0.05,
+    });
+
+    const matPlantLeaf = new THREE.MeshStandardMaterial({
+      color: 0x16a34a,
+      roughness: 0.45,
+      metalness: 0.1,
+    });
+
+    const matTurbine = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      metalness: 0.7,
+      roughness: 0.2,
+    });
+
+    const matBase = new THREE.MeshStandardMaterial({
+      color: 0xedf6eb,
+      roughness: 0.6,
+      metalness: 0.05,
+    });
+
+    // 1. Two-Tier Service Pedestal Base
+    const basePedestal = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.25, 2.4, 0.18, 36),
+      matBase
+    );
+    basePedestal.position.set(0, -0.65, 0);
+    serviceRoot.add(basePedestal);
+
+    const goldRing = new THREE.Mesh(
+      new THREE.TorusGeometry(2.3, 0.035, 10, 36),
+      matGold
+    );
+    goldRing.rotation.x = Math.PI / 2;
+    goldRing.position.set(0, -0.56, 0);
+    serviceRoot.add(goldRing);
+
+    const innerInlay = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.4, 1.45, 0.08, 32),
+      matDarkEmerald
+    );
+    innerInlay.position.set(0, -0.52, 0);
+    serviceRoot.add(innerInlay);
+
+    // 2. Central Service Repair Station Caddy
+    const stationGroup = new THREE.Group();
+    serviceRoot.add(stationGroup);
+
+    const stationBox = new THREE.Mesh(
+      new THREE.BoxGeometry(1.2, 0.75, 0.85),
+      matEmerald
+    );
+    stationBox.position.set(0, -0.12, 0);
+    stationGroup.add(stationBox);
+
+    // Chrome handle bar on top of station
+    const handleBar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.95, 12),
+      matChrome
+    );
+    handleBar.rotation.z = Math.PI / 2;
+    handleBar.position.set(0, 0.42, 0);
+    stationGroup.add(handleBar);
+
+    const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.22, 10), matChrome);
+    postL.position.set(-0.42, 0.32, 0);
+    stationGroup.add(postL);
+
+    const postR = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.22, 10), matChrome);
+    postR.position.set(0.42, 0.32, 0);
+    stationGroup.add(postR);
+
+    // Golden Front Emblem Badge
+    const emblem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.24, 0.05, 24),
+      matGold
+    );
+    emblem.rotation.x = Math.PI / 2;
+    emblem.position.set(0, -0.12, 0.45);
+    stationGroup.add(emblem);
+
+    const emblemStar = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.12, 0),
+      matChrome
+    );
+    emblemStar.position.set(0, -0.12, 0.48);
+    stationGroup.add(emblemStar);
+
+    // 3. Trade Object A: ⚡ Electrician (Floating Glowing Bulb & Spark)
+    const bulbGroup = new THREE.Group();
+    const bulbGlass = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), matBulbGlass);
+    bulbGlass.position.set(0, 0.24, 0);
+    bulbGroup.add(bulbGlass);
+
+    const bulbBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.18, 14), matGold);
+    bulbBase.position.set(0, -0.04, 0);
+    bulbGroup.add(bulbBase);
+
+    const spark = new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), matGold);
+    spark.position.set(0, 0.6, 0);
+    bulbGroup.add(spark);
+
+    bulbGroup.position.set(-1.3, 0.45, 0.4);
+    bulbGroup.rotation.z = 0.2;
+    serviceRoot.add(bulbGroup);
+
+    // 4. Trade Object B: 🔧 Plumber & Mechanic (Adjustable Wrench & Water Droplet)
+    const wrenchGroup = new THREE.Group();
+    const wrenchShaft = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.95, 0.06), matBlueGrip);
+    wrenchGroup.add(wrenchShaft);
+
+    const wrenchHead = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.28, 0.12), matChrome);
+    wrenchHead.position.set(0, 0.52, 0);
+    wrenchGroup.add(wrenchHead);
+
+    const wrenchJaw = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, 0.12), matChrome);
+    wrenchJaw.position.set(0.12, 0.65, 0);
+    wrenchGroup.add(wrenchJaw);
+
+    const droplet = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), matWaterDrop);
+    droplet.scale.set(1, 1.4, 1);
+    droplet.position.set(0.32, 0.25, 0.2);
+    wrenchGroup.add(droplet);
+
+    wrenchGroup.position.set(1.35, 0.4, 0.35);
+    wrenchGroup.rotation.z = -0.3;
+    wrenchGroup.rotation.x = 0.2;
+    serviceRoot.add(wrenchGroup);
+
+    // 5. Trade Object C: 🎨 Painter (Paint Roller with Emerald Paint)
+    const rollerGroup = new THREE.Group();
+    const rollerCylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.16, 0.65, 20),
+      matPaintRoller
+    );
+    rollerCylinder.rotation.z = Math.PI / 2;
+    rollerGroup.add(rollerCylinder);
+
+    const rollerArm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.45, 0.04),
+      matChrome
+    );
+    rollerArm.position.set(0.35, -0.22, 0);
+    rollerGroup.add(rollerArm);
+
+    const rollerHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 0.45, 10),
+      matDarkEmerald
+    );
+    rollerHandle.position.set(0.35, -0.55, 0);
+    rollerGroup.add(rollerHandle);
+
+    rollerGroup.position.set(0.65, 0.95, -0.85);
+    rollerGroup.rotation.x = 0.35;
+    rollerGroup.rotation.y = -0.4;
+    serviceRoot.add(rollerGroup);
+
+    // 6. Trade Object D: ❄️ AC Repair (Spinning Turbine Cooling Fan)
+    const turbineGroup = new THREE.Group();
+    const turbineHub = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 0.08, 16),
+      matChrome
+    );
+    turbineHub.rotation.x = Math.PI / 2;
+    turbineGroup.add(turbineHub);
+
+    for (let i = 0; i < 4; i++) {
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.32, 0.02), matTurbine);
+      blade.rotation.z = (i * Math.PI) / 2;
+      blade.position.set(
+        Math.cos((i * Math.PI) / 2) * 0.18,
+        Math.sin((i * Math.PI) / 2) * 0.18,
+        0
       );
-      puff.position.set(0.5, 1.5 + i * 0.2, -0.2);
-      smokeGroup.add(puff);
-      smokePuffs.push(puff);
+      blade.rotation.y = 0.3;
+      turbineGroup.add(blade);
     }
 
-    // 8. Garden Tree (Wood trunk + lush emerald foliage)
-    const trunk = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.06, 0.08, 0.55, 8),
-      matWood,
-    );
-    trunk.position.set(-1.35, -0.36, 0.6);
-    houseGroup.add(trunk);
+    turbineGroup.position.set(-0.85, 0.95, -0.75);
+    serviceRoot.add(turbineGroup);
 
-    const foliage = new THREE.Mesh(
-      new THREE.SphereGeometry(0.38, 12, 12),
-      matTreeLeaves,
+    // 7. Trade Object E: 🪴 Gardening (Potted Terracotta Plant)
+    const plantGroup = new THREE.Group();
+    const pot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.16, 0.32, 16),
+      matTerracotta
     );
-    foliage.position.set(-1.35, 0.08, 0.6);
-    houseGroup.add(foliage);
+    plantGroup.add(pot);
 
-    // 9. Orbiting Service Icons / Orbs
-    const orbitGroup = new THREE.Group();
-    scene.add(orbitGroup);
+    const leaf1 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), matPlantLeaf);
+    leaf1.scale.set(0.6, 1.2, 0.3);
+    leaf1.rotation.z = 0.4;
+    leaf1.position.set(0.08, 0.24, 0);
+    plantGroup.add(leaf1);
 
-    // Blue Orb (Plumbing)
-    const plumbingOrb = new THREE.Mesh(
-      new THREE.SphereGeometry(0.14, 12, 12),
-      new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.3 }),
-    );
-    plumbingOrb.position.set(2.2, 0.3, 0);
-    orbitGroup.add(plumbingOrb);
+    const leaf2 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), matPlantLeaf);
+    leaf2.scale.set(0.6, 1.2, 0.3);
+    leaf2.rotation.z = -0.4;
+    leaf2.position.set(-0.08, 0.24, 0);
+    plantGroup.add(leaf2);
 
-    // Gold Spark (Electrical)
-    const electricalOrb = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.14, 0),
-      new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        emissive: 0xd97706,
-        emissiveIntensity: 0.5,
-        roughness: 0.2,
-      }),
-    );
-    electricalOrb.position.set(-2.0, 0.7, 0.8);
-    orbitGroup.add(electricalOrb);
+    plantGroup.position.set(-0.7, -0.34, 1.15);
+    serviceRoot.add(plantGroup);
 
-    // Warm Orange Tool Cube (Carpentry / Craft)
-    const toolCube = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2, 0.2),
-      matOrange,
-    );
-    toolCube.position.set(0.4, 0.2, -2.1);
-    orbitGroup.add(toolCube);
+    // 8. Ambient Service Sparkles / Orbs
+    const sparklesGroup = new THREE.Group();
+    serviceRoot.add(sparklesGroup);
+
+    const sparkles = [];
+    const sparkleColors = [0xf59e0b, 0x10b981, 0x38bdf8, 0xea580c];
+    for (let i = 0; i < 6; i++) {
+      const sp = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.06 + (i % 3) * 0.02, 0),
+        new THREE.MeshStandardMaterial({
+          color: sparkleColors[i % sparkleColors.length],
+          emissive: sparkleColors[i % sparkleColors.length],
+          emissiveIntensity: 0.5,
+          roughness: 0.2
+        })
+      );
+      sp.position.set(
+        (Math.cos(i * 1.05) * 1.8),
+        0.2 + (i % 3) * 0.35,
+        (Math.sin(i * 1.05) * 1.8)
+      );
+      sparklesGroup.add(sp);
+      sparkles.push(sp);
+    }
+
+    // Interactive Drag to Rotate
+    let isDragging = false;
+    let prevMouseX = 0;
+    let targetRotationY = 0;
+
+    host.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      prevMouseX = e.clientX;
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevMouseX;
+      prevMouseX = e.clientX;
+      targetRotationY += deltaX * 0.01;
+    });
+
+    // Touch support for mobile
+    host.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        prevMouseX = e.touches[0].clientX;
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchend", () => {
+      isDragging = false;
+    });
+
+    window.addEventListener("touchmove", (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - prevMouseX;
+      prevMouseX = e.touches[0].clientX;
+      targetRotationY += deltaX * 0.012;
+    }, { passive: true });
 
     function resize() {
       const currentW = host.clientWidth || 320;
@@ -1795,22 +1947,35 @@ function setupCustomerThree() {
 
       const t = clock.getElapsedTime();
 
-      // Gentle floating house sway
-      houseGroup.rotation.y = Math.sin(t * 0.3) * 0.25;
-      houseGroup.position.y = Math.sin(t * 0.8) * 0.06;
+      // Smooth rotation with user drag damping + gentle idle sway
+      if (!isDragging) {
+        targetRotationY += 0.004;
+      }
+      serviceRoot.rotation.y += (targetRotationY - serviceRoot.rotation.y) * 0.08;
 
-      // Orbiting service items
-      orbitGroup.rotation.y = t * 0.45;
-      electricalOrb.rotation.x = t;
-      electricalOrb.rotation.y = t * 1.5;
-      toolCube.rotation.x = t * 0.8;
-      toolCube.rotation.z = t * 0.5;
+      // Gentle floating bob
+      serviceRoot.position.y = Math.sin(t * 0.8) * 0.05;
 
-      // Animated chimney smoke puffs
-      smokePuffs.forEach((puff, idx) => {
-        puff.position.y = 1.45 + ((t * 0.4 + idx * 0.35) % 0.8);
-        const progress = ((t * 0.4 + idx * 0.35) % 0.8) / 0.8;
-        puff.scale.setScalar(1 + progress * 0.8);
+      // Spin AC cooling turbine
+      turbineGroup.rotation.z = t * 2.8;
+
+      // Pulse bulb filament
+      matBulbGlass.emissiveIntensity = 0.5 + Math.sin(t * 3.2) * 0.25;
+      bulbGroup.position.y = 0.45 + Math.sin(t * 1.6) * 0.08;
+      spark.rotation.y = t * 1.5;
+
+      // Bob wrench and droplet
+      wrenchGroup.position.y = 0.4 + Math.cos(t * 1.4) * 0.07;
+      droplet.position.y = 0.25 + Math.sin(t * 2.2) * 0.06;
+
+      // Bob paint roller
+      rollerGroup.position.y = 0.95 + Math.sin(t * 1.8 + 1) * 0.07;
+
+      // Orbit sparkles
+      sparkles.forEach((sp, idx) => {
+        sp.rotation.x = t * (1 + idx * 0.2);
+        sp.rotation.y = t * (1.2 + idx * 0.3);
+        sp.position.y = 0.2 + (idx % 3) * 0.35 + Math.sin(t * 2 + idx) * 0.08;
       });
 
       renderer.render(scene, camera);
