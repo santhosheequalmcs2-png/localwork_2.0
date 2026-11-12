@@ -105,10 +105,6 @@ function show(view, { updateHistory = true } = {}) {
     setTimeout(() => workmanThreeAnimate(), 50);
   }
 
-  if (view === "admin-view" && typeof adminThreeAnimate === "function") {
-    setTimeout(() => adminThreeAnimate(), 50);
-  }
-
   const isPublicPage = view === "home-view" || view === "auth-view";
 
   const publicNav = $("public-nav");
@@ -1950,8 +1946,6 @@ function setupWorkmanThree() {
   }
 }
 
-function setupAdminThree() {}
-
 /* =========================
    INITIALISE
 ========================= */
@@ -2726,7 +2720,6 @@ async function start() {
   try { setupThree(); } catch (e) { console.warn("Three hero:", e); }
   try { setupCustomerThree(); } catch (e) { console.warn("Three customer:", e); }
   try { setupWorkmanThree(); } catch (e) { console.warn("Three workman:", e); }
-  try { setupAdminThree(); } catch (e) { console.warn("Three admin:", e); }
 
   await initialise();
 }

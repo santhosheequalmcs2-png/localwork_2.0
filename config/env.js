@@ -1,4 +1,3 @@
-const path = require("node:path");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -27,10 +26,9 @@ module.exports = {
   port: Number(process.env.PORT || 3000),
   sessionSecret,
   databaseUrl: process.env.DATABASE_URL,
-  databaseFile: path.resolve(process.env.DATABASE_FILE || "./data/localwork.sqlite"),
   adminEmail: (process.env.ADMIN_EMAIL || "").trim().toLowerCase(),
   adminPassword: process.env.ADMIN_PASSWORD || "",
-    corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean),
+  corsOrigins: (process.env.CORS_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean),
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "LocalWork <onboarding@resend.dev>",
   googleClientId: (process.env.GOOGLE_CLIENT_ID || "651491331627-83ge6qmsuvn3s405pihkme7k45gepl8h.apps.googleusercontent.com").trim(),
