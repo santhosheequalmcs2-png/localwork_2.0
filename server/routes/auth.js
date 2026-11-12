@@ -400,7 +400,11 @@ router.post(
     }
   }
 );
-router.get("/me", requireAuth, async (req, res, next) => {
+router.get("/me", async (req, res, next) => {
+  if (!req.session || !req.session.user) {
+    return res.json({ user: null });
+  }
+
   try {
     const result = await pool.query(
       `SELECT

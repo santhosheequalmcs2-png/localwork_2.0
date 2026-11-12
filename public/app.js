@@ -207,7 +207,9 @@ window.addEventListener("popstate", async (event) => {
 
     try {
       await loadWorkmen();
-      await loadCustomerBookings();
+      if (currentUser) {
+        await loadCustomerBookings();
+      }
     } catch (error) {
       toast(error.message);
     }
@@ -314,6 +316,7 @@ function setAuth(mode) {
 
 let googleClientId = "";
 let googleScriptLoaded = false;
+let googleInitialized = false;
 
 async function initGoogleAuth() {
   try {
@@ -365,11 +368,14 @@ function renderGoogleButton() {
   if (!signinBtnContainer) return;
 
   try {
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleGoogleCredentialResponse,
-      auto_select: false
-    });
+    if (!googleInitialized) {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false
+      });
+      googleInitialized = true;
+    }
 
     signinBtnContainer.innerHTML = "";
     window.google.accounts.id.renderButton(signinBtnContainer, {
@@ -752,6 +758,12 @@ async function saveBooking(event) {
 ========================= */
 
 async function loadCustomerBookings() {
+  if (!currentUser) {
+    const container = $("customer-bookings");
+    if (container) container.innerHTML = "";
+    return;
+  }
+
   const { bookings } = await api("/api/bookings/mine");
 
   $("customer-bookings").innerHTML = bookings.length
