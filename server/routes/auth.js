@@ -115,6 +115,10 @@ router.post("/google", async (req, res, next) => {
     req.session.regenerate((err) => {
       if (err) return next(err);
 
+      req.session.user = {
+        id: user.id,
+        role: user.role
+      };
       req.session.userId = user.id;
       req.session.csrfToken = crypto.randomBytes(32).toString("hex");
 
