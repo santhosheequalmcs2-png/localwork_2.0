@@ -1956,6 +1956,82 @@ html.dark .ai-safety-callout {
   color: var(--ink);
 }
 
+/* Language Toggle Buttons */
+.btn-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 13px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  color: var(--green);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-lang-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--green);
+  background: #f0fdf4;
+  box-shadow: 0 4px 14px rgba(36, 107, 77, 0.15);
+}
+
+.btn-lang-toggle .lang-toggle-icon {
+  font-size: 1.05rem;
+}
+
+.btn-lang-toggle .lang-toggle-label {
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+
+.lang-sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--green);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-bottom: 4px;
+}
+
+.lang-sidebar-btn:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: var(--green-hover);
+}
+
+.ai-head-btn.ai-lang-pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ai-head-btn.ai-lang-pill:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
 /* ==========================================================================
    DARK THEME SYSTEM
    ========================================================================== */
@@ -2003,6 +2079,27 @@ html.dark .theme-toggle-btn {
 html.dark .theme-toggle-btn:hover {
   border-color: #4ade80;
   box-shadow: 0 4px 14px rgba(74, 222, 128, 0.2);
+}
+
+html.dark .btn-lang-toggle {
+  background: #172b22;
+  border-color: #244436;
+  color: #4ade80;
+}
+
+html.dark .btn-lang-toggle:hover {
+  background: #1f3b2e;
+  border-color: #4ade80;
+  box-shadow: 0 4px 14px rgba(74, 222, 128, 0.2);
+}
+
+html.dark .lang-sidebar-btn {
+  color: #4ade80;
+}
+
+html.dark .lang-sidebar-btn:hover {
+  background: #172b22;
+  border-color: #244436;
 }
 
 /* Landing Page Elements */

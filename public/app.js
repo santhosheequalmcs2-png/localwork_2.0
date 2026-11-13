@@ -1,4 +1,5 @@
 import * as THREE from "/vendor/three/three.module.js";
+import { t, getLanguage, setLanguage, initLanguage } from "./i18n.js";
 
 let csrfToken = "";
 let pendingResetToken = "";
@@ -62,6 +63,24 @@ const categories = [
   ["💧", "Waterproofing"],
   ["🧰", "Other"],
 ];
+
+const categoryKeyMap = {
+  "Electrician": "trade_electrician",
+  "Plumber": "trade_plumber",
+  "Carpenter": "trade_carpenter",
+  "Painter": "trade_painter",
+  "Mechanic": "trade_mechanic",
+  "Cleaning": "trade_cleaning",
+  "Construction": "trade_construction",
+  "AC Repair": "trade_ac_repair",
+  "Appliance Repair": "trade_appliance_repair",
+  "Gardening": "trade_gardening",
+  "Pest Control": "trade_pest_control",
+  "Welding": "trade_welding",
+  "Masonry & Tiling": "trade_masonry_tiling",
+  "Waterproofing": "trade_waterproofing",
+  "Other": "trade_other",
+};
 
 async function api(url, options = {}) {
   const method = (options.method || "GET").toUpperCase();
@@ -462,12 +481,16 @@ function openForgotPassword() {
 function renderCategories() {
   $("category-list").innerHTML = categories
     .map(
-      ([icon, name]) => `
+      ([icon, name]) => {
+        const key = categoryKeyMap[name];
+        const label = key ? t(key) : name;
+        return `
     <button class="category" data-category="${esc(name)}">
       <span>${icon}</span>
-      <b>${esc(name)}</b>
+      <b>${esc(label)}</b>
     </button>
-  `,
+  `;
+      },
     )
     .join("");
 
@@ -507,27 +530,26 @@ async function routeUser() {
 
   const status = currentUser.applicationStatus || "Not Applied";
 
-  $("customer-greeting").textContent =
-    `Welcome, ${currentUser.name.split(" ")[0]}! Find local help.`;
+  const firstName = currentUser.name ? currentUser.name.split(" ")[0] : "";
+  $("customer-greeting").textContent = t("customer_welcome", { name: firstName });
 
   const actionButton = $("customer-workman-action");
   const statusMessage = $("workman-application-status");
 
   if (status === "Approved") {
-    actionButton.textContent = "Workman Dashboard";
-    statusMessage.textContent =
-      "Your workman application has been approved. You can access your Workman Dashboard.";
+    actionButton.textContent = t("customer_workman_dash_btn");
+    statusMessage.textContent = t("customer_app_status_approved");
   } else if (status === "Pending") {
-    actionButton.textContent = "Application Pending";
-    statusMessage.textContent =
-      "Your workman application is waiting for admin approval.";
+    actionButton.textContent = getLanguage() === "ta" ? "விண்ணப்பம் நிலுவையில் உள்ளது" : "Application Pending";
+    statusMessage.textContent = t("customer_app_status_pending");
   } else if (status === "Rejected") {
-    actionButton.textContent = "Resubmit Application";
-    statusMessage.textContent = `Your application was rejected. Reason: ${currentUser.rejectionReason || "Please update your details and resubmit."}`;
+    actionButton.textContent = getLanguage() === "ta" ? "மீண்டும் விண்ணப்பிக்கவும்" : "Resubmit Application";
+    statusMessage.textContent = getLanguage() === "ta"
+      ? `உங்கள் விண்ணப்பம் நிராகரிக்கப்பட்டது. காரணம்: ${currentUser.rejectionReason || "விவரங்களை புதுப்பித்து மீண்டும் சமர்ப்பிக்கவும்."}`
+      : `Your application was rejected. Reason: ${currentUser.rejectionReason || "Please update your details and resubmit."}`;
   } else {
-    actionButton.textContent = "Become a Workman";
-    statusMessage.textContent =
-      "Want to provide local services? Apply to become a workman.";
+    actionButton.textContent = t("customer_become_workman_btn");
+    statusMessage.textContent = t("customer_app_status_not_applied");
   }
 
   // Only approved workmen can enter Workman Dashboard.
@@ -584,18 +606,29 @@ async function loadWorkmen() {
     `/api/workmen?service=${encodeURIComponent(service)}&location=${encodeURIComponent(location)}`,
   );
 
-  $("workmen-count").textContent =
-    `${workmen.length} profile${workmen.length === 1 ? "" : "s"} found`;
+  $("workmen-count").textContent = getLanguage() === "ta"
+    ? `${workmen.length} பணியாளர்கள் கண்டறியப்பட்டனர்`
+    : `${workmen.length} profile${workmen.length === 1 ? "" : "s"} found`;
 
   $("workmen-grid").innerHTML = workmen.length
     ? workmen
         .map(
-          (w) => `
+          (w) => {
+            const serviceKey = categoryKeyMap[w.service];
+            const serviceLabel = serviceKey ? t(serviceKey) : w.service;
+            const isAvail = (w.availability || "Available") === "Available";
+            const availText = isAvail ? t("customer_avail") : t("customer_busy");
+            const expText = t("customer_exp", { exp: Number(w.experience) || 0 });
+            const viewProfileText = getLanguage() === "ta" ? "சுயவிவரம்" : "View profile";
+            const bookText = t("customer_book_btn");
+            const reviewsLabel = getLanguage() === "ta" ? "மதிப்புரைகள்" : (Number(w.reviewCount) === 1 ? "review" : "reviews");
+
+            return `
       <article class="workman-card">
         <div class="workman-card-top-row">
-          <p class="eyebrow">${esc(w.service)}</p>
-          <span class="workman-avail-pill ${w.availability === 'Available' ? 'status-avail' : 'status-busy'}">
-            ● ${esc(w.availability || 'Available')}
+          <p class="eyebrow">${esc(serviceLabel)}</p>
+          <span class="workman-avail-pill ${isAvail ? 'status-avail' : 'status-busy'}">
+            ● ${esc(availText)}
           </span>
         </div>
 
@@ -603,29 +636,30 @@ async function loadWorkmen() {
 
         <div class="workman-rating-strip">
           <span class="workman-rating-stars">★ ${Number(w.rating || 4.8).toFixed(1)}</span>
-          <span class="workman-review-count">(${Number(w.reviewCount || 0)} ${Number(w.reviewCount) === 1 ? 'review' : 'reviews'})</span>
+          <span class="workman-review-count">(${Number(w.reviewCount || 0)} ${reviewsLabel})</span>
         </div>
 
-        <p>${esc(w.description || "Local service professional.")}</p>
+        <p>${esc(w.description || (getLanguage() === "ta" ? "அனுபவம் வாய்ந்த உள்ளூர் பணியாளர்." : "Local service professional."))}</p>
 
         <div class="meta">
-          📍 ${esc(w.location)} · 💼 ${Number(w.experience) || 0} years' experience
+          📍 ${esc(w.location)} · 💼 ${esc(expText)}
         </div>
 
         <div class="card-actions">
           <button class="btn btn-light" data-profile="${w.id}">
-            View profile
+            ${esc(viewProfileText)}
           </button>
 
           <button class="btn btn-primary" data-book="${w.id}">
-            Book
+            ${esc(bookText)}
           </button>
         </div>
       </article>
-    `,
+    `;
+          },
         )
         .join("")
-    : `<div class="empty">No profiles found. Try a different service or area.</div>`;
+    : `<div class="empty">${getLanguage() === "ta" ? "பணியாளர்கள் கிடைக்கவில்லை. வேறு சேவையையோ பகுதியையோ முயற்சிக்கவும்." : "No profiles found. Try a different service or area."}</div>`;
 
   $("workmen-grid")
     .querySelectorAll("[data-profile]")
@@ -910,19 +944,22 @@ async function loadWorkmanBookings() {
   if (currentUser) {
     const greetingEl = $("workman-greeting");
     if (greetingEl) {
-      greetingEl.textContent = `Welcome back, ${currentUser.name.split(" ")[0]}!`;
+      greetingEl.textContent = t("workman_greeting", { name: currentUser.name.split(" ")[0] });
     }
     if ($("workman-trade-name")) {
-      $("workman-trade-name").textContent = currentUser.service || "Tradesperson";
+      const rawTrade = currentUser.service || "Tradesperson";
+      const tradeKey = categoryKeyMap[rawTrade];
+      $("workman-trade-name").textContent = tradeKey ? t(tradeKey) : rawTrade;
     }
     if ($("workman-trade-location")) {
-      $("workman-trade-location").textContent = getCleanLocation(currentUser.location) || "Nearby";
+      $("workman-trade-location").textContent = getCleanLocation(currentUser.location) || (getLanguage() === "ta" ? "உள்ளூர் பகுதி" : "Nearby");
     }
     if ($("workman-trade-experience")) {
-      $("workman-trade-experience").textContent = `${Number(currentUser.experience) || 0} Years`;
+      $("workman-trade-experience").textContent = `${Number(currentUser.experience) || 0} ${getLanguage() === "ta" ? "ஆண்டுகள்" : "Years"}`;
     }
     if ($("workman-trade-availability")) {
-      $("workman-trade-availability").textContent = currentUser.availability || "Available";
+      const isAvail = (currentUser.availability || "Available") === "Available";
+      $("workman-trade-availability").textContent = isAvail ? t("customer_avail") : t("customer_busy");
     }
 
     // Wire up Availability Toggle Button
@@ -1012,7 +1049,7 @@ async function loadWorkmanBookings() {
             data-datetime="${esc(b.booking_date)} at ${esc(b.booking_time)}"
             data-location="${esc(b.address)}"
             data-status="${esc(b.status)}">
-            💬 Chat with Customer ${Number(b.message_count) > 0 ? `<span class="chat-count-pill">${b.message_count}</span>` : ""}
+            💬 ${getLanguage() === "ta" ? "வாடிக்கையாளருடன் உரையாடு" : "Chat with Customer"} ${Number(b.message_count) > 0 ? `<span class="chat-count-pill">${b.message_count}</span>` : ""}
           </button>
 
           ${
@@ -1022,13 +1059,13 @@ async function loadWorkmanBookings() {
               class="btn btn-workman-accept"
               data-status="Accepted"
               data-id="${b.id}">
-              ✓ Accept Request
+              ${t("workman_accept_btn")}
             </button>
             <button
               class="btn btn-workman-decline"
               data-status="Declined"
               data-id="${b.id}">
-              ✕ Decline
+              ${t("workman_decline_btn")}
             </button>
           `
               : b.status === "Accepted"
@@ -1037,7 +1074,7 @@ async function loadWorkmanBookings() {
               class="btn btn-workman-complete"
               data-status="Completed"
               data-id="${b.id}">
-              ★ Mark as Completed
+              ${t("workman_complete_btn")}
             </button>
           `
               : ""
@@ -1049,8 +1086,8 @@ async function loadWorkmanBookings() {
         .join("")
     : `<div class="workman-empty-jobs">
         <div class="empty-icon">🧰</div>
-        <h3>No booking requests yet</h3>
-        <p>When customers in your area request your trade skills, their job requests will appear here with contact details.</p>
+        <h3>${t("workman_empty_jobs_title")}</h3>
+        <p>${t("workman_empty_jobs_desc")}</p>
        </div>`;
 
   $("workman-bookings")
@@ -3368,19 +3405,20 @@ function initAIAssistant() {
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
       aiChatHistory = [];
+      const isTa = getLanguage() === "ta";
       messagesContainer.innerHTML = `
-        <div class="ai-msg ai-msg-bot">
+        <div id="ai-welcome-box" class="ai-msg ai-msg-bot">
           <div class="ai-bubble">
-            <p>👋 <strong>Chat cleared! How can I help you today?</strong></p>
-            <p>I can diagnose home repair issues, provide Chennai price estimates, and connect you with verified tradespeople.</p>
+            <p>👋 <strong>${isTa ? "உரையாடல் அழிக்கப்பட்டது! இன்று உங்களுக்கு எவ்வாறு உதவலாம்?" : "Chat cleared! How can I help you today?"}</strong></p>
+            <p>${isTa ? "வீட்டுப் பழுது கண்டறிதல், தமிழ்நாடு கட்டண மதிப்பீடுகள் மற்றும் சரிபார்க்கப்பட்ட உள்ளூர் பணியாளர்களைக் கண்டறிய நான் உதவுகிறேன்." : "I can diagnose home repair issues, provide Tamil Nadu price estimates, and connect you with verified tradespeople."}</p>
           </div>
         </div>
         <div class="ai-prompt-chips" id="ai-prompt-chips">
-          <button type="button" class="ai-chip" data-prompt="My circuit breaker MCB keeps tripping">⚡ MCB Tripping</button>
-          <button type="button" class="ai-chip" data-prompt="How much does fixing a leaking pipe or tap cost?">🔧 Leak Repair Cost</button>
-          <button type="button" class="ai-chip" data-prompt="My AC is not cooling properly">❄️ AC Not Cooling</button>
-          <button type="button" class="ai-chip" data-prompt="How much for 2BHK house painting in Chennai?">🎨 Painting Estimate</button>
-          <button type="button" class="ai-chip" data-prompt="How do I book a workman?">📅 How to Book?</button>
+          <button type="button" class="ai-chip" data-chip="mcb" data-prompt="${isTa ? 'MCB ட்ரிப் ஆகுது, என்ன செய்ய வேண்டும்?' : 'My circuit breaker MCB keeps tripping'}">${isTa ? '⚡ MCB ட்ரிப் ஆகுது' : '⚡ MCB Tripping'}</button>
+          <button type="button" class="ai-chip" data-chip="leak" data-prompt="${isTa ? 'குழாய் கசிவு சரிசெய்ய கட்டணம் எவ்வளவு?' : 'How much does fixing a leaking pipe or tap cost?'}">${isTa ? '🔧 குழாய் கசிவு கட்டணம்' : '🔧 Leak Repair Cost'}</button>
+          <button type="button" class="ai-chip" data-chip="ac" data-prompt="${isTa ? 'ஏசி கூலிங் வரவில்லை' : 'My AC is not cooling properly'}">${isTa ? '❄️ ஏசி கூலிங் இல்லை' : '❄️ AC Not Cooling'}</button>
+          <button type="button" class="ai-chip" data-chip="paint" data-prompt="${isTa ? '2BHK வீட்டிற்கு பெயிண்டிங் கட்டணம் எவ்வளவு?' : 'How much for 2BHK house painting in Tamil Nadu?'}">${isTa ? '🎨 பெயிண்டிங் கட்டணம்' : '🎨 Painting Estimate'}</button>
+          <button type="button" class="ai-chip" data-chip="book" data-prompt="${isTa ? 'பணியாளரை புக் செய்வது எப்படி?' : 'How do I book a workman?'}">${isTa ? '📅 புக் செய்வது எப்படி?' : '📅 How to Book?'}</button>
         </div>
       `;
       bindChips();
@@ -3403,7 +3441,15 @@ function initAIAssistant() {
   if (quickTopics) {
     quickTopics.querySelectorAll(".ai-topic-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const prompt = btn.dataset.prompt;
+        const isTa = getLanguage() === "ta";
+        const topic = btn.dataset.topic;
+        let prompt = btn.dataset.prompt;
+        if (isTa) {
+          if (topic === "emergency") prompt = "🚨 அவசர உதவி! வீட்டில் உடனடியாக சரிசெய்ய வேண்டிய மின்சாரம் அல்லது தண்ணீர் பிரச்சினை உள்ளது!";
+          else if (topic === "pricing") prompt = "💰 வீட்டுப் பணிகளுக்கான வழக்கமான கட்டண விவரங்கள் என்ன?";
+          else if (topic === "diagnosis") prompt = "🔍 வீட்டுப் பழுது பிரச்சினையைக் கண்டறிய உதவுங்கள்";
+          else if (topic === "workmen") prompt = "👨‍🔧 என் அருகில் கிடைக்கும் சரிபார்க்கப்பட்ட பணியாளர்களைக் காட்டுங்கள்";
+        }
         if (prompt) sendAIMessage(prompt);
       });
     });
@@ -3420,15 +3466,17 @@ function initAIAssistant() {
       const recognition = new SpeechRec();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = "en-IN";
+      recognition.lang = getLanguage() === "ta" ? "ta-IN" : "en-IN";
+      window._aiSpeechRecognition = recognition;
 
       let isRecording = false;
 
       recognition.onstart = () => {
         isRecording = true;
         voiceBtn.classList.add("listening");
-        voiceBtn.title = "Listening... Speak your issue now";
-        if (input) input.placeholder = "Listening... Speak now...";
+        const isTa = getLanguage() === "ta";
+        voiceBtn.title = isTa ? "கேட்கிறது... இப்போது உங்கள் பிரச்சினையைப் பேசுங்கள்" : "Listening... Speak your issue now";
+        if (input) input.placeholder = isTa ? "கேட்கிறது... இப்போது பேசுங்கள்..." : "Listening... Speak now...";
       };
 
       recognition.onresult = (event) => {
@@ -3446,8 +3494,9 @@ function initAIAssistant() {
       recognition.onend = () => {
         isRecording = false;
         voiceBtn.classList.remove("listening");
-        voiceBtn.title = "Speak to AI (Voice Input)";
-        if (input) input.placeholder = "Ask a question (e.g. 'My sink is leaking')...";
+        const isTa = getLanguage() === "ta";
+        voiceBtn.title = isTa ? "குரல் மூலம் பேசவும் (Voice Input)" : "Speak to AI (Voice Input)";
+        if (input) input.placeholder = isTa ? "கேள்வியைக் கேட்கவும் (எ.கா: 'வாட்டர் பைப் லீக் ஆகுது')..." : "Ask a question (e.g. 'My sink is leaking')...";
       };
 
       voiceBtn.addEventListener("click", () => {
@@ -3455,6 +3504,7 @@ function initAIAssistant() {
           recognition.stop();
         } else {
           try {
+            recognition.lang = getLanguage() === "ta" ? "ta-IN" : "en-IN";
             recognition.start();
           } catch (err) {
             console.warn("Recognition start warning:", err);
@@ -3463,6 +3513,8 @@ function initAIAssistant() {
       });
     }
   }
+
+  window._sendAIMessage = sendAIMessage;
 
   async function sendAIMessage(userText) {
     const text = (userText || "").trim();
@@ -3723,11 +3775,78 @@ function initTheme() {
 }
 
 /* =========================
+   LANGUAGE (BILINGUAL SYSTEM)
+========================= */
+
+function initLanguageSystem() {
+  const topbarBtn = $("lang-toggle-btn");
+  const sidebarBtn = $("sidebar-lang-toggle");
+  const aiLangBtn = $("ai-lang-btn");
+
+  function onLanguageChange(lang) {
+    // Re-render categories in current language
+    renderCategories();
+
+    // Re-render active view content if needed
+    if (!$("customer-view").classList.contains("hidden")) {
+      loadWorkmen().catch(() => {});
+      if (currentUser) {
+        const firstName = currentUser.name ? currentUser.name.split(" ")[0] : "";
+        $("customer-greeting").textContent = t("customer_welcome", { name: firstName });
+      }
+    } else if (!$("workman-view").classList.contains("hidden")) {
+      loadWorkmanBookings().catch(() => {});
+    }
+
+    // Refresh dynamic prompt chips and greeting if chat is still on welcome state
+    const welcomeBox = $("ai-welcome-box");
+    if (welcomeBox) {
+      const isTa = lang === "ta";
+      const chipsContainer = $("ai-prompt-chips");
+      if (chipsContainer) {
+        chipsContainer.innerHTML = `
+          <button type="button" class="ai-chip" data-chip="mcb" data-prompt="${isTa ? 'MCB ட்ரிப் ஆகுது, என்ன செய்ய வேண்டும்?' : 'My circuit breaker MCB keeps tripping'}">${isTa ? '⚡ MCB ட்ரிப் ஆகுது' : '⚡ MCB Tripping'}</button>
+          <button type="button" class="ai-chip" data-chip="leak" data-prompt="${isTa ? 'குழாய் கசிவு சரிசெய்ய கட்டணம் எவ்வளவு?' : 'How much does fixing a leaking pipe or tap cost?'}">${isTa ? '🔧 குழாய் கசிவு கட்டணம்' : '🔧 Leak Repair Cost'}</button>
+          <button type="button" class="ai-chip" data-chip="ac" data-prompt="${isTa ? 'ஏசி கூலிங் வரவில்லை' : 'My AC is not cooling properly'}">${isTa ? '❄️ ஏசி கூலிங் இல்லை' : '❄️ AC Not Cooling'}</button>
+          <button type="button" class="ai-chip" data-chip="paint" data-prompt="${isTa ? '2BHK வீட்டிற்கு பெயிண்டிங் கட்டணம் எவ்வளவு?' : 'How much for 2BHK house painting in Tamil Nadu?'}">${isTa ? '🎨 பெயிண்டிங் கட்டணம்' : '🎨 Painting Estimate'}</button>
+          <button type="button" class="ai-chip" data-chip="book" data-prompt="${isTa ? 'பணியாளரை புக் செய்வது எப்படி?' : 'How do I book a workman?'}">${isTa ? '📅 புக் செய்வது எப்படி?' : '📅 How to Book?'}</button>
+        `;
+        chipsContainer.querySelectorAll(".ai-chip").forEach((chip) => {
+          chip.onclick = () => {
+            const prompt = chip.dataset.prompt;
+            if (prompt && typeof window._sendAIMessage === "function") {
+              window._sendAIMessage(prompt);
+            }
+          };
+        });
+      }
+    }
+
+    // Update speech recognition language
+    if (window._aiSpeechRecognition) {
+      window._aiSpeechRecognition.lang = lang === "ta" ? "ta-IN" : "en-IN";
+    }
+  }
+
+  function toggleLanguage() {
+    const nextLang = getLanguage() === "ta" ? "en" : "ta";
+    setLanguage(nextLang, onLanguageChange);
+  }
+
+  if (topbarBtn) topbarBtn.addEventListener("click", toggleLanguage);
+  if (sidebarBtn) sidebarBtn.addEventListener("click", toggleLanguage);
+  if (aiLangBtn) aiLangBtn.addEventListener("click", toggleLanguage);
+
+  initLanguage(onLanguageChange);
+}
+
+/* =========================
    START APPLICATION
 ========================= */
 
 async function start() {
   initTheme();
+  initLanguageSystem();
   renderCategories();
   bind();
   try { setupThree(); } catch (e) { console.warn("Three hero:", e); }

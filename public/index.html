@@ -36,10 +36,14 @@
   </a>
 
  <nav id="public-nav">
-    <a href="#services">Services</a>
-    <a href="#how">How it works</a>
-    <button id="login-nav" class="btn btn-quiet">Log in</button>
-    <button id="logout-nav" class="btn btn-quiet hidden">Log out</button>
+    <a href="#services" data-i18n="nav_services">Services</a>
+    <a href="#how" data-i18n="nav_how">How it works</a>
+    <button id="login-nav" class="btn btn-quiet" data-i18n="nav_login">Log in</button>
+    <button id="logout-nav" class="btn btn-quiet hidden" data-i18n="nav_logout">Log out</button>
+    <button id="lang-toggle-btn" class="btn-lang-toggle" type="button" aria-label="Toggle language" title="Switch to Tamil (தமிழ்)">
+      <span class="lang-toggle-icon">🌐</span>
+      <span class="lang-toggle-label">தமிழ்</span>
+    </button>
     <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
       <span class="theme-toggle-icon">🌙</span>
     </button>
@@ -49,62 +53,67 @@
 <!-- DASHBOARD SIDEBAR -->
 <aside id="dashboard-sidebar" class="dashboard-sidebar hidden">
 
-  <p class="eyebrow">LOCALWORK MENU</p>
+  <p class="eyebrow" data-i18n="menu_heading">LOCALWORK MENU</p>
 
   <!-- Common navigation -->
   <button class="sidebar-link" data-nav-view="home-view">
-    🏠 Home
+    <span>🏠</span> <span data-i18n="nav_home">Home</span>
   </button>
 
   <!-- Customer navigation -->
   <div data-nav-role="customer">
-    <p class="sidebar-heading">CUSTOMER</p>
+    <p class="sidebar-heading" data-i18n="customer_heading">CUSTOMER</p>
 
     <button class="sidebar-link" data-nav-view="customer-view">
-      🔍 Search Workmen
+      <span>🔍</span> <span data-i18n="nav_search">Search Workmen</span>
     </button>
 
     <button class="sidebar-link" data-nav-view="application-view">
-      🧰 Become a Workman
+      <span>🧰</span> <span data-i18n="nav_become_workman">Become a Workman</span>
     </button>
   </div>
 
   <!-- Workman navigation -->
   <div data-nav-role="workman">
-    <p class="sidebar-heading">WORKMAN</p>
+    <p class="sidebar-heading" data-i18n="workman_heading">WORKMAN</p>
 
     <button class="sidebar-link" data-nav-view="workman-view">
-      📋 Booking Requests
+      <span>📋</span> <span data-i18n="nav_bookings">Booking Requests</span>
     </button>
 
     <button class="sidebar-link" data-nav-view="customer-view">
-      👥 Customer Dashboard
+      <span>👥</span> <span data-i18n="nav_customer_dashboard">Customer Dashboard</span>
     </button>
   </div>
 
   <!-- Admin navigation -->
   <div data-nav-role="admin">
-    <p class="sidebar-heading">ADMIN</p>
+    <p class="sidebar-heading" data-i18n="admin_heading">ADMIN</p>
 
     <button class="sidebar-link" data-nav-view="admin-view">
-      ⚙️ Admin Dashboard
+      <span>⚙️</span> <span data-i18n="nav_admin_dashboard">Admin Dashboard</span>
     </button>
   </div>
 
   <!-- Account navigation -->
   <div class="sidebar-bottom">
 
+    <button class="sidebar-link lang-sidebar-btn" id="sidebar-lang-toggle" type="button" title="Switch to Tamil (தமிழ்)">
+      <span class="lang-sidebar-icon">🌐</span>
+      <span class="lang-sidebar-label">தமிழ் (Tamil)</span>
+    </button>
+
     <button class="sidebar-link theme-sidebar-btn" id="sidebar-theme-toggle" type="button" title="Toggle dark mode">
       <span class="theme-sidebar-icon">🌙</span>
-      <span class="theme-sidebar-label">Dark Mode</span>
+      <span class="theme-sidebar-label" data-i18n="nav_dark_mode">Dark Mode</span>
     </button>
 
     <button class="sidebar-link" data-nav-action="profile">
-      👤 My Profile
+      <span>👤</span> <span data-i18n="nav_my_profile">My Profile</span>
     </button>
 
     <button class="sidebar-link logout-link" id="sidebar-logout">
-      ↪ Log out
+      <span>↪</span> <span data-i18n="nav_logout">Log out</span>
     </button>
 
   </div>
@@ -117,93 +126,93 @@
 
     <div class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><i></i> LOCAL SKILLS. LOCAL OPPORTUNITIES.</p>
+        <p class="eyebrow"><i></i> <span data-i18n="hero_eyebrow">LOCAL SKILLS. LOCAL OPPORTUNITIES.</span></p>
 
-        <h1>Good work is<br><em>closer than you think.</em></h1>
+        <h1 data-i18n-html="hero_title">Good work is<br><em>closer than you think.</em></h1>
 
-        <p class="lead">
+        <p class="lead" data-i18n="hero_lead">
           Find skilled people in your neighbourhood—or help your skills find their next customer.
         </p>
 
         <div class="actions">
-          <button class="btn btn-primary" data-register="customer">
-            Find a workman <b>→</b>
+          <button class="btn btn-primary" data-register="customer" data-i18n="hero_find_btn">
+            Find a workman →
           </button>
 
-          <button class="btn btn-light" data-register="workman">
+          <button class="btn btn-light" data-register="workman" data-i18n="hero_join_btn">
             Join as a workman
           </button>
         </div>
 
-        <p class="hero-foot">
+        <p class="hero-foot" data-i18n="hero_bridge">
           ✦ A digital bridge between local talent and local needs.
         </p>
       </div>
 
       <div class="visual-card">
         <div class="visual-label">
-          <span>✳</span> YOUR NEIGHBOURHOOD, CONNECTED
+          <span>✳</span> <span data-i18n="home_3d_label">YOUR NEIGHBOURHOOD, CONNECTED</span>
         </div>
 
         <div id="three-hero"
              aria-label="Animated three-dimensional LocalWork illustration"></div>
 
         <div class="visual-caption">
-          <b>One community.</b>
-          <span>Many useful skills.</span>
+          <b data-i18n="home_3d_caption_left">One community.</b>
+          <span data-i18n="home_3d_caption_right">Many useful skills.</span>
         </div>
       </div>
     </div>
 
     <div class="stats-strip">
-      <div><b>01</b><span>Search local skills</span></div>
-      <div><b>02</b><span>Explore profiles</span></div>
-      <div><b>03</b><span>Send a request</span></div>
+      <div><b>01</b><span data-i18n="how_step1_title">Search local skills</span></div>
+      <div><b>02</b><span data-i18n="how_step2_title">Explore profiles</span></div>
+      <div><b>03</b><span data-i18n="how_step3_title">Send a request</span></div>
     </div>
 
     <section id="services" class="section">
       <div class="section-title">
         <div>
-          <p class="eyebrow">WHAT DO YOU NEED?</p>
-          <h2>Help for the jobs on your list.</h2>
+          <p class="eyebrow" data-i18n="services_eyebrow">WHAT DO YOU NEED?</p>
+          <h2 data-i18n="services_heading">Help for the jobs on your list.</h2>
         </div>
 
-        <p>Choose a service and discover local professionals.</p>
+        <p data-i18n="services_subtitle">Choose a service and discover local professionals.</p>
       </div>
 
       <div id="category-list" class="categories"></div>
     </section>
 
     <section id="how" class="section how">
-      <p class="eyebrow">SIMPLE BY DESIGN</p>
-      <h2>Local help, in three steps.</h2>
+      <p class="eyebrow" data-i18n="how_eyebrow">SIMPLE BY DESIGN</p>
+      <h2 data-i18n="how_title">Local help, in three steps.</h2>
 
       <div class="steps">
         <article>
           <b>01</b>
-          <h3>Tell us what you need</h3>
-          <p>Search by service and the area where the work is needed.</p>
+          <h3 data-i18n="how_step1_title">Search local skills</h3>
+          <p data-i18n="how_step1_desc">Browse background-checked professionals by trade and locality in your neighborhood.</p>
         </article>
 
         <article>
           <b>02</b>
-          <h3>Explore workman profiles</h3>
-          <p>Compare skills, experience and availability.</p>
+          <h3 data-i18n="how_step2_title">Explore profiles</h3>
+          <p data-i18n="how_step2_desc">View verified customer reviews, transparent pricing, experience, and real photos.</p>
         </article>
 
         <article>
           <b>03</b>
-          <h3>Send a booking request</h3>
-          <p>Share the job details and follow the request status.</p>
+          <h3 data-i18n="how_step3_title">Send a request</h3>
+          <p data-i18n="how_step3_desc">Pick your preferred date and time. Coordinate directly without middleman markups.</p>
         </article>
       </div>
     </section>
 
     <section class="impact">
       <div>
-        <p class="eyebrow">LOCALWORK'S PURPOSE</p>
-        <h2>More visibility for local skills.</h2>
-        <p>
+        <p class="eyebrow" data-i18n="impact_eyebrow">LOCALWORK'S PURPOSE</p>
+        <h2 data-i18n="impact_title">More visibility for local skills.</h2>
+        <p data-i18n="impact_desc">
           Our project supports the spirit of UN Sustainable Development Goal 8.3
           by improving visibility for local workers and small businesses.
         </p>
@@ -456,14 +465,14 @@
       <div class="customer-hero-text">
         <div class="customer-badge">
           <span class="badge-icon">🌿</span>
-          <span>PREMIUM HOME SERVICES</span>
+          <span data-i18n="customer_badge">PREMIUM HOME SERVICES</span>
         </div>
 
         <h1 id="customer-greeting" class="customer-title">
           Find the right local help.
         </h1>
 
-        <p class="customer-subtitle">
+        <p class="customer-subtitle" data-i18n="customer_subtitle">
           Connect with trusted, background-checked local workmen for repairs, installations, and renovations. Fast, reliable, and right in your neighborhood.
         </p>
 
@@ -471,22 +480,22 @@
           <div class="perk-chip">
             <span class="perk-icon">🛡️</span>
             <div>
-              <strong>Verified Experts</strong>
-              <small>Background-checked</small>
+              <strong data-i18n="customer_perk_verified">Verified Experts</strong>
+              <small data-i18n="customer_perk_verified_sub">Background-checked</small>
             </div>
           </div>
           <div class="perk-chip">
             <span class="perk-icon">⚡</span>
             <div>
-              <strong>Instant Requests</strong>
-              <small>Quick response</small>
+              <strong data-i18n="customer_perk_instant">Instant Requests</strong>
+              <small data-i18n="customer_perk_instant_sub">Quick response</small>
             </div>
           </div>
           <div class="perk-chip">
             <span class="perk-icon">💬</span>
             <div>
-              <strong>Direct Contact</strong>
-              <small>No middlemen</small>
+              <strong data-i18n="customer_perk_direct">Direct Contact</strong>
+              <small data-i18n="customer_perk_direct_sub">No middlemen</small>
             </div>
           </div>
         </div>
@@ -497,12 +506,12 @@
         <div class="customer-3d-card">
           <div class="customer-3d-badge">
             <span class="badge-dot"></span>
-            <span>🛠️ 3D Service Hub</span>
+            <span data-i18n="customer_3d_badge">🛠️ 3D Service Hub</span>
           </div>
           <div id="customer-three-hero" class="customer-three-canvas"></div>
           <div class="customer-3d-caption">
-            <span>Home Repairs & Trade Tools</span>
-            <small>Drag to Rotate 3D</small>
+            <span data-i18n="customer_3d_caption">Home Repairs & Trade Tools</span>
+            <small data-i18n="customer_3d_sub">Drag to Rotate 3D</small>
           </div>
         </div>
       </div>
@@ -512,77 +521,77 @@
     <div class="customer-categories-section">
       <div class="section-title">
         <div>
-          <p class="eyebrow">QUICK EXPLORE</p>
-          <h2>Popular Home Services</h2>
+          <p class="eyebrow" data-i18n="customer_quick_explore">QUICK EXPLORE</p>
+          <h2 data-i18n="customer_popular_services">Popular Home Services</h2>
         </div>
-        <p class="section-hint">Click a category to filter workmen instantly</p>
+        <p class="section-hint" data-i18n="services_filter_hint">Click a category to filter workmen instantly</p>
       </div>
 
       <div class="customer-categories-grid">
         <button class="customer-category-card" data-category="Electric">
           <div class="cat-icon-wrap cat-electrical">⚡</div>
-          <strong>Electrician</strong>
-          <small>Wiring, fixtures, repairs</small>
+          <strong data-i18n="trade_electrician">Electrician</strong>
+          <small data-i18n="cat_electric_desc">Wiring, fixtures, repairs</small>
         </button>
 
         <button class="customer-category-card" data-category="Plumb">
           <div class="cat-icon-wrap cat-plumbing">🔧</div>
-          <strong>Plumber</strong>
-          <small>Pipes, leaks, fittings</small>
+          <strong data-i18n="trade_plumber">Plumber</strong>
+          <small data-i18n="cat_plumb_desc">Pipes, leaks, fittings</small>
         </button>
 
         <button class="customer-category-card" data-category="Carpent">
           <div class="cat-icon-wrap cat-carpentry">🪚</div>
-          <strong>Carpenter</strong>
-          <small>Furniture, woodwork, doors</small>
+          <strong data-i18n="trade_carpenter">Carpenter</strong>
+          <small data-i18n="cat_carpent_desc">Furniture, woodwork, doors</small>
         </button>
 
         <button class="customer-category-card" data-category="Paint">
           <div class="cat-icon-wrap cat-painting">🎨</div>
-          <strong>Painter</strong>
-          <small>Interior, exterior, polish</small>
+          <strong data-i18n="trade_painter">Painter</strong>
+          <small data-i18n="cat_paint_desc">Interior, exterior, polish</small>
         </button>
 
         <button class="customer-category-card" data-category="Mechanic">
           <div class="cat-icon-wrap cat-mechanic">🛠️</div>
-          <strong>Mechanic</strong>
-          <small>Vehicle, engine & brake repair</small>
+          <strong data-i18n="trade_mechanic">Mechanic</strong>
+          <small data-i18n="cat_mechanic_desc">Vehicle, engine & brake repair</small>
         </button>
 
         <button class="customer-category-card" data-category="Clean">
           <div class="cat-icon-wrap cat-cleaning">🧹</div>
-          <strong>Cleaning</strong>
-          <small>Deep clean, sanitisation</small>
+          <strong data-i18n="trade_cleaning">Cleaning</strong>
+          <small data-i18n="cat_clean_desc">Deep clean, sanitisation</small>
         </button>
 
         <button class="customer-category-card" data-category="Construct">
           <div class="cat-icon-wrap cat-construction">🧱</div>
-          <strong>Construction</strong>
-          <small>Civil, masonry & remodeling</small>
+          <strong data-i18n="trade_construction">Construction</strong>
+          <small data-i18n="cat_construct_desc">Civil, masonry & remodeling</small>
         </button>
 
         <button class="customer-category-card" data-category="Other">
           <div class="cat-icon-wrap cat-other">🧰</div>
-          <strong>Other Services</strong>
-          <small>Handyman, CCTV & multi-trade</small>
+          <strong data-i18n="trade_other">Other Services</strong>
+          <small data-i18n="cat_other_desc">Handyman, CCTV & multi-trade</small>
         </button>
 
         <button class="customer-category-card" data-category="AC">
           <div class="cat-icon-wrap cat-appliance">❄️</div>
-          <strong>AC Repair</strong>
-          <small>Cooling, service, gas refilling</small>
+          <strong data-i18n="trade_ac_repair">AC Repair</strong>
+          <small data-i18n="cat_ac_desc">Cooling, service, gas refilling</small>
         </button>
 
         <button class="customer-category-card" data-category="Mason">
           <div class="cat-icon-wrap cat-masonry">🏗️</div>
-          <strong>Masonry & Tiling</strong>
-          <small>Tiling, brickwork, plaster</small>
+          <strong data-i18n="trade_masonry_tiling">Masonry & Tiling</strong>
+          <small data-i18n="cat_mason_desc">Tiling, brickwork, plaster</small>
         </button>
 
         <button class="customer-category-card" data-category="Garden">
           <div class="cat-icon-wrap cat-gardening">🌿</div>
-          <strong>Gardening</strong>
-          <small>Lawn care, maintenance</small>
+          <strong data-i18n="trade_gardening">Gardening</strong>
+          <small data-i18n="cat_garden_desc">Lawn care, maintenance</small>
         </button>
       </div>
     </div>
@@ -593,6 +602,7 @@
         <div class="search-input-field">
           <span class="search-icon">🔍</span>
           <input id="filter-service"
+                 data-i18n-placeholder="customer_search_placeholder_service"
                  placeholder="Search by trade (e.g. Electrician, Plumber)..."
                  autocomplete="off">
         </div>
@@ -600,12 +610,13 @@
         <div class="search-input-field">
           <span class="search-icon">📍</span>
           <input id="filter-location"
+                 data-i18n-placeholder="customer_search_placeholder_loc"
                  placeholder="Area or neighbourhood (e.g. Central)..."
                  autocomplete="off">
         </div>
 
         <button id="search-workmen" class="btn btn-primary customer-search-btn">
-          <span>Search Workmen</span>
+          <span data-i18n="customer_search_btn">Search Workmen</span>
           <span class="btn-arrow">→</span>
         </button>
       </div>
@@ -615,8 +626,8 @@
     <section class="section customer-workmen-section">
       <div class="section-title">
         <div>
-          <p class="eyebrow">VERIFIED TALENT</p>
-          <h2>Workmen Available in Your Area</h2>
+          <p class="eyebrow" data-i18n="customer_verified_talent">VERIFIED TALENT</p>
+          <h2 data-i18n="customer_workmen_available">Workmen Available in Your Area</h2>
         </div>
         <span id="workmen-count" class="customer-count-badge"></span>
       </div>
@@ -632,11 +643,11 @@
         <div class="panel-header">
           <div class="panel-header-icon">📋</div>
           <div>
-            <p class="eyebrow">APPOINTMENTS</p>
-            <h2>Your Booking Requests</h2>
+            <p class="eyebrow" data-i18n="customer_appointments">APPOINTMENTS</p>
+            <h2 data-i18n="customer_your_bookings">Your Booking Requests</h2>
           </div>
         </div>
-        <p class="panel-desc">Track status and dates of your requested home services.</p>
+        <p class="panel-desc" data-i18n="customer_track_status">Track status and dates of your requested home services.</p>
 
         <div id="customer-bookings" class="booking-list customer-booking-list"></div>
       </section>
@@ -646,21 +657,21 @@
         <div class="panel-header">
           <div class="panel-header-icon">🧰</div>
           <div>
-            <p class="eyebrow">OPPORTUNITY</p>
-            <h2>Join as a Workman</h2>
+            <p class="eyebrow" data-i18n="customer_opportunity">OPPORTUNITY</p>
+            <h2 data-i18n="customer_join_workman">Join as a Workman</h2>
           </div>
         </div>
 
         <div class="application-callout-box">
-          <p id="workman-application-status" class="application-status-text">
+          <p id="workman-application-status" class="application-status-text" data-i18n="customer_app_status_not_applied">
             You have not applied to become a workman yet.
           </p>
 
-          <p class="application-perks-text">
+          <p class="application-perks-text" data-i18n="customer_app_perks">
             Are you a skilled plumber, electrician, carpenter, or painter? Start receiving job requests from nearby homeowners today.
           </p>
 
-          <button id="customer-workman-action" class="btn btn-primary btn-customer-action">
+          <button id="customer-workman-action" class="btn btn-primary btn-customer-action" data-i18n="customer_become_workman_btn">
             Become a Workman →
           </button>
         </div>
@@ -676,11 +687,11 @@
 
     <div class="page-head">
 
-      <p class="eyebrow">BECOME A WORKMAN</p>
+      <p class="eyebrow" data-i18n="apply_page_eyebrow">BECOME A WORKMAN</p>
 
-      <h1>Showcase your skills.</h1>
+      <h1 data-i18n="apply_page_title">Showcase your skills.</h1>
 
-      <p class="muted">
+      <p class="muted" data-i18n="apply_page_muted">
         Submit your details. Our admin will review your application
         before your profile becomes public.
       </p>
@@ -691,63 +702,66 @@
 
       <section class="surface">
 
-        <p class="eyebrow">WORKMAN APPLICATION</p>
+        <p class="eyebrow" data-i18n="apply_section_eyebrow">WORKMAN APPLICATION</p>
 
-        <h2>Your professional details</h2>
+        <h2 data-i18n="apply_section_title">Your professional details</h2>
 
         <form id="profile-form">
 
           <label>
-            Full name
+            <span data-i18n="apply_name_label">Full name</span>
             <input id="profile-name"
                    required
                    maxlength="80"
+                   data-i18n-placeholder="apply_name_placeholder"
                    placeholder="Your full name">
           </label>
 
           <label>
-            Phone
+            <span data-i18n="apply_phone_label">Phone</span>
             <input id="profile-phone"
                    type="tel"
                    required
                    minlength="8"
                    maxlength="18"
+                   data-i18n-placeholder="apply_phone_placeholder"
                    placeholder="+91 98765 43210 (10-digit mobile)">
-            <span class="form-hint" style="display:block; font-size:0.8rem; color:#5b7065; margin-top:3px; font-weight:normal;">Your active mobile number for customers and bookings.</span>
+            <span class="form-hint" data-i18n="apply_phone_hint" style="display:block; font-size:0.8rem; color:#5b7065; margin-top:3px; font-weight:normal;">Your active mobile number for customers and bookings.</span>
           </label>
 
           <label>
-            Location
+            <span data-i18n="apply_location_label">Location</span>
             <input id="profile-location"
                    required
                    maxlength="120"
+                   data-i18n-placeholder="apply_location_placeholder"
                    placeholder="e.g. Coimbatore, Tamil Nadu">
-            <span class="form-hint" style="display:block; font-size:0.8rem; color:#5b7065; margin-top:3px; font-weight:normal;">Area or city where you offer your services.</span>
+            <span class="form-hint" data-i18n="apply_location_hint" style="display:block; font-size:0.8rem; color:#5b7065; margin-top:3px; font-weight:normal;">Area or city where you offer your services.</span>
           </label>
 
           <label>
-            Service
+            <span data-i18n="apply_service_label">Service</span>
             <select id="profile-service" required>
-              <option>Electrician</option>
-              <option>Plumber</option>
-              <option>Carpenter</option>
-              <option>Painter</option>
-              <option>Mechanic</option>
-              <option>Cleaning</option>
-              <option>Construction</option>
-              <option>AC Repair</option>
-              <option>Appliance Repair</option>
-              <option>Gardening</option>
-              <option>Pest Control</option>
-              <option>Welding</option>
-              <option>Masonry & Tiling</option>
-              <option>Waterproofing</option>
-              <option>Other</option>
+              <option value="Electrician" data-i18n="trade_electrician">Electrician</option>
+              <option value="Plumber" data-i18n="trade_plumber">Plumber</option>
+              <option value="Carpenter" data-i18n="trade_carpenter">Carpenter</option>
+              <option value="Painter" data-i18n="trade_painter">Painter</option>
+              <option value="Mechanic" data-i18n="trade_mechanic">Mechanic</option>
+              <option value="Cleaning" data-i18n="trade_cleaning">Cleaning</option>
+              <option value="Construction" data-i18n="trade_construction">Construction</option>
+              <option value="AC Repair" data-i18n="trade_ac_repair">AC Repair</option>
+              <option value="Appliance Repair" data-i18n="trade_appliance_repair">Appliance Repair</option>
+              <option value="Gardening" data-i18n="trade_gardening">Gardening</option>
+              <option value="Pest Control" data-i18n="trade_pest_control">Pest Control</option>
+              <option value="Welding" data-i18n="trade_welding">Welding</option>
+              <option value="Masonry & Tiling" data-i18n="trade_masonry_tiling">Masonry & Tiling</option>
+              <option value="Waterproofing" data-i18n="trade_waterproofing">Waterproofing</option>
+              <option value="Other" data-i18n="trade_other">Other</option>
             </select>
           </label>
 
           <label>
-            Experience (years)
+            <span data-i18n="apply_experience_label">Experience (years)</span>
             <input id="profile-experience"
                    type="number"
                    min="0"
@@ -756,15 +770,15 @@
           </label>
 
           <label>
-            Availability
+            <span data-i18n="apply_availability_label">Availability</span>
             <select id="profile-availability" required>
-              <option>Available</option>
-              <option>Busy</option>
+              <option value="Available" data-i18n="customer_avail">Available</option>
+              <option value="Busy" data-i18n="customer_busy">Busy</option>
             </select>
           </label>
 
           <label>
-            Skills description
+            <span data-i18n="apply_description_label">Skills description</span>
             <textarea id="profile-description"
                       rows="4"
                       required
@@ -775,7 +789,7 @@
                class="error hidden"
                role="alert"></div>
 
-          <button class="btn btn-primary full" type="submit">
+          <button class="btn btn-primary full" type="submit" data-i18n="apply_submit_btn">
             Submit Application
           </button>
 
@@ -783,7 +797,8 @@
 
         <button class="btn btn-light full"
                 type="button"
-                data-home>
+                data-home
+                data-i18n="apply_back_home">
           Back to home
         </button>
 
@@ -791,25 +806,25 @@
 
       <section class="surface">
 
-        <p class="eyebrow">APPLICATION PROCESS</p>
+        <p class="eyebrow" data-i18n="apply_what_next_eyebrow">APPLICATION PROCESS</p>
 
-        <h2>What happens next?</h2>
+        <h2 data-i18n="apply_what_next_title">What happens next?</h2>
 
         <div class="booking-list">
 
           <div class="booking-item">
-            <b>01 · Submit your application</b>
-            <p>Enter your professional details and submit them.</p>
+            <b data-i18n="apply_step1_title">01 · Submit your application</b>
+            <p data-i18n="apply_step1_desc">Enter your professional details and submit them.</p>
           </div>
 
           <div class="booking-item">
-            <b>02 · Admin review</b>
-            <p>Our admin checks your application.</p>
+            <b data-i18n="apply_step2_title">02 · Admin review</b>
+            <p data-i18n="apply_step2_desc">Our admin checks your application.</p>
           </div>
 
           <div class="booking-item">
-            <b>03 · Approval</b>
-            <p>After approval, your workman profile becomes visible to customers.</p>
+            <b data-i18n="apply_step3_title">03 · Approval</b>
+            <p data-i18n="apply_step3_desc">After approval, your workman profile becomes visible to customers.</p>
           </div>
 
         </div>
@@ -830,12 +845,12 @@
         <div class="workman-badge-row">
           <span class="workman-pro-badge">
             <span class="badge-icon">⚡</span>
-            <span>VERIFIED PROFESSIONAL</span>
+            <span data-i18n="workman_badge_pro">VERIFIED PROFESSIONAL</span>
           </span>
           <button id="workman-avail-toggle-btn" class="workman-avail-toggle-btn status-online" type="button" title="Click to toggle availability">
             <span class="avail-dot"></span>
             <span id="workman-trade-availability">Available</span>
-            <span class="avail-switch-label">⇄ Switch</span>
+            <span class="avail-switch-label" data-i18n="workman_switch_avail">⇄ Switch</span>
           </button>
         </div>
 
@@ -843,22 +858,22 @@
           Your Pro Work Hub
         </h1>
 
-        <p class="workman-subtitle">
+        <p class="workman-subtitle" data-i18n="workman_subtitle">
           Manage your incoming job requests, coordinate with local customers, and keep your trade schedule organized.
         </p>
 
         <!-- WORKMAN PROFILE STRIP -->
         <div class="workman-profile-strip">
           <div class="workman-pill">
-            <span class="pill-label">Trade</span>
+            <span class="pill-label" data-i18n="workman_pill_trade">Trade</span>
             <strong id="workman-trade-name">Tradesperson</strong>
           </div>
           <div class="workman-pill">
-            <span class="pill-label">Service Area</span>
+            <span class="pill-label" data-i18n="workman_pill_location">Service Area</span>
             <strong id="workman-trade-location">Local Area</strong>
           </div>
           <div class="workman-pill">
-            <span class="pill-label">Experience</span>
+            <span class="pill-label" data-i18n="workman_pill_experience">Experience</span>
             <strong id="workman-trade-experience">Professional</strong>
           </div>
         </div>
@@ -869,12 +884,12 @@
         <div class="workman-3d-card">
           <div class="workman-3d-badge">
             <span class="workman-dot"></span>
-            <span>Pro Toolkit 3D Studio</span>
+            <span data-i18n="workman_3d_badge">Pro Toolkit 3D Studio</span>
           </div>
           <div id="workman-three-hero" class="workman-three-canvas"></div>
           <div class="workman-3d-caption">
-            <span>LocalWork Pro Hardware</span>
-            <small>Active 3D Render</small>
+            <span data-i18n="workman_3d_caption">LocalWork Pro Hardware</span>
+            <small data-i18n="workman_3d_sub">Active 3D Render</small>
           </div>
         </div>
       </div>
@@ -886,7 +901,7 @@
         <div class="stat-icon-wrap stat-total">📋</div>
         <div class="stat-body">
           <strong id="workman-stat-total">0</strong>
-          <span>Total Requests</span>
+          <span data-i18n="workman_stat_total">Total Requests</span>
         </div>
       </div>
 
@@ -894,7 +909,7 @@
         <div class="stat-icon-wrap stat-pending">⏳</div>
         <div class="stat-body">
           <strong id="workman-stat-pending">0</strong>
-          <span>Pending Action</span>
+          <span data-i18n="workman_stat_pending">Pending Action</span>
         </div>
       </div>
 
@@ -902,7 +917,7 @@
         <div class="stat-icon-wrap stat-active">🛠️</div>
         <div class="stat-body">
           <strong id="workman-stat-active">0</strong>
-          <span>Active Jobs</span>
+          <span data-i18n="workman_stat_active">Active Jobs</span>
         </div>
       </div>
 
@@ -910,7 +925,7 @@
         <div class="stat-icon-wrap stat-completed">✅</div>
         <div class="stat-body">
           <strong id="workman-stat-completed">0</strong>
-          <span>Completed</span>
+          <span data-i18n="workman_stat_completed">Completed</span>
         </div>
       </div>
     </div>
@@ -919,12 +934,11 @@
     <section class="workman-jobs-section">
       <div class="workman-section-header">
         <div>
-          <p class="workman-eyebrow">ACTIVE INBOX</p>
-          <h2>Customer Booking Requests</h2>
+          <p class="workman-eyebrow" data-i18n="workman_active_inbox">ACTIVE INBOX</p>
+          <h2 data-i18n="workman_jobs_title">Customer Booking Requests</h2>
         </div>
         <button id="workman-customer-action" class="btn btn-workman-secondary">
-          <span>Explore Customer Marketplace</span>
-          <span>→</span>
+          <span data-i18n="workman_explore_btn">Explore Customer Marketplace →</span>
         </button>
       </div>
 
@@ -1001,46 +1015,46 @@
   <section id="account-view" class="view hidden">
 
     <div class="page-head">
-      <p class="eyebrow">ACCOUNT SETTINGS</p>
-      <h1>My Profile</h1>
-      <p class="muted">View and update your personal information.</p>
+      <p class="eyebrow" data-i18n="account_eyebrow">ACCOUNT SETTINGS</p>
+      <h1 data-i18n="account_title">My Profile</h1>
+      <p class="muted" data-i18n="account_muted">View and update your personal information.</p>
     </div>
 
     <div class="card">
       <form id="account-profile-form">
 
         <div class="form-group">
-          <label for="account-name">Full Name</label>
+          <label for="account-name" data-i18n="account_name_label">Full Name</label>
           <input type="text" id="account-name" required
                  minlength="2" maxlength="80" placeholder="Your full name">
         </div>
 
         <div class="form-group">
-          <label for="account-email">Email Address</label>
+          <label for="account-email" data-i18n="account_email_label">Email Address</label>
           <input type="email" id="account-email" readonly>
         </div>
 
         <div class="form-group">
-          <label for="account-phone">Phone Number</label>
+          <label for="account-phone" data-i18n="account_phone_label">Phone Number</label>
           <input type="tel" id="account-phone" required
                  minlength="8" maxlength="18" placeholder="+91 98765 43210">
-          <small class="text-muted" style="font-size:0.8rem; color:#5b7065; display:block; margin-top:3px;">Your primary phone for booking confirmations and updates.</small>
+          <small class="text-muted" data-i18n="account_phone_hint" style="font-size:0.8rem; color:#5b7065; display:block; margin-top:3px;">Your primary phone for booking confirmations and updates.</small>
         </div>
 
         <div class="form-group">
-          <label for="account-location">Location</label>
+          <label for="account-location" data-i18n="account_location_label">Location</label>
           <input type="text" id="account-location" required
                  minlength="2" maxlength="120" placeholder="e.g. Coimbatore, Tamil Nadu">
         </div>
 
         <div class="form-group">
-          <label>Account Role</label>
+          <label data-i18n="account_role_label">Account Role</label>
           <input type="text" id="account-role" readonly>
         </div>
 
         <p id="account-profile-error" class="error hidden"></p>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" data-i18n="account_save_btn">
           Save Changes
         </button>
 
@@ -1066,70 +1080,74 @@
       ×
     </button>
 
-    <p class="eyebrow">LET'S GET THE JOB STARTED</p>
+    <p class="eyebrow" data-i18n="booking_eyebrow">LET'S GET THE JOB STARTED</p>
 
-    <h2 id="booking-title">Request a booking</h2>
+    <h2 id="booking-title" data-i18n="booking_modal_title">Request a booking</h2>
 
     <p id="booking-person" class="muted"></p>
 
     <form id="booking-form">
 
       <label>
-        Your name
+        <span data-i18n="booking_name_label">Your name</span>
         <input id="booking-name"
                required
                maxlength="80"
+               data-i18n-placeholder="booking_name_placeholder"
                placeholder="Your full name">
       </label>
 
       <label>
-        Phone
+        <span data-i18n="booking_phone_label">Phone</span>
         <input id="booking-phone"
                type="tel"
                required
                minlength="8"
                maxlength="18"
+               data-i18n-placeholder="booking_phone_placeholder"
                placeholder="+91 98765 43210 (required for workman to call you)">
       </label>
 
       <label>
-        Service address / area
+        <span data-i18n="booking_address_label">Service address / area</span>
         <input id="booking-address"
                required
                maxlength="200"
+               data-i18n-placeholder="booking_address_placeholder"
                placeholder="Flat / house number, street, landmark, area">
       </label>
 
       <div class="two">
 
         <label>
-          Preferred date
+          <span data-i18n="booking_date_label">Preferred date</span>
           <input id="booking-date"
                  type="date"
                  required>
         </label>
 
         <label>
-          Preferred time
+          <span data-i18n="booking_time_label">Preferred time</span>
           <select id="booking-time">
-            <option>Morning (9 AM–12 PM)</option>
-            <option>Afternoon (12 PM–4 PM)</option>
-            <option>Evening (4 PM–7 PM)</option>
+            <option value="Morning (9 AM–12 PM)" data-i18n="booking_time_morning">Morning (9 AM–12 PM)</option>
+            <option value="Afternoon (12 PM–4 PM)" data-i18n="booking_time_afternoon">Afternoon (12 PM–4 PM)</option>
+            <option value="Evening (4 PM–7 PM)" data-i18n="booking_time_evening">Evening (4 PM–7 PM)</option>
           </select>
         </label>
 
       </div>
 
       <label>
-        Describe the job
+        <span data-i18n="booking_notes_label">Describe the job</span>
         <textarea id="booking-notes"
                   rows="3"
+                  data-i18n-placeholder="booking_notes_placeholder"
                   maxlength="1000"></textarea>
       </label>
 
       <div id="booking-error" class="error hidden"></div>
 
-      <button class="btn btn-primary full" type="submit">
+      <button class="btn btn-primary full" type="submit" data-i18n="booking_submit_btn">
         Send booking request
       </button>
 
@@ -1262,7 +1280,7 @@
 <div id="ai-fab-container">
   <button id="ai-assistant-fab" class="ai-fab" type="button" aria-label="Open LocalWork AI Assistant">
     <span class="ai-fab-icon">🤖</span>
-    <span class="ai-fab-label">Ask AI</span>
+    <span class="ai-fab-label" data-i18n="ai_fab_label">Ask AI</span>
     <span class="ai-fab-status"></span>
   </button>
 </div>
@@ -1273,45 +1291,46 @@
     <div class="ai-header-left">
       <div class="ai-avatar-circle">🤖</div>
       <div>
-        <h3 id="ai-chat-header-title">LocalWork AI</h3>
-        <p class="ai-header-subtitle">● Online · 24/7 Smart Trade Helper</p>
+        <h3 id="ai-chat-header-title" data-i18n="ai_header_title">LocalWork AI</h3>
+        <p class="ai-header-subtitle" data-i18n="ai_header_subtitle">● Online · 24/7 Smart Trade Helper</p>
       </div>
     </div>
     <div class="ai-header-actions">
+      <button id="ai-lang-btn" class="ai-head-btn ai-lang-pill" type="button" title="Switch to Tamil (தமிழ்)">🌐 தமிழ்</button>
       <button id="ai-clear-btn" class="ai-head-btn" type="button" title="Clear chat">🗑️</button>
       <button id="ai-close-btn" class="ai-head-btn" type="button" title="Close chat">✕</button>
     </div>
   </div>
 
   <div class="ai-quick-topics" id="ai-quick-topics">
-    <button type="button" class="ai-topic-btn" data-prompt="🚨 Emergency! I have an urgent issue!">🚨 Emergency</button>
-    <button type="button" class="ai-topic-btn" data-prompt="💰 What are the typical rates and pricing for home services?">💰 Pricing Guide</button>
-    <button type="button" class="ai-topic-btn" data-prompt="🔍 Help me diagnose a home repair problem">🔍 Diagnosis</button>
-    <button type="button" class="ai-topic-btn" data-prompt="👨‍🔧 Find available verified workmen near me">👨‍🔧 Find Workman</button>
+    <button type="button" class="ai-topic-btn" data-topic="emergency" data-prompt="🚨 Emergency! I have an urgent issue!" data-i18n="ai_quick_emergency">🚨 Emergency</button>
+    <button type="button" class="ai-topic-btn" data-topic="pricing" data-prompt="💰 What are the typical rates and pricing for home services?" data-i18n="ai_quick_pricing">💰 Pricing Guide</button>
+    <button type="button" class="ai-topic-btn" data-topic="diagnosis" data-prompt="🔍 Help me diagnose a home repair problem" data-i18n="ai_quick_diagnosis">🔍 Diagnosis</button>
+    <button type="button" class="ai-topic-btn" data-topic="workmen" data-prompt="👨‍🔧 Find available verified workmen near me" data-i18n="ai_quick_workmen">👨‍🔧 Find Workman</button>
   </div>
 
   <div id="ai-chat-messages" class="ai-chat-body">
     <!-- Initial welcome message -->
-    <div class="ai-msg ai-msg-bot">
+    <div id="ai-welcome-box" class="ai-msg ai-msg-bot">
       <div class="ai-bubble">
-        <p>👋 <strong>Hello! I am your LocalWork AI Assistant.</strong></p>
-        <p>I can help you:</p>
+        <p>👋 <strong data-i18n="ai_greeting_title">Hello! I am your LocalWork AI Assistant.</strong></p>
+        <p data-i18n="ai_greeting_lead">I can help you:</p>
         <ul>
-          <li>🔍 <strong>Find the right professional</strong> for any repair</li>
-          <li>💰 <strong>Get estimated prices</strong> in ₹ INR</li>
-          <li>⚡ <strong>Emergency safety tips</strong> for power or water issues</li>
+          <li data-i18n="ai_greeting_p1">🔍 Find the right professional for any repair</li>
+          <li data-i18n="ai_greeting_p2">💰 Get estimated prices in ₹ INR</li>
+          <li data-i18n="ai_greeting_p3">⚡ Emergency safety tips for power or water issues</li>
         </ul>
-        <p><em>What home problem or service do you need help with?</em></p>
+        <p><em data-i18n="ai_greeting_ask">What home problem or service do you need help with?</em></p>
       </div>
     </div>
 
     <!-- Quick prompt suggestion chips -->
     <div class="ai-prompt-chips" id="ai-prompt-chips">
-      <button type="button" class="ai-chip" data-prompt="My circuit breaker MCB keeps tripping">⚡ MCB Tripping</button>
-      <button type="button" class="ai-chip" data-prompt="How much does fixing a leaking pipe or tap cost?">🔧 Leak Repair Cost</button>
-      <button type="button" class="ai-chip" data-prompt="How much for full house deep cleaning?">🧹 Cleaning Price</button>
-      <button type="button" class="ai-chip" data-prompt="My AC is not cooling properly">❄️ AC Not Cooling</button>
-      <button type="button" class="ai-chip" data-prompt="How do I book a workman?">📅 How to Book?</button>
+      <button type="button" class="ai-chip" data-chip="mcb" data-prompt="My circuit breaker MCB keeps tripping" data-i18n="ai_chip_mcb">⚡ MCB Tripping</button>
+      <button type="button" class="ai-chip" data-chip="leak" data-prompt="How much does fixing a leaking pipe or tap cost?" data-i18n="ai_chip_leak">🔧 Leak Repair Cost</button>
+      <button type="button" class="ai-chip" data-chip="ac" data-prompt="My AC is not cooling properly" data-i18n="ai_chip_ac">❄️ AC Not Cooling</button>
+      <button type="button" class="ai-chip" data-chip="paint" data-prompt="How much for 2BHK house painting in Tamil Nadu?" data-i18n="ai_chip_paint">🎨 Painting Estimate</button>
+      <button type="button" class="ai-chip" data-chip="book" data-prompt="How do I book a workman?" data-i18n="ai_chip_book">📅 How to Book?</button>
     </div>
   </div>
 
@@ -1321,6 +1340,7 @@
     </button>
     <input id="ai-chat-input"
            type="text"
+           data-i18n-placeholder="ai_input_placeholder"
            placeholder="Ask a question (e.g. 'My sink is leaking')..."
            maxlength="400"
            autocomplete="off"
