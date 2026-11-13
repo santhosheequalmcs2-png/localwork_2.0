@@ -230,13 +230,13 @@
     <div class="auth-grid">
 
       <aside class="auth-aside">
-        <button class="back" data-home>← Back to home</button>
+        <button class="back" data-home data-i18n="auth_back_home">← Back to home</button>
 
-        <p class="eyebrow">WELCOME TO LOCALWORK</p>
+        <p class="eyebrow" data-i18n="auth_eyebrow">WELCOME TO LOCALWORK</p>
 
-        <h1>Local talent.<br><em>Real possibility.</em></h1>
+        <h1 data-i18n-html="auth_title">Local talent.<br><em>Real possibility.</em></h1>
 
-        <p>One account to find work or share your skills.</p>
+        <p data-i18n="auth_lead">One account to find work or share your skills.</p>
 
         <div class="tool-icons">🧰　🏠　🔨</div>
       </aside>
@@ -244,8 +244,8 @@
       <div class="auth-box">
 
         <div class="tabs">
-          <button id="register-tab" class="active">Create account</button>
-          <button id="login-tab">Log in</button>
+          <button id="register-tab" class="active" data-i18n="auth_tab_register">Create account</button>
+          <button id="login-tab" data-i18n="auth_tab_login">Log in</button>
         </div>
 
         <!-- Kept for compatibility with the existing JavaScript.
@@ -258,7 +258,7 @@
             ← Back
           </button>
 
-          <h2 id="auth-heading">Create account</h2>
+          <h2 id="auth-heading" data-i18n="auth_tab_register">Create account</h2>
 
           <div id="auth-error" class="error hidden" role="alert"></div>
 
@@ -272,19 +272,19 @@
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              <span id="google-btn-text">Sign in with Google</span>
+              <span id="google-btn-text" data-i18n="auth_google_btn">Sign in with Google</span>
             </button>
           </div>
 
           <div class="oauth-divider">
-            <span>or with email</span>
+            <span data-i18n="auth_divider">or with email</span>
           </div>
 
           <!-- REGISTRATION DETAILS -->
           <div id="signup-fields">
 
             <label>
-              Full name
+              <span data-i18n="auth_name_label">Full name</span>
               <input id="name"
                      maxlength="80"
                      autocomplete="name"
@@ -294,7 +294,7 @@
             <div class="two">
 
               <label>
-                Email
+                <span data-i18n="auth_email_label">Email</span>
                 <input id="email"
                        type="email"
                        maxlength="254"
@@ -303,7 +303,7 @@
               </label>
 
               <label>
-                Phone
+                <span data-i18n="auth_phone_label">Phone</span>
                 <input id="phone"
                        type="tel"
                        maxlength="18"
@@ -314,9 +314,10 @@
             </div>
 
             <label>
-              Location / area
+              <span data-i18n="auth_location_label">Location / area</span>
               <input id="location"
                      maxlength="120"
+                     data-i18n-placeholder="auth_location_placeholder"
                      placeholder="e.g. Anna Nagar, Chennai"
                      required>
             </label>
@@ -330,21 +331,21 @@
           <div id="signin-fields" class="hidden">
 
             <label>
-              Email
+              <span data-i18n="auth_email_label">Email</span>
               <input id="login-email"
                      type="email"
                      autocomplete="username"
                      required>
-                        </label>
+            </label>
 
-            <button type="button" id="forgot-password-btn">
+            <button type="button" id="forgot-password-btn" data-i18n="auth_forgot_btn">
               Forgot Password?
             </button>
 
           </div>
 
           <label>
-            Password
+            <span data-i18n="auth_password_label">Password</span>
             <input id="password"
                    type="password"
                    minlength="10"
@@ -354,7 +355,7 @@
           </label>
 
           <label id="confirm-wrap">
-            Confirm password
+            <span data-i18n="auth_confirm_password_label">Confirm password</span>
             <input id="confirm-password"
                    type="password"
                    minlength="10"
@@ -364,11 +365,12 @@
 
           <button class="btn btn-primary full"
                   id="auth-submit"
-                  type="submit">
+                  type="submit"
+                  data-i18n="auth_tab_register">
             Create account
           </button>
 
-          <p class="fine">
+          <p class="fine" data-i18n="auth_password_hint">
             Passwords are securely hashed on the server.
             Never reuse a password from another account.
           </p>
@@ -378,23 +380,23 @@
       </div>
     </div>
 
-   </section>
+  </section>
 
 
   <!-- FORGOT PASSWORD PAGE -->
   <section id="forgot-password-view" class="view hidden">
     <div class="auth-grid">
       <div class="auth-box">
-        <button type="button" class="back" id="forgot-back">
+        <button type="button" class="back" id="forgot-back" data-i18n="forgot_back">
           ← Back to Login
         </button>
 
-        <h2>Forgot Password?</h2>
-        <p>Enter your registered email address. We'll send you a password reset link.</p>
+        <h2 data-i18n="forgot_title">Forgot Password?</h2>
+        <p data-i18n="forgot_desc">Enter your registered email address. We'll send you a password reset link.</p>
 
         <form id="forgot-password-form">
           <label>
-            Email
+            <span data-i18n="auth_email_label">Email</span>
             <input
               id="forgot-email"
               type="email"
@@ -403,7 +405,7 @@
               required>
           </label>
 
-          <button class="btn btn-primary full" type="submit">
+          <button class="btn btn-primary full" type="submit" data-i18n="forgot_submit_btn">
             Send Reset Link
           </button>
 
@@ -419,12 +421,12 @@
   <section id="reset-password-view" class="view hidden">
     <div class="auth-grid">
       <div class="auth-box">
-        <h2>Reset Your Password</h2>
-        <p>Choose a new password for your LocalWork account.</p>
+        <h2 data-i18n="reset_title">Reset Your Password</h2>
+        <p data-i18n="reset_desc">Choose a new password for your LocalWork account.</p>
 
         <form id="reset-password-form">
           <label>
-            New Password
+            <span data-i18n="reset_new_password_label">New Password</span>
             <input
               id="reset-new-password"
               type="password"
@@ -435,7 +437,7 @@
           </label>
 
           <label>
-            Confirm New Password
+            <span data-i18n="reset_confirm_password_label">Confirm New Password</span>
             <input
               id="reset-confirm-password"
               type="password"
@@ -445,7 +447,7 @@
               required>
           </label>
 
-          <button class="btn btn-primary full" type="submit">
+          <button class="btn btn-primary full" type="submit" data-i18n="reset_submit_btn">
             Reset Password
           </button>
 

@@ -193,6 +193,10 @@ export const translations = {
     auth_lead: "One account to find work or share your skills.",
     auth_tab_register: "Create account",
     auth_tab_login: "Log in",
+    auth_welcome_back: "Welcome back",
+    auth_create_account_heading: "Create your account",
+    auth_google_btn_login: "Sign in with Google",
+    auth_google_btn_signup: "Sign up with Google",
     auth_google_btn: "Sign in with Google",
     auth_divider: "or with email",
     auth_name_label: "Full name",
@@ -203,6 +207,18 @@ export const translations = {
     auth_forgot_btn: "Forgot Password?",
     auth_password_label: "Password",
     auth_confirm_password_label: "Confirm password",
+    auth_password_hint: "Passwords are securely hashed on the server. Never reuse a password from another account.",
+
+    // Forgot & Reset Password
+    forgot_back: "← Back to Login",
+    forgot_title: "Forgot Password?",
+    forgot_desc: "Enter your registered email address. We'll send you a password reset link.",
+    forgot_submit_btn: "Send Reset Link",
+    reset_title: "Reset Your Password",
+    reset_desc: "Choose a new password for your LocalWork account.",
+    reset_new_password_label: "New Password",
+    reset_confirm_password_label: "Confirm New Password",
+    reset_submit_btn: "Reset Password",
 
     // Account Profile
     account_eyebrow: "ACCOUNT SETTINGS",
@@ -461,6 +477,10 @@ export const translations = {
     auth_lead: "பணியைப் பெற அல்லது உங்கள் திறமையைப் பகிர ஒரே கணக்கு.",
     auth_tab_register: "கணக்கை உருவாக்க",
     auth_tab_login: "உள்நுழைய",
+    auth_welcome_back: "மீண்டும் வருக (உள்நுழைக)",
+    auth_create_account_heading: "உங்கள் கணக்கை உருவாக்கவும்",
+    auth_google_btn_login: "Google மூலம் உள்நுழைக",
+    auth_google_btn_signup: "Google மூலம் இணைக",
     auth_google_btn: "Google மூலம் உள்நுழைக",
     auth_divider: "அல்லது மின்னஞ்சல் மூலம்",
     auth_name_label: "முழுப் பெயர்",
@@ -469,8 +489,20 @@ export const translations = {
     auth_location_label: "பகுதி / நகரம்",
     auth_location_placeholder: "எ.கா: காந்திபுரம், கோவை",
     auth_forgot_btn: "கடவுச்சொல் மறந்துவிட்டதா?",
-    auth_password_label: "Password",
+    auth_password_label: "கடவுச்சொல்",
     auth_confirm_password_label: "கடவுச்சொல்லை உறுதிசெய்க",
+    auth_password_hint: "கடவுச்சொற்கள் பாதுகாப்பாக சேமிக்கப்படுகின்றன. பிற தளங்களின் கடவுச்சொல்லைப் பயன்படுத்த வேண்டாம்.",
+
+    // Forgot & Reset Password
+    forgot_back: "← மீண்டும் உள்நுழைய",
+    forgot_title: "கடவுச்சொல் மறந்துவிட்டதா?",
+    forgot_desc: "பதிவுசெய்த மின்னஞ்சல் முகவரியை உள்ளிடவும். கடவுச்சொல் மீட்டெடுப்பு இணைப்பை அனுப்புவோம்.",
+    forgot_submit_btn: "மீட்டெடுப்பு இணைப்பை அனுப்புக",
+    reset_title: "புதிய கடவுச்சொல்லை அமைக்கவும்",
+    reset_desc: "உங்கள் LocalWork கணக்கிற்கு புதிய கடவுச்சொல்லைத் தேர்ந்தெடுக்கவும்.",
+    reset_new_password_label: "புதிய கடவுச்சொல்",
+    reset_confirm_password_label: "புதிய கடவுச்சொல்லை உறுதிசெய்க",
+    reset_submit_btn: "கடவுச்சொல்லை மாற்றுக",
 
     // Account Profile
     account_eyebrow: "கணக்கு அமைப்புகள்",

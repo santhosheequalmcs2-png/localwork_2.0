@@ -339,13 +339,15 @@ function setAuth(mode) {
     mode === "login" ? "current-password" : "new-password";
 
   $("auth-heading").textContent =
-    mode === "login" ? "Welcome back" : "Create your account";
+    mode === "login" ? t("auth_welcome_back") : t("auth_create_account_heading");
 
-  $("auth-submit").textContent = mode === "login" ? "Log in" : "Create account";
+  $("auth-submit").textContent =
+    mode === "login" ? t("auth_tab_login") : t("auth_tab_register");
 
   const googleText = $("google-btn-text");
   if (googleText) {
-    googleText.textContent = mode === "login" ? "Sign in with Google" : "Sign up with Google";
+    googleText.textContent =
+      mode === "login" ? t("auth_google_btn_login") : t("auth_google_btn_signup");
   }
 
   if (googleScriptLoaded) {
@@ -692,6 +694,13 @@ async function openProfile(id) {
 
   previousView = "customer-view";
 
+  const isTa = getLanguage() === "ta";
+  const serviceKey = categoryKeyMap[w.service];
+  const serviceLabel = serviceKey ? t(serviceKey) : w.service;
+  const isAvail = (w.availability || "Available") === "Available";
+  const availText = isAvail ? t("customer_avail") : t("customer_busy");
+  const reviewsCountLabel = isTa ? "மதிப்புரைகள்" : (Number(w.reviewCount) === 1 ? "review" : "reviews");
+
   const reviewsHtml = reviews.length
     ? reviews.map((r) => `
         <div class="profile-review-card">
@@ -699,18 +708,18 @@ async function openProfile(id) {
             <strong>${esc(r.customer_name)}</strong>
             <span class="review-stars-badge">★ ${r.rating}/5</span>
           </div>
-          <p class="review-text">"${esc(r.review_text || 'Great service and professional conduct!')}"</p>
-          <small class="review-date">Verified Customer · ${new Date(r.created_at).toLocaleDateString()}</small>
+          <p class="review-text">"${esc(r.review_text || (isTa ? 'சிறந்த சேவை மற்றும் நேர்த்தியான பணி!' : 'Great service and professional conduct!'))}"</p>
+          <small class="review-date">${isTa ? 'சரிபார்க்கப்பட்ட வாடிக்கையாளர்' : 'Verified Customer'} · ${new Date(r.created_at).toLocaleDateString()}</small>
         </div>
       `).join("")
-    : `<div class="empty">No written reviews yet. Be the first customer to book and rate ${esc(w.name)}!</div>`;
+    : `<div class="empty">${isTa ? `மதிப்புரைகள் எதுவும் இல்லை. ${esc(w.name)}-க்கு முதல் வாடிக்கையாளராக முன்பதிவு செய்து மதிப்பிடுங்கள்!` : `No written reviews yet. Be the first customer to book and rate ${esc(w.name)}!`}</div>`;
 
   $("profile-detail").innerHTML = `
     <article class="profile-detail">
       <div class="workman-card-top-row">
-        <p class="eyebrow">${esc(w.service)}</p>
-        <span class="workman-avail-pill ${w.availability === 'Available' ? 'status-avail' : 'status-busy'}">
-          ● ${esc(w.availability || 'Available')}
+        <p class="eyebrow">${esc(serviceLabel)}</p>
+        <span class="workman-avail-pill ${isAvail ? 'status-avail' : 'status-busy'}">
+          ● ${esc(availText)}
         </span>
       </div>
 
@@ -718,23 +727,23 @@ async function openProfile(id) {
 
       <div class="workman-rating-strip" style="margin-bottom: 16px;">
         <span class="workman-rating-stars" style="font-size: 1.05rem;">★ ${Number(w.rating || 4.8).toFixed(1)}</span>
-        <span class="workman-review-count" style="font-size: 0.9rem;">(${Number(w.reviewCount || 0)} customer ${Number(w.reviewCount) === 1 ? 'review' : 'reviews'})</span>
+        <span class="workman-review-count" style="font-size: 0.9rem;">(${Number(w.reviewCount || 0)} ${reviewsCountLabel})</span>
       </div>
 
-      <p>${esc(w.description)}</p>
+      <p>${esc(w.description || (isTa ? 'அனுபவம் வாய்ந்த உள்ளூர் பணியாளர்.' : 'Local service professional.'))}</p>
 
       <p>
-        <b>Area:</b> ${esc(w.location)}
+        <b>${isTa ? 'பகுதி:' : 'Area:'}</b> ${esc(w.location)}
         &nbsp;
-        <b>Experience:</b> ${Number(w.experience) || 0} years
+        <b>${isTa ? 'அனுபவம்:' : 'Experience:'}</b> ${Number(w.experience) || 0} ${isTa ? 'ஆண்டுகள்' : 'years'}
       </p>
 
       <button class="btn btn-primary" id="profile-book" style="margin-bottom: 28px;">
-        Request a booking
+        ${isTa ? 'முன்பதிவு செய்க' : 'Request a booking'}
       </button>
 
       <div class="profile-reviews-wrapper">
-        <h3 style="margin: 0 0 14px; font: 800 1.2rem Manrope, sans-serif;">Customer Reviews & Ratings</h3>
+        <h3 style="margin: 0 0 14px; font: 800 1.2rem Manrope, sans-serif;">${isTa ? 'வாடிக்கையாளர் மதிப்புரைகள் & மதிப்பீடுகள்' : 'Customer Reviews & Ratings'}</h3>
         <div class="profile-reviews-list">
           ${reviewsHtml}
         </div>
@@ -3796,6 +3805,8 @@ function initLanguageSystem() {
       }
     } else if (!$("workman-view").classList.contains("hidden")) {
       loadWorkmanBookings().catch(() => {});
+    } else if (!$("auth-view").classList.contains("hidden")) {
+      setAuth(authMode);
     }
 
     // Refresh dynamic prompt chips and greeting if chat is still on welcome state
